@@ -1,3 +1,20 @@
+#
+# This file is part of Cynthia.
+#
+# Cynthia is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Cynthia is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
+#
+
 # CMake build : third party
 
 #configure directories
@@ -7,7 +24,10 @@ set (THIRD_PARTY_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor")
 # catch
 set (CATCH_MODULE_PATH "${THIRD_PARTY_MODULE_PATH}/catch2")
 set (CATCH_INCLUDE_PATH "${CATCH_MODULE_PATH}/single_include/catch2")
-include ( "${CATCH_MODULE_PATH}/extras/ParseAndAddCatchTests.cmake")
+add_subdirectory(catch2)
+list(APPEND CMAKE_MODULE_PATH ${CATCH_MODULE_PATH}/contrib)
+include(CTest)
+include(Catch)
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 # spdlog

@@ -1,4 +1,3 @@
-#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -16,9 +15,15 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CYNTHIA_CYNTHIA_HPP
-#define CYNTHIA_CYNTHIA_HPP
+#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this
+// in one cpp file
+#include <catch.hpp>
 
+namespace cynthia {
+  namespace Test {
 
+    TEST_CASE("Example", "[example]") {
 
-#endif //CYNTHIA_CYNTHIA_HPP
+  }
+}
+}

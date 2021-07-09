@@ -1,3 +1,20 @@
+#
+# This file is part of Cynthia.
+#
+# Cynthia is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Cynthia is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
+#
+
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(cynthia
@@ -46,13 +63,19 @@ if (PROFILE)
 endif()
 
 
+set(ROOT_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(${ROOT_CMAKE_DIR}/BuildTools.cmake)
+
 set(CMAKE_MODULE_PATH
         "${CMAKE_MODULE_PATH}"
         "${CMAKE_ROOT_DIR}/cmake/Modules"
         "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
+set (THREADS_PREFER_PTHREAD_FLAG ON)
+find_package (Threads REQUIRED)
+
 add_subdirectory (vendor EXCLUDE_FROM_ALL)
 add_subdirectory(libs)
 add_subdirectory(apps)
 
-
+enable_testing ()
