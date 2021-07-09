@@ -63,6 +63,7 @@ if (PROFILE)
 endif()
 
 
+set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(ROOT_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(${ROOT_CMAKE_DIR}/BuildTools.cmake)
 

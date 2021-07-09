@@ -70,9 +70,9 @@ jobs:
           CXX: ${{ matrix.compiler }}
         run: ./scripts/_ci-configure.sh
       - name: Build library
-        run: cd build && VERBOSE=1 make cythialib -j
-#      - name: Build app
-#        run: cd build && VERBOSE=1 make lydia-bin -j
+        run: cd build && VERBOSE=1 make cynthia -j
+      - name: Build app
+        run: cd build && VERBOSE=1 make cynthia-app -j
 #      - name: Build benchmarks
 #        run: cd build && VERBOSE=1 make lydiaBench -j
 
@@ -104,13 +104,10 @@ jobs:
           sudo apt-get install -y flex bison
           sudo apt-get autoremove
 
-          # install boost
-          sudo apt-get install -y libboost-dev
-
           sudo apt-get install -y graphviz libgraphviz-dev
           sudo python3 -m pip install gcovr
-      - name: Install dependencies
-        run: sudo ./scripts/_ci-install-dependencies-ubuntu.sh
+#      - name: Install dependencies
+#        run: sudo ./scripts/_ci-install-dependencies-ubuntu.sh
       - name: Configure CMake
         env:
           CXX: ${{ matrix.compiler }}
@@ -120,7 +117,7 @@ jobs:
       - name: Build
         run: |
           echo "Running tests"
-          cd build && VERBOSE=1 make cynthiaTest -j
+          cd build && VERBOSE=1 make cynthia-test -j
       - name: Test
         run: ./scripts/_ci-test.sh
       - name: Upload coverage to Codecov

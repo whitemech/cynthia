@@ -20,5 +20,10 @@
 #define CYNTHIA_CYNTHIA_HPP
 
 
+/*
+ * Compute the meaning of life.
+ */
+int meaning_of_life();
+
 
 #endif //CYNTHIA_CYNTHIA_HPP

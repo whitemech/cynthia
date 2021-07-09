@@ -15,4 +15,4 @@
 # along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(cynthialib)
+add_subdirectory(cynthia)

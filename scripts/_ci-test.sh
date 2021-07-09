@@ -2,9 +2,7 @@
 
 set -e
 
-cd build/lib/test && ../../bin/cynthiaTest "~[integration] ~[advanced_theorems]"
-
-cd ../../../
+./libs/cynthia/tests/cynthia-test
 
 echo "========== Code coverage =========="
 python3 -m gcovr -r . --config "gcovr.cfg" --print-summary --html --html-details -o coverage.html
