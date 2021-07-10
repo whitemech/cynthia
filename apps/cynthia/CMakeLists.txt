@@ -25,7 +25,7 @@ set (CYNTHIA_APP_INCLUDE_PATH  "${CYNTHIA_APP_MODULE_PATH}/include")
 
 add_executable(cynthia-app src/main.cpp)
 target_link_libraries(cynthia-app
-        PRIVATE cynthia)
+        PRIVATE cynthia-core)
 target_include_directories(cynthia-app
         PRIVATE ${THIRD_PARTY_INCLUDE_PATH}
                 ${ROOT_DIR}/libs/cynthia/include)
