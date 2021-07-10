@@ -15,8 +15,8 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../../../libs/core/include/cynthia/core.hpp"
 #include <CLI/CLI.hpp>
+#include <cynthia/core.hpp>
 
 int main(int argc, char** argv) {
   CLI::App app{"A tool for LTLf synthesis."};
