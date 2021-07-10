@@ -17,6 +17,4 @@
 
 #include <cynthia/cynthia.hpp>
 
-int meaning_of_life(){
-  return 42;
-}
+int meaning_of_life() { return 42; }

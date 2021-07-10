@@ -29,8 +29,8 @@ jobs:
         sudo apt-get install -y clang-format-9
     - name: Check File Headers
       run: python3 ./scripts/check_copyright_notice.py
-#    - name: Check clang-format
-#      run: ./scripts/check-clang-format.sh
+    - name: Check clang-format
+      run: ./scripts/check-clang-format.sh
 
   # Test that the build of all the targets works.
   build:

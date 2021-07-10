@@ -20,10 +20,8 @@
 #include <catch.hpp>
 
 namespace cynthia {
-  namespace Test {
+namespace Test {
 
-    TEST_CASE("Example", "[example]") {
-
-  }
-}
-}
+TEST_CASE("Example", "[example]") {}
+} // namespace Test
+} // namespace cynthia
