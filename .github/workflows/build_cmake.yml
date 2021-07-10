@@ -69,10 +69,10 @@ jobs:
         env:
           CXX: ${{ matrix.compiler }}
         run: ./scripts/_ci-configure.sh
-      - name: Build library
-        run: cd build && VERBOSE=1 make cynthia -j
-      - name: Build app
-        run: cd build && VERBOSE=1 make cynthia-app -j
+      - name: Build all
+        run: cd build && VERBOSE=1 make -j
+#      - name: Build app
+#        run: cd build && VERBOSE=1 make cynthia-app -j
 #      - name: Build benchmarks
 #        run: cd build && VERBOSE=1 make lydiaBench -j
 
@@ -120,6 +120,6 @@ jobs:
           echo "Configuring tests"
           ./scripts/_ci-configure.sh
       - name: Run tests for module "logic"
-        run: ./_ci-test.sh logic
+        run: ./scripts/_ci-test.sh logic
       - name: Run tests for module "core"
-        run: ./_ci-test.sh core
+        run: ./scripts/_ci-test.sh core
