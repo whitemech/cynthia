@@ -2,8 +2,8 @@
 
 set -e
 
-./libs/cynthia/tests/cynthia-test
+cd build && ./libs/cynthia/tests/cynthia-test && cd ..
 
 echo "========== Code coverage =========="
-python3 -m gcovr -r . --config "gcovr.cfg" --print-summary --html --html-details -o coverage.html
-python3 -m gcovr -r . --config "gcovr.cfg" --xml -o coverage.xml
+gcovr -r . --config "gcovr.cfg" --print-summary --html --html-details -o coverage.html
+gcovr -r . --config "gcovr.cfg" --xml -o coverage.xml

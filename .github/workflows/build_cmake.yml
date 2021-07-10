@@ -114,12 +114,13 @@ jobs:
         run: |
           echo "Configuring tests"
           ./scripts/_ci-configure.sh
-      - name: Build
-        run: |
-          echo "Running tests"
-          cd build && VERBOSE=1 make cynthia-test -j
+      - name: Build tests
+        run: cd build && VERBOSE=1 make cynthia-test -j
       - name: Test
-        run: ./scripts/_ci-test.sh
+        run: |
+          echo $(pwd)
+          ls .
+          ./scripts/_ci-test.sh
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
