@@ -16,7 +16,9 @@
 #
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(cynthia)
+set(CYNTHIA_CORE_LIB_NAME cynthia-core)
+
+project(${CYNTHIA_CORE_LIB_NAME})
 
 
 #configure directories
@@ -37,10 +39,11 @@ file (GLOB_RECURSE CYNTHIA_CORE_SOURCE_FILES "${CYNTHIA_CORE_SRC_PATH}/*.cpp" ${
 # Main Library Target
 # ------------------------------------------------------------------------------
 
-add_library (cynthia STATIC ${CYNTHIA_CORE_SOURCE_FILES} ${CYNTHIA_CORE_HEADER_FILES})
-#target_link_libraries(${LIB_NAME})
+add_library (${CYNTHIA_CORE_LIB_NAME} STATIC ${CYNTHIA_CORE_SOURCE_FILES} ${CYNTHIA_CORE_HEADER_FILES})
+#target_link_libraries(${CYNTHIA_CORE_LIB_NAME})
 
 add_subdirectory(tests)
 
 #export vars
+set (CYNTHIA_CORE_LIB_NAME  ${${CYNTHIA_CORE_LIB_NAME}} PARENT_SCOPE)
 set (CYNTHIA_CORE_INCLUDE_PATH  ${CYNTHIA_CORE_INCLUDE_PATH} PARENT_SCOPE)

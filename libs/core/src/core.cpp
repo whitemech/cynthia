@@ -15,6 +15,6 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/cynthia.hpp>
+#include <cynthia/core.hpp>
 
 int meaning_of_life() { return 42; }

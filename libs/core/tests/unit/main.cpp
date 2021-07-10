@@ -19,10 +19,12 @@
 // in one cpp file
 #include <catch.hpp>
 
+#include <cynthia/core.hpp>
+
 namespace cynthia {
 namespace core {
 namespace Test {
-TEST_CASE("Example", "[example]") {}
+TEST_CASE("Example", "[example]") { REQUIRE(meaning_of_life() == 42); }
 } // namespace Test
 } // namespace core
 } // namespace cynthia

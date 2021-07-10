@@ -16,7 +16,9 @@
 #
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(logic)
+set(CYNTHIA_LOGIC_LIB_NAME cynthia-logic)
+
+project(${CYNTHIA_LOGIC_LIB_NAME})
 
 
 #configure directories
@@ -37,10 +39,11 @@ file (GLOB_RECURSE CYNTHIA_LOGIC_SOURCE_FILES "${CYNTHIA_LOGIC_SRC_PATH}/*.cpp" 
 # Main Library Target
 # ------------------------------------------------------------------------------
 
-add_library (logic STATIC ${CYNTHIA_LOGIC_SOURCE_FILES} ${CYNTHIA_LOGIC_HEADER_FILES})
-#target_link_libraries(${LIB_NAME})
+add_library (${CYNTHIA_LOGIC_LIB_NAME} STATIC ${CYNTHIA_LOGIC_SOURCE_FILES} ${CYNTHIA_LOGIC_HEADER_FILES})
+#target_link_libraries(${CYNTHIA_LOGIC_LIB_NAME})
 
 add_subdirectory(tests)
 
 #export vars
+set (CYNTHIA_LOGIC_LIB_NAME  ${CYNTHIA_LOGIC_LIB_NAME} PARENT_SCOPE)
 set (CYNTHIA_LOGIC_INCLUDE_PATH  ${CYNTHIA_LOGIC_INCLUDE_PATH} PARENT_SCOPE)

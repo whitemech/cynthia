@@ -15,4 +15,4 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/cynthia.hpp>
+#include <cynthia/logic/base.hpp>
