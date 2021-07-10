@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -14,13 +15,3 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-#include "../../../libs/core/include/cynthia/core.hpp"
-#include <CLI/CLI.hpp>
-
-int main(int argc, char** argv) {
-  CLI::App app{"A tool for LTLf synthesis."};
-  CLI11_PARSE(app, argc, argv)
-  std::cout << meaning_of_life() << std::endl;
-  return 0;
-}

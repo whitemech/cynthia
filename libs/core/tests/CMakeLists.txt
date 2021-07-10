@@ -16,7 +16,7 @@
 #
 
 #configure variables
-set (TEST_APP_NAME "cynthia-test")
+set (TEST_APP_NAME "cynthia-core-test")
 
 #configure directories
 set (TEST_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")

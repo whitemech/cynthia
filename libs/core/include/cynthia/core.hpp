@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -15,13 +16,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this
-// in one cpp file
-#include <catch.hpp>
-
-namespace cynthia {
-namespace Test {
-
-TEST_CASE("Example", "[example]") {}
-} // namespace Test
-} // namespace cynthia
+/*
+ * Compute the meaning of life.
+ */
+int meaning_of_life();

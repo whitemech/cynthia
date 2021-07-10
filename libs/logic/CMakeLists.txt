@@ -16,31 +16,31 @@
 #
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(cynthia)
+project(logic)
 
 
 #configure directories
-set (CYNTHIA_MODULE_PATH ${PROJECT_SOURCE_DIR})
-set (CYNTHIA_SRC_PATH  "${CYNTHIA_MODULE_PATH}/src" )
-set (CYNTHIA_INCLUDE_PATH  "${CYNTHIA_MODULE_PATH}/include")
+set (CYNTHIA_LOGIC_MODULE_PATH ${PROJECT_SOURCE_DIR})
+set (CYNTHIA_LOGIC_SRC_PATH  "${CYNTHIA_LOGIC_MODULE_PATH}/src" )
+set (CYNTHIA_LOGIC_INCLUDE_PATH  "${CYNTHIA_LOGIC_MODULE_PATH}/include")
 
 #set includes
-include_directories (${CYNTHIA_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH})
+include_directories (${CYNTHIA_LOGIC_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH})
 include_directories (${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 #set sources
-file (GLOB_RECURSE CYNTHIA_HEADER_FILES "${CYNTHIA_INCLUDE_PATH}/*.hpp" ${CYNTHIA_INCLUDE_PATH}/*.h ${CYNTHIA_INCLUDE_PATH}/*.hh)
-file (GLOB_RECURSE CYNTHIA_SOURCE_FILES "${CYNTHIA_SRC_PATH}/*.cpp" ${CYNTHIA_INCLUDE_PATH}/*.cpp ${CYNTHIA_INCLUDE_PATH}/*.cc)
+file (GLOB_RECURSE CYNTHIA_LOGIC_HEADER_FILES "${CYNTHIA_LOGIC_INCLUDE_PATH}/*.hpp" ${CYNTHIA_LOGIC_INCLUDE_PATH}/*.h ${CYNTHIA_LOGIC_INCLUDE_PATH}/*.hh)
+file (GLOB_RECURSE CYNTHIA_LOGIC_SOURCE_FILES "${CYNTHIA_LOGIC_SRC_PATH}/*.cpp" ${CYNTHIA_LOGIC_INCLUDE_PATH}/*.cpp ${CYNTHIA_LOGIC_INCLUDE_PATH}/*.cc)
 
 
 # ------------------------------------------------------------------------------
 # Main Library Target
 # ------------------------------------------------------------------------------
 
-add_library (cynthia STATIC ${CYNTHIA_SOURCE_FILES} ${CYNTHIA_HEADER_FILES})
+add_library (logic STATIC ${CYNTHIA_LOGIC_SOURCE_FILES} ${CYNTHIA_LOGIC_HEADER_FILES})
 #target_link_libraries(${LIB_NAME})
 
 add_subdirectory(tests)
 
 #export vars
-set (CYNTHIA_INCLUDE_PATH  ${CYNTHIA_INCLUDE_PATH} PARENT_SCOPE)
+set (CYNTHIA_LOGIC_INCLUDE_PATH  ${CYNTHIA_LOGIC_INCLUDE_PATH} PARENT_SCOPE)

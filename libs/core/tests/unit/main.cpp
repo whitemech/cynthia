@@ -15,12 +15,14 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../../../libs/core/include/cynthia/core.hpp"
-#include <CLI/CLI.hpp>
+#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this
+// in one cpp file
+#include <catch.hpp>
 
-int main(int argc, char** argv) {
-  CLI::App app{"A tool for LTLf synthesis."};
-  CLI11_PARSE(app, argc, argv)
-  std::cout << meaning_of_life() << std::endl;
-  return 0;
-}
+namespace cynthia {
+namespace core {
+namespace Test {
+TEST_CASE("Example", "[example]") {}
+} // namespace Test
+} // namespace core
+} // namespace cynthia
