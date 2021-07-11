@@ -20,6 +20,11 @@ set(CYNTHIA_LOGIC_LIB_NAME cynthia-logic)
 
 project(${CYNTHIA_LOGIC_LIB_NAME})
 
+## generate lexer and parser
+FLEX_TARGET(LTLfLexer ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/lexer.l ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/lexer.yy.cc)
+BISON_TARGET(LTLfParser ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/parser.yy ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/parser.tab.cc )
+ADD_FLEX_BISON_DEPENDENCY(LTLfLexer LTLfParser)
+
 
 #configure directories
 set (CYNTHIA_LOGIC_MODULE_PATH ${PROJECT_SOURCE_DIR})
@@ -39,8 +44,16 @@ file (GLOB_RECURSE CYNTHIA_LOGIC_SOURCE_FILES "${CYNTHIA_LOGIC_SRC_PATH}/*.cpp" 
 # Main Library Target
 # ------------------------------------------------------------------------------
 
-add_library (${CYNTHIA_LOGIC_LIB_NAME} STATIC ${CYNTHIA_LOGIC_SOURCE_FILES} ${CYNTHIA_LOGIC_HEADER_FILES})
-#target_link_libraries(${CYNTHIA_LOGIC_LIB_NAME})
+add_library (${CYNTHIA_LOGIC_LIB_NAME}
+        STATIC
+            ${CYNTHIA_LOGIC_SOURCE_FILES}
+            ${CYNTHIA_LOGIC_HEADER_FILES}
+            ${BISON_LTLfParser_OUTPUTS}
+            ${FLEX_LTLfLexer_OUTPUTS}
+        )
+target_link_libraries(${CYNTHIA_LOGIC_LIB_NAME}
+        ${FLEX_LIBRARIES}
+        ${BISON_LIBRARIES})
 
 add_subdirectory(tests)
 
