@@ -32,7 +32,7 @@ private:
 public:
   // Destructor must be explicitly defined as virtual here to avoid problems
   // with undefined behavior while deallocating derived classes.
-  virtual ~Hashable() {}
+  virtual ~Hashable() = default;
 
   Hashable() : hash_{0} {}
 

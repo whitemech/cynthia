@@ -49,7 +49,7 @@ private:
 public:
   // Destructor must be explicitly defined as virtual here to avoid problems
   // with undefined behavior while deallocating derived classes.
-  virtual ~Comparable() {}
+  virtual ~Comparable() = default;
 
   virtual inline TypeID get_type_code() const = 0;
 
