@@ -29,3 +29,9 @@ To apply the changes:
 ```
 ./scripts/apply-clang-format.sh
 ```
+
+To check that copyright notices are OK:
+
+```
+python scripts/check_copyright_notice.py
+```
