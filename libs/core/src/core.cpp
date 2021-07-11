@@ -17,4 +17,10 @@
 
 #include <cynthia/core.hpp>
 
+namespace cynthia {
+namespace core {
+
 int meaning_of_life() { return 42; }
+
+} // namespace core
+} // namespace cynthia

@@ -16,3 +16,7 @@
  */
 
 #include <cynthia/logic/base.hpp>
+
+namespace cynthia {
+namespace logic {}
+} // namespace cynthia

@@ -15,3 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+namespace cynthia {
+namespace logic {}
+} // namespace cynthia

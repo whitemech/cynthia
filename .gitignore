@@ -238,3 +238,8 @@ $RECYCLE.BIN/
 
 build/
 coverage.*
+libs/logic/include/cynthia/logic/parser/*.yy.cc
+libs/logic/include/cynthia/logic/parser/*.hh
+libs/logic/include/cynthia/logic/parser/*.tab.cc
+libs/logic/include/cynthia/logic/parser/*.tab.hh
+libs/logic/include/cynthia/logic/parser/*.hh

@@ -16,7 +16,13 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+namespace cynthia {
+namespace core {
+
 /*
  * Compute the meaning of life.
  */
 int meaning_of_life();
+
+} // namespace core
+} // namespace cynthia

@@ -21,6 +21,6 @@
 int main(int argc, char** argv) {
   CLI::App app{"A tool for LTLf synthesis."};
   CLI11_PARSE(app, argc, argv)
-  std::cout << meaning_of_life() << std::endl;
+  std::cout << cynthia::core::meaning_of_life() << std::endl;
   return 0;
 }

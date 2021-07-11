@@ -18,6 +18,8 @@
 
 #include <unordered_set>
 
+namespace cynthia {
+namespace logic {
 struct Deref {
   struct Hash {
     template <typename T>
@@ -25,6 +27,7 @@ struct Deref {
       return std::hash<T>()(*p);
     }
   };
+
   struct Compare {
     template <typename T>
     size_t operator()(std::shared_ptr<const T> const& a,
@@ -41,6 +44,7 @@ template <typename T> class BaseHashTable {
 public:
   virtual std::shared_ptr<const T>
   insert_if_not_available(const std::shared_ptr<const T>& ptr) = 0;
+
   virtual size_t size() = 0;
 };
 
@@ -71,3 +75,6 @@ public:
 
   size_t size() { return m_table_.size(); }
 };
+
+} // namespace logic
+} // namespace cynthia
