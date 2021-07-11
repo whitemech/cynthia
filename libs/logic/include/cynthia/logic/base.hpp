@@ -21,6 +21,8 @@
 #include <cynthia/logic/hashable.hpp>
 #include <cynthia/logic/hashtable.hpp>
 #include <cynthia/logic/visitor.hpp>
+#include <cynthia/utils.hpp>
+#include <memory>
 #include <utility>
 
 namespace cynthia {
@@ -45,10 +47,10 @@ typedef std::shared_ptr<const AstNode> ast_ptr;
 
 class Context {
 private:
-  HashTable<AstNode> table_;
+  std::unique_ptr<BaseHashTable<AstNode>> table_;
 
 public:
-  Context() { table_ = HashTable<AstNode>{}; };
+  Context() { table_ = utils::make_unique<HashTable<AstNode>>(); };
 };
 
 } // namespace logic

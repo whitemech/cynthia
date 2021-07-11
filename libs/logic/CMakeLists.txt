@@ -27,6 +27,7 @@ set (CYNTHIA_LOGIC_INCLUDE_PATH  "${CYNTHIA_LOGIC_MODULE_PATH}/include")
 
 #set includes
 include_directories (${CYNTHIA_LOGIC_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH})
+include_directories (${CYNTHIA_UTILS_INCLUDE_PATH})
 include_directories (${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 #set sources
@@ -44,6 +45,7 @@ add_library (${CYNTHIA_LOGIC_LIB_NAME}
             ${CYNTHIA_LOGIC_HEADER_FILES}
         )
 target_link_libraries(${CYNTHIA_LOGIC_LIB_NAME}
+        ${CYNTHIA_UTILS_LIB_NAME}
         ${FLEX_LIBRARIES}
         ${BISON_LIBRARIES})
 

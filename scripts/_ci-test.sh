@@ -23,5 +23,6 @@ gcovr -r . --config "gcovr.cfg" --print-summary --html --html-details -o coverag
 gcovr -r . --config "gcovr.cfg" --xml -o coverage.xml
 
 if [ -n "${CODECOV_TOKEN}" ]; then
-  ./codecov -t "${CODECOV_TOKEN}" -c -F "${MODULE_ID}"
+  echo "Uploading coverage to Codecov";
+  ./codecov -t "${CODECOV_TOKEN}" -c -F "${MODULE_ID}";
 fi

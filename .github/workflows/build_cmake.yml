@@ -121,9 +121,11 @@ jobs:
         run: |
           echo "Configuring tests"
           ./scripts/_ci-configure.sh
-      - name: Run tests for module "logic" "${{ secrets.CODECOV_TOKEN }}"
-        run: ./scripts/_ci-test.sh logic
-      - name: Run tests for module "parser" "${{ secrets.CODECOV_TOKEN }}"
-        run: ./scripts/_ci-test.sh parser
-      - name: Run tests for module "core" "${{ secrets.CODECOV_TOKEN }}"
-        run: ./scripts/_ci-test.sh core
+      - name: Run tests for module "utils"
+        run: ./scripts/_ci-test.sh utils "${{ secrets.CODECOV_TOKEN }}"
+      - name: Run tests for module "logic"
+        run: ./scripts/_ci-test.sh logic "${{ secrets.CODECOV_TOKEN }}"
+      - name: Run tests for module "parser"
+        run: ./scripts/_ci-test.sh parser "${{ secrets.CODECOV_TOKEN }}"
+      - name: Run tests for module "core"
+        run: ./scripts/_ci-test.sh core "${{ secrets.CODECOV_TOKEN }}"
