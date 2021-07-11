@@ -20,7 +20,7 @@
 #include <cynthia/logic/comparable.hpp>
 #include <cynthia/logic/hashable.hpp>
 #include <cynthia/logic/hashtable.hpp>
-#include <cynthia/logic/visitor.hpp>
+#include <cynthia/logic/visitable.hpp>
 #include <cynthia/utils.hpp>
 #include <memory>
 #include <utility>
@@ -33,10 +33,10 @@ typedef std::shared_ptr<Context> context_ptr;
 
 class AstNode : public Visitable, public Hashable, public Comparable {
 private:
-  const context_ptr m_ctx_;
+  Context* m_ctx_;
 
 public:
-  explicit AstNode(context_ptr ctx) : m_ctx_{std::move(ctx)} {}
+  explicit AstNode(Context* ctx) : m_ctx_{ctx} {}
   Context& ctx() const { return *m_ctx_; }
   friend void check_context(AstNode const& a, AstNode const& b) {
     assert(a.m_ctx_ == b.m_ctx_);
@@ -47,10 +47,11 @@ typedef std::shared_ptr<const AstNode> ast_ptr;
 
 class Context {
 private:
-  std::unique_ptr<BaseHashTable<AstNode>> table_;
+  std::unique_ptr<HashTable> table_;
 
 public:
-  Context() { table_ = utils::make_unique<HashTable<AstNode>>(); };
+  Context();
+  symbol_ptr make_symbol(const std::string& name);
 };
 
 } // namespace logic

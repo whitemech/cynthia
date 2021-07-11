@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -15,8 +16,14 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/logic/base.hpp>
-
 namespace cynthia {
-namespace logic {}
+namespace logic {
+
+class Visitor;
+
+class Visitable {
+public:
+  virtual void accept(Visitor* visitor) const = 0;
+};
+} // namespace logic
 } // namespace cynthia

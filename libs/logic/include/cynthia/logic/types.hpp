@@ -17,10 +17,18 @@
  */
 
 #include <cstdint>
+#include <memory>
 
 namespace cynthia {
 namespace logic {
-typedef int64_t hash_t;
-}
+class AstNode;
+class Symbol;
+class LTLfFormula;
+
+typedef std::size_t hash_t;
+typedef std::shared_ptr<const AstNode> ast_ptr;
+typedef std::shared_ptr<const Symbol> symbol_ptr;
+typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
+} // namespace logic
 
 } // namespace cynthia

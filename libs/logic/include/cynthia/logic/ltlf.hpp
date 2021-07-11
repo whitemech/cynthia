@@ -17,8 +17,27 @@
  */
 
 #include <cynthia/logic/base.hpp>
-#include <cynthia/logic/visitor.hpp>
+#include <cynthia/logic/visitable.hpp>
+#include <utility>
 
 namespace cynthia {
-namespace logic {}
+namespace logic {
+
+class Symbol : public AstNode {
+private:
+  const std::string name_;
+
+public:
+  const static TypeID type_code_id = TypeID::t_Symbol;
+  explicit Symbol(Context& ctx, const std::string& name)
+      : AstNode(&ctx), name_{name} {}
+
+  void accept(Visitor* visitor) const override;
+  inline hash_t compute_hash_() const override;
+  inline TypeID get_type_code() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
+} // namespace logic
 } // namespace cynthia

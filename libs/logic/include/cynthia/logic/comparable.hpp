@@ -17,6 +17,7 @@
  */
 
 #include <cynthia/logic/types.hpp>
+#include <type_traits>
 
 namespace cynthia {
 namespace logic {
@@ -53,8 +54,16 @@ public:
 
   virtual inline TypeID get_type_code() const = 0;
 
+  /*! Equality comparator
+   * \param o - Object to be compared with
+   * \return whether the two objects are equal
+   * */
   virtual bool is_equal(const Comparable& o) const = 0;
 
+  /*! Comparison operator
+   * \param o - Object to be compared with
+   * \return `0` if equal, `-1` , `1` according to string compare
+   * */
   virtual int compare_(const Comparable& o) const = 0;
 
   int compare(const Comparable& o) const {
@@ -65,7 +74,7 @@ public:
     } else {
       // We return the order given by the numerical value of the TypeID enum
       // type.
-      // The types don't need to be ordered in any given way, they just need
+      // The types don't need to be ordered in any specific way, they just need
       // to be ordered.
       return a < b ? -1 : 1;
     }
@@ -86,5 +95,13 @@ public:
 
   bool operator>=(const Comparable& rhs) const { return !(*this < rhs); }
 };
+
+//! Templatised version to check is_a type
+template <class T> inline bool is_a(const Comparable& c) {
+  static_assert(std::is_base_of<Comparable, T>::value,
+                "Not an instance of Comparable.");
+  return T::type_code_id == c.get_type_code();
+}
+
 } // namespace logic
 } // namespace cynthia

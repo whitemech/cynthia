@@ -29,12 +29,6 @@ private:
   // current hash (which is always the same for the given instance). The
   // state of the instance does not change, so we define hash_ as mutable
   mutable hash_t hash_; // This holds the hash value
-public:
-  // Destructor must be explicitly defined as virtual here to avoid problems
-  // with undefined behavior while deallocating derived classes.
-  virtual ~Hashable() = default;
-
-  Hashable() : hash_{0} {}
 
   /*!
   Calculates the hash of the given Lydia class.
@@ -42,6 +36,13 @@ public:
   \return 64-bit integer value for the hash
   */
   inline virtual hash_t compute_hash_() const = 0;
+
+public:
+  // Destructor must be explicitly defined as virtual here to avoid problems
+  // with undefined behavior while deallocating derived classes.
+  virtual ~Hashable() = default;
+
+  Hashable() : hash_{0} {}
 
   /*! Returns the hash of the Basic class:
       This method caches the value.
@@ -63,6 +64,30 @@ public:
     return hash_;
   }
 };
+
+template <class T> void hash_combine(hash_t& seed, const T& v);
+
+//! Templatised version to combine hash
+template <typename T>
+inline void hash_combine_impl(
+    hash_t& seed, const T& v,
+    typename std::enable_if<std::is_base_of<Hashable, T>::value>::type* =
+        nullptr) {
+  hash_combine(seed, v.hash());
+}
+
+template <typename T>
+inline void hash_combine_impl(
+    hash_t& seed, const T& v,
+    typename std::enable_if<std::is_integral<T>::value>::type* = nullptr) {
+  seed ^= hash_t(v) + hash_t(0x9e3779b9) + (seed << 6) + (seed >> 2);
+}
+
+inline void hash_combine_impl(hash_t& seed, const std::string& s) {
+  for (const char& c : s) {
+    hash_combine<hash_t>(seed, static_cast<hash_t>(c));
+  }
+}
 
 template <class T> void hash_combine(hash_t& seed, const T& v);
 inline void hash_combine_impl(hash_t& seed, const double& s) {

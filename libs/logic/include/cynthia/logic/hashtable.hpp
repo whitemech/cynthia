@@ -16,6 +16,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cynthia/logic/types.hpp>
 #include <memory>
 #include <unordered_set>
 
@@ -39,30 +40,18 @@ struct Deref {
 };
 
 /*
- * An abstract hash table class.
+ * A hash table for AST nodes based on STL unordered_set.
  */
-template <typename T> class BaseHashTable {
-public:
-  virtual std::shared_ptr<const T>
-  insert_if_not_available(const std::shared_ptr<const T>& ptr) = 0;
-
-  virtual size_t size() = 0;
-};
-
-/*
- * A concrete hash table based on STL unordered_set.
- */
-template <typename T> class HashTable : public BaseHashTable<T> {
+class HashTable {
 private:
-  std::unordered_set<std::shared_ptr<const T>, Deref::Hash, Deref::Compare>
-      m_table_;
+  std::unordered_set<ast_ptr, Deref::Hash, Deref::Compare> m_table_;
 
 public:
-  explicit HashTable() : BaseHashTable<T>() {
-    m_table_ = std::unordered_set<std::shared_ptr<const T>, Deref::Hash,
-                                  Deref::Compare>{};
+  explicit HashTable() {
+    m_table_ = std::unordered_set<ast_ptr, Deref::Hash, Deref::Compare>{};
   }
 
+  template <typename T>
   std::shared_ptr<const T>
   insert_if_not_available(const std::shared_ptr<const T>& ptr) {
     auto it = m_table_.find(ptr);
@@ -70,7 +59,7 @@ public:
       m_table_.insert(ptr);
       return ptr;
     } else {
-      return *it;
+      return std::static_pointer_cast<const T>(*it);
     }
   }
 

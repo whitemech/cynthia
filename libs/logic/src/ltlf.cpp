@@ -1,4 +1,3 @@
-#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -17,14 +16,31 @@
  */
 
 #include <cynthia/logic/ltlf.hpp>
+#include <cynthia/logic/visitor.hpp>
 
 namespace cynthia {
 namespace logic {
 
-class Visitor {
-public:
-  virtual void visit(const Symbol& symbol) = 0;
-};
+void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline hash_t Symbol::compute_hash_() const {
+  hash_t h1 = get_type_code();
+  auto h2 = std::hash<std::string>()(name_);
+  hash_combine(h1, h2);
+  return h1;
+}
+inline TypeID Symbol::get_type_code() const { return TypeID::t_Symbol; }
+bool Symbol::is_equal(const Comparable& o) const {
+  if (is_a<Symbol>(o))
+    return name_ == dynamic_cast<const Symbol&>(o).name_;
+  return false;
+}
+int Symbol::compare_(const Comparable& o) const {
+  assert(is_a<Symbol>(o));
+  const auto& s = dynamic_cast<const Symbol&>(o);
+  if (name_ == s.name_)
+    return 0;
+  return name_ < s.name_ ? -1 : 1;
+}
 
 } // namespace logic
 } // namespace cynthia

@@ -1,4 +1,3 @@
-#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -20,11 +19,12 @@
 
 namespace cynthia {
 namespace logic {
+Context::Context() { table_ = utils::make_unique<HashTable>(); }
 
-class Visitor {
-public:
-  virtual void visit(const Symbol& symbol) = 0;
-};
-
+symbol_ptr Context::make_symbol(const std::string& name) {
+  symbol_ptr symbol = std::make_shared<const Symbol>(*this, name);
+  symbol_ptr result = table_->insert_if_not_available(symbol);
+  return result;
+}
 } // namespace logic
 } // namespace cynthia
