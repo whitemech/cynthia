@@ -15,7 +15,7 @@ on:
 
 jobs:
   lint:
-    continue-on-error: true
+    continue-on-error: false
     runs-on: ubuntu-20.04
     timeout-minutes: 10
     env:
@@ -40,6 +40,7 @@ jobs:
         compiler: [g++-9]
 
     continue-on-error: true
+    needs: lint
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:
@@ -84,6 +85,7 @@ jobs:
         compiler: [ g++-9 ]
 
     continue-on-error: false
+    needs: lint
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:
