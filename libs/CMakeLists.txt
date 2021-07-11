@@ -15,7 +15,7 @@
 # along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(core)
+add_subdirectory(utils)
 add_subdirectory(logic)
 add_subdirectory(parser)
-add_subdirectory(utils)
+add_subdirectory(core)
