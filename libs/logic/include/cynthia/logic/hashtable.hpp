@@ -35,7 +35,7 @@ struct Deref {
 };
 
 /*
- * an abstract hash table
+ * An abstract hash table class.
  */
 template <typename T> class BaseHashTable {
 public:
@@ -44,6 +44,9 @@ public:
   virtual size_t size() = 0;
 };
 
+/*
+ * A concrete hash table based on STL unordered_set.
+ */
 template <typename T> class HashTable : BaseHashTable<T> {
 private:
   std::unordered_set<std::shared_ptr<const T>, Deref::Hash, Deref::Compare>
