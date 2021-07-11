@@ -21,13 +21,12 @@
 #include <string>
 #include <utility>
 
-#include <cynthia/logic/parser/abstract_driver.hpp>
-#include <cynthia/logic/parser/parser.tab.hh>
-#include <cynthia/logic/parser/scanner.hpp>
+#include <cynthia/parser/abstract_driver.hpp>
+#include <cynthia/parser/parser.tab.hh>
+#include <cynthia/parser/scanner.hpp>
 
 namespace cynthia {
-namespace logic {
-namespace parsers {
+namespace parser {
 namespace ltlf {
 
 class LTLfDriver : public AbstractDriver {
@@ -64,6 +63,5 @@ public:
 };
 
 } // namespace ltlf
-} // namespace parsers
-} // namespace logic
+} // namespace parser
 } // namespace cynthia

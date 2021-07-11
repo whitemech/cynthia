@@ -16,20 +16,19 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/logic/parser/location.hh>
-#include <cynthia/logic/parser/parser.tab.hh>
-#include <cynthia/logic/parser/parser_stype.h>
+#include <cynthia/parser/location.hh>
+#include <cynthia/parser/parser.tab.hh>
+#include <cynthia/parser/parser_stype.h>
 
 namespace cynthia {
-namespace logic {
-namespace parsers {
+namespace parser {
 namespace ltlf {
 
 class LTLfScanner : public ltlfFlexLexer {
 private:
 public:
   /* yyval ptr */
-  cynthia::logic::parsers::ltlf::LTLf_YYSTYPE* yylval = nullptr;
+  cynthia::parser::ltlf::LTLf_YYSTYPE* yylval = nullptr;
 
   explicit LTLfScanner(std::istream* in) : ltlfFlexLexer(in){};
   virtual ~LTLfScanner(){};
@@ -37,13 +36,12 @@ public:
   // get rid of override virtual function warning
   using FlexLexer::yylex;
 
-  virtual int yylex(cynthia::logic::parsers::ltlf::LTLf_YYSTYPE* lval,
+  virtual int yylex(cynthia::parser::ltlf::LTLf_YYSTYPE* lval,
                     LTLfParser::location_type* location);
   // YY_DECL defined in lexer.l
   // Method body created by flex in lexer.yy.cc
 };
 
 } // namespace ltlf
-} // namespace parsers
-} // namespace logic
+} // namespace parser
 } // namespace cynthia

@@ -1,6 +1,6 @@
 %option debug
 %option prefix="ltlf"
-%option yyclass="cynthia::logic::parsers::ltlf::LTLfScanner"
+%option yyclass="cynthia::parser::ltlf::LTLfScanner"
 %option noyywrap
 %option c++
 
@@ -9,12 +9,12 @@
 #include <string>
 
 /* Implementation of yyFlexLTLfScanner */
-#include "cynthia/logic/parser/scanner_internal.hpp"
+#include "cynthia/parser/scanner_internal.hpp"
 #undef  YY_DECL
-#define YY_DECL int cynthia::logic::parsers::ltlf::LTLfScanner::yylex( cynthia::logic::parsers::ltlf::LTLf_YYSTYPE * lval, cynthia::logic::parsers::ltlf::LTLfParser::location_type *loc )
+#define YY_DECL int cynthia::parser::ltlf::LTLfScanner::yylex( cynthia::parser::ltlf::LTLf_YYSTYPE * lval, cynthia::parser::ltlf::LTLfParser::location_type *loc )
 
 /* typedef to make the returns for the tokens shorter */
-using token = cynthia::logic::parsers::ltlf::LTLfParser::token;
+using token = cynthia::parser::ltlf::LTLfParser::token;
 
 /* define yyterminate as this instead of NULL */
 #define yyterminate() return( token::END_OF_FILE )

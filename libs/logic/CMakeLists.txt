@@ -25,11 +25,6 @@ set (CYNTHIA_LOGIC_MODULE_PATH ${PROJECT_SOURCE_DIR})
 set (CYNTHIA_LOGIC_SRC_PATH  "${CYNTHIA_LOGIC_MODULE_PATH}/src" )
 set (CYNTHIA_LOGIC_INCLUDE_PATH  "${CYNTHIA_LOGIC_MODULE_PATH}/include")
 
-## generate lexer and parser
-FLEX_TARGET(LTLfLexer ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/lexer.l ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/lexer.yy.cc)
-BISON_TARGET(LTLfParser ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/parser.yy ${CYNTHIA_LOGIC_INCLUDE_PATH}/cynthia/logic/parser/parser.tab.cc )
-ADD_FLEX_BISON_DEPENDENCY(LTLfLexer LTLfParser)
-
 #set includes
 include_directories (${CYNTHIA_LOGIC_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH})
 include_directories (${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
@@ -47,8 +42,6 @@ add_library (${CYNTHIA_LOGIC_LIB_NAME}
         STATIC
             ${CYNTHIA_LOGIC_SOURCE_FILES}
             ${CYNTHIA_LOGIC_HEADER_FILES}
-            ${BISON_LTLfParser_OUTPUTS}
-            ${FLEX_LTLfLexer_OUTPUTS}
         )
 target_link_libraries(${CYNTHIA_LOGIC_LIB_NAME}
         ${FLEX_LIBRARIES}

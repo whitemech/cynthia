@@ -16,31 +16,11 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <string>
+#include <cstdint>
 
 namespace cynthia {
 namespace logic {
-namespace parsers {
-namespace ltlf {
+typedef int64_t hash_t;
+}
 
-struct LTLf_YYSTYPE {
-  //    ldlf_ptr formula;
-  void* formula;
-  std::string symbol_name;
-
-  // Constructor
-  LTLf_YYSTYPE() = default;
-  // Destructor
-  ~LTLf_YYSTYPE() = default;
-  // Copy constructor and assignment
-  LTLf_YYSTYPE(const LTLf_YYSTYPE&) = default;
-  LTLf_YYSTYPE& operator=(const LTLf_YYSTYPE&) = default;
-  // Move constructor and assignment
-  LTLf_YYSTYPE(LTLf_YYSTYPE&&) = default;
-  LTLf_YYSTYPE& operator=(LTLf_YYSTYPE&&) = default;
-};
-
-} // namespace ltlf
-} // namespace parsers
-} // namespace logic
 } // namespace cynthia

@@ -3,7 +3,7 @@
 %debug 
 %defines 
 %define api.prefix {ltlf}
-%define api.namespace {cynthia::logic::parsers::ltlf}
+%define api.namespace {cynthia::parser::ltlf}
 
 /*
  * bison 3.3.2 deprecates %define parser_class_name {}
@@ -14,8 +14,8 @@
 
 %code requires{
    //#include "cynthia/logic/base.hpp"
-   #include "cynthia/logic/parser/parser_stype.h"
-namespace cynthia::logic::parsers::ltlf {
+   #include "cynthia/parser/parser_stype.h"
+namespace cynthia::parser::ltlf {
       class LTLfDriver;
       class LTLfScanner;
 }
@@ -40,8 +40,8 @@ namespace cynthia::logic::parsers::ltlf {
    #include <fstream>
    
    /* include for all driver functions */
-   #include "cynthia/logic/parser/scanner.hpp"
-   #include "cynthia/logic/parser/driver.hpp"
+   #include "cynthia/parser/scanner.hpp"
+   #include "cynthia/parser/driver.hpp"
 
 #undef yylex
 #define yylex scanner.ltlflex
@@ -49,7 +49,7 @@ namespace cynthia::logic::parsers::ltlf {
 
 %define parse.assert
 
-%define api.value.type {struct cynthia::logic::parsers::ltlf::LTLf_YYSTYPE}
+%define api.value.type {struct cynthia::parser::ltlf::LTLf_YYSTYPE}
 
 %type<formula> input ltlf_formula
 %type<symbol_name> SYMBOL
@@ -112,6 +112,6 @@ ltlf_formula: LPAR ltlf_formula RPAR                                            
 
 %%
 
-void cynthia::logic::parsers::ltlf::LTLfParser::error(const location_type &l, const std::string &err_message) {
+void cynthia::parser::ltlf::LTLfParser::error(const location_type &l, const std::string &err_message) {
    std::cerr << "Error: " << err_message << " at " << l << "\n";
 }

@@ -16,6 +16,49 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
+#include <cynthia/logic/comparable.hpp>
+#include <cynthia/logic/hashable.hpp>
+#include <cynthia/logic/hashtable.hpp>
+#include <cynthia/logic/visitor.hpp>
+#include <utility>
+
 namespace cynthia {
-namespace logic {}
+namespace logic {
+
+class Context;
+typedef std::shared_ptr<Context> context_ptr;
+
+class AstNode : public Visitable, public Hashable, public Comparable {
+private:
+  const context_ptr m_ctx_;
+
+public:
+  explicit AstNode(context_ptr ctx) : m_ctx_{std::move(ctx)} {}
+  Context& ctx() const { return *m_ctx_; }
+  friend void check_context(AstNode const& a, AstNode const& b) {
+    assert(a.m_ctx_ == b.m_ctx_);
+  };
+};
+
+typedef std::shared_ptr<const AstNode> ast_ptr;
+
+class Context {
+private:
+  HashTable<AstNode> table_;
+
+public:
+  Context() { table_ = HashTable<AstNode>{}; };
+};
+
+} // namespace logic
 } // namespace cynthia
+
+// injected in namespace std custom specialization of std::hash for AstNode
+namespace std {
+template <> struct hash<cynthia::logic::AstNode> {
+  std::size_t operator()(cynthia::logic::AstNode const& n) const noexcept {
+    return n.hash();
+  }
+};
+} // namespace std

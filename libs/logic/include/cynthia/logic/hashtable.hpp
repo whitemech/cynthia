@@ -16,6 +16,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <memory>
 #include <unordered_set>
 
 namespace cynthia {
@@ -51,7 +52,7 @@ public:
 /*
  * A concrete hash table based on STL unordered_set.
  */
-template <typename T> class HashTable : BaseHashTable<T> {
+template <typename T> class HashTable : public BaseHashTable<T> {
 private:
   std::unordered_set<std::shared_ptr<const T>, Deref::Hash, Deref::Compare>
       m_table_;

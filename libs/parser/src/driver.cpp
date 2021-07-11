@@ -18,11 +18,10 @@
 #include <cassert>
 #include <fstream>
 
-#include <cynthia/logic/parser/driver.hpp>
+#include <cynthia/parser/driver.hpp>
 
 namespace cynthia {
-namespace logic {
-namespace parsers {
+namespace parser {
 namespace ltlf {
 
 LTLfDriver::~LTLfDriver() {
@@ -195,6 +194,5 @@ void LTLfDriver::parse_helper(std::istream& stream) {
 //}
 
 } // namespace ltlf
-} // namespace parsers
-} // namespace logic
+} // namespace parser
 } // namespace cynthia
