@@ -24,21 +24,21 @@ namespace logic {
 void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline hash_t Symbol::compute_hash_() const {
   hash_t result = get_type_code();
-  hash_combine(result, name_);
+  hash_combine(result, name);
   return result;
 }
 inline TypeID Symbol::get_type_code() const { return TypeID::t_Symbol; }
 bool Symbol::is_equal(const Comparable& o) const {
   if (is_a<Symbol>(o))
-    return name_ == dynamic_cast<const Symbol&>(o).name_;
+    return name == dynamic_cast<const Symbol&>(o).name;
   return false;
 }
 int Symbol::compare_(const Comparable& o) const {
   assert(is_a<Symbol>(o));
   const auto& s = dynamic_cast<const Symbol&>(o);
-  if (name_ == s.name_)
+  if (name == s.name)
     return 0;
-  return name_ < s.name_ ? -1 : 1;
+  return name < s.name ? -1 : 1;
 }
 
 void LTLfTrue::accept(Visitor* visitor) const { visitor->visit(*this); };

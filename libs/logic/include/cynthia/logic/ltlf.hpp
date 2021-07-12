@@ -24,12 +24,10 @@ namespace cynthia {
 namespace logic {
 
 class Symbol : public AstNode {
-private:
-  const std::string name_;
-
 public:
+  const std::string name;
   const static TypeID type_code_id = TypeID::t_Symbol;
-  Symbol(Context& ctx, const std::string& name) : AstNode(ctx), name_{name} {}
+  Symbol(Context& ctx, const std::string& name) : AstNode(ctx), name{name} {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
