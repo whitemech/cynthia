@@ -71,17 +71,10 @@ void LTLfDriver::parse_helper(std::istream& stream) {
   }
 }
 
-// ldlf_ptr LTLfDriver::add_LTLfTrue() const {
-//  auto prop_true = context->makePropRegex(context->makeTrue());
-//  auto logical_true = context->makeLdlfTrue();
-//  return context->makeLdlfDiamond(prop_true, logical_true);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfFalse() const {
-//  auto prop_true = context->makePropRegex(context->makeFalse());
-//  auto logical_true = context->makeLdlfTrue();
-//  return context->makeLdlfDiamond(prop_true, logical_true);
-//}
+logic::ltlf_ptr LTLfDriver::add_LTLfTrue() const { return context->make_tt(); }
+
+logic::ltlf_ptr LTLfDriver::add_LTLfFalse() const { return context->make_ff(); }
+
 //
 // ldlf_ptr LTLfDriver::add_LTLfAtom(std::string s) const {
 //  auto prop_atom = context->makePropRegex(context->makePropAtom(s));
@@ -188,10 +181,11 @@ void LTLfDriver::parse_helper(std::istream& stream) {
 //                                  context->makeLdlfTrue());
 //}
 //
-// std::ostream& LTLfDriver::print(std::ostream& stream) const {
-//  stream << this->result->str() << "\n";
-//  return (stream);
-//}
+std::ostream& LTLfDriver::print(std::ostream& stream) const {
+  //  stream << this->result->str() << "\n";
+  // TODO
+  return (stream);
+}
 
 } // namespace ltlf
 } // namespace parser

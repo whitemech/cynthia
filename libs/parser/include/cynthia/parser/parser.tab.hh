@@ -46,7 +46,7 @@
 // "%code requires" blocks.
 #line 15 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
 
-//#include "cynthia/logic/base.hpp"
+#include "cynthia/logic/base.hpp"
 #include "cynthia/parser/parser_stype.h"
 namespace cynthia::parser::ltlf {
 class LTLfDriver;

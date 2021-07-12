@@ -18,11 +18,30 @@
 #define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this
 // in one cpp file
 #include <catch.hpp>
+#include <cynthia/logic/base.hpp>
+#include <cynthia/parser/driver.hpp>
 
 namespace cynthia {
 namespace parser {
 namespace Test {
-TEST_CASE("Example", "[example]") {}
+TEST_CASE("Parsing tt", "[parser]") {
+  auto context = std::make_shared<logic::Context>();
+  auto driver = ltlf::LTLfDriver(context);
+  auto actual_formula = context->make_tt();
+  std::istringstream fstring("tt");
+  driver.parse(fstring);
+  auto expected_formula = driver.result;
+  REQUIRE(actual_formula == expected_formula);
+}
+TEST_CASE("Parsing ff", "[parser]") {
+  auto context = std::make_shared<logic::Context>();
+  auto driver = ltlf::LTLfDriver(context);
+  auto actual_formula = context->make_ff();
+  std::istringstream fstring("ff");
+  driver.parse(fstring);
+  auto expected_formula = driver.result;
+  REQUIRE(actual_formula == expected_formula);
+}
 } // namespace Test
 } // namespace parser
 } // namespace cynthia

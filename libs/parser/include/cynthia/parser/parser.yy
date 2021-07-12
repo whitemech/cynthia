@@ -13,7 +13,7 @@
 %define api.parser.class {LTLfParser}
 
 %code requires{
-   //#include "cynthia/logic/base.hpp"
+   #include "cynthia/logic/base.hpp"
    #include "cynthia/parser/parser_stype.h"
 namespace cynthia::parser::ltlf {
       class LTLfDriver;
@@ -85,8 +85,8 @@ namespace cynthia::parser::ltlf {
 
 %%
 
-input: ltlf_formula                                                                     { $$ = $1; };
-                                                                                          //d.result = $$; };
+input: ltlf_formula                                                                     { $$ = $1;
+                                                                                          d.result = $$; };
 
 ltlf_formula: ltlf_formula EQUIVALENCE ltlf_formula                                     {  }
             | ltlf_formula IMPLICATION ltlf_formula                                     {  }
@@ -99,8 +99,8 @@ ltlf_formula: ltlf_formula EQUIVALENCE ltlf_formula                             
             | WEAK_NEXT ltlf_formula                                                    {  }
             | NEXT ltlf_formula                                                         {  }
             | NOT ltlf_formula                                                          {  }
-            | TT                                                                        {  }
-            | FF                                                                        {  }
+            | TT                                                                        { $$ = d.add_LTLfTrue(); }
+            | FF                                                                        { $$ = d.add_LTLfFalse(); }
             | END                                                                       {  }
             | LAST                                                                      {  }
             | FALSE_                                                                    {  }

@@ -503,134 +503,137 @@ int LTLfParser::parse() {
 #line 88 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
           (yylhs.value.formula) = (yystack_[0].value.formula);
+          d.result = (yylhs.value.formula);
         }
-#line 608 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 609 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 3:
 #line 91 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 614 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 615 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 4:
 #line 92 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 620 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 621 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 5:
 #line 93 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 626 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 627 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 6:
 #line 94 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 632 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 633 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 7:
 #line 95 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 638 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 639 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 8:
 #line 96 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 644 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 645 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 9:
 #line 97 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 650 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 651 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 10:
 #line 98 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 656 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 657 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 11:
 #line 99 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 662 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 663 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 12:
 #line 100 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 668 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 669 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 13:
 #line 101 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 674 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 675 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 14:
 #line 102 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
+          (yylhs.value.formula) = d.add_LTLfTrue();
         }
-#line 680 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 681 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 15:
 #line 103 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
+          (yylhs.value.formula) = d.add_LTLfFalse();
         }
-#line 686 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 687 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 16:
 #line 104 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 692 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 693 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 17:
 #line 105 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 698 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 699 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 18:
 #line 106 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 704 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 705 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 19:
 #line 107 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 710 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 711 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 20:
 #line 108 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
         }
-#line 716 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 717 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
         case 21:
@@ -638,10 +641,10 @@ int LTLfParser::parse() {
         {
           (yylhs.value.formula) = (yystack_[1].value.formula);
         }
-#line 722 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 723 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;
 
-#line 726 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 727 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
 
         default:
           break;
@@ -907,7 +910,7 @@ LTLfParser::token_number_type LTLfParser::yytranslate_(int t) {
 } // namespace ltlf
 } // namespace parser
 } // namespace cynthia
-#line 1087 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
+#line 1088 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
 
 #line 113 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
 

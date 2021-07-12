@@ -18,9 +18,11 @@
 
 #include <cstddef>
 #include <istream>
+#include <memory>
 #include <string>
 #include <utility>
 
+#include <cynthia/logic/base.hpp>
 #include <cynthia/parser/abstract_driver.hpp>
 #include <cynthia/parser/parser.tab.hh>
 #include <cynthia/parser/scanner.hpp>
@@ -37,15 +39,15 @@ private:
   LTLfScanner* scanner = nullptr;
 
 public:
-  //  ldlf_ptr result;
+  logic::ltlf_ptr result;
 
   LTLfDriver() : AbstractDriver() {}
 
-  //  explicit LTLfDriver(std::shared_ptr<AstManager> c) : AbstractDriver(c) {}
+  explicit LTLfDriver(std::shared_ptr<logic::Context> c) : AbstractDriver(c) {}
 
   virtual ~LTLfDriver();
 
-  //  ldlf_ptr get_result() override { return result; }
+  logic::ltlf_ptr get_result() override { return result; }
 
   /**
    * parse - parse from a file
@@ -57,9 +59,12 @@ public:
    * parse - parse from a c++ input stream
    * @param is - std::istream&, valid input stream
    */
-  void parse(std::istream& iss);
+  void parse(std::istream& iss) override;
 
   std::ostream& print(std::ostream& stream) const;
+
+  logic::ltlf_ptr add_LTLfTrue() const;
+  logic::ltlf_ptr add_LTLfFalse() const;
 };
 
 } // namespace ltlf

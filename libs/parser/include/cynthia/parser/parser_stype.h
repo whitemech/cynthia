@@ -23,8 +23,7 @@ namespace parser {
 namespace ltlf {
 
 struct LTLf_YYSTYPE {
-  //    ldlf_ptr formula;
-  void* formula;
+  logic::ltlf_ptr formula;
   std::string symbol_name;
 
   // Constructor
