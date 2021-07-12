@@ -1,0 +1,9 @@
+[submodule "vendor/catch2"]
+	path = vendor/catch2
+	url = https://github.com/catchorg/Catch2
+[submodule "vendor/spdlog"]
+	path = vendor/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "vendor/cli11"]
+	path = vendor/cli11
+	url = https://github.com/CLIUtils/CLI11/
