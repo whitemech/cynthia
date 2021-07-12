@@ -54,5 +54,11 @@ ltlf_ptr Context::make_atom(const symbol_ptr& symbol) {
   return actual_atom;
 }
 
+ltlf_ptr Context::make_not(const ltlf_ptr& arg) {
+  auto negation = std::make_shared<const LTLfNot>(*this, arg);
+  auto actual = table_->insert_if_not_available(negation);
+  return actual;
+}
+
 } // namespace logic
 } // namespace cynthia

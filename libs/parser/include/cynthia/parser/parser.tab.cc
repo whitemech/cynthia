@@ -581,6 +581,7 @@ int LTLfParser::parse() {
         case 13:
 #line 101 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
+          (yylhs.value.formula) = d.add_LTLfNot((yystack_[0].value.formula));
         }
 #line 675 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;

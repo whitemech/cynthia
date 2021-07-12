@@ -68,15 +68,26 @@ public:
 };
 
 class LTLfAtom : public LTLfFormula {
-private:
-  const symbol_ptr symbol;
-
 public:
+  const symbol_ptr symbol;
   const static TypeID type_code_id = TypeID::t_LTLfAtom;
   LTLfAtom(Context& ctx, const std::string& name)
       : LTLfFormula(ctx), symbol{ctx.make_symbol(name)} {}
   LTLfAtom(Context& ctx, symbol_ptr symbol)
       : LTLfFormula(ctx), symbol{std::move(symbol)} {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
+class LTLfNot : public LTLfFormula {
+public:
+  const ltlf_ptr arg;
+  const static TypeID type_code_id = TypeID::t_LTLfNot;
+  LTLfNot(Context& ctx, ltlf_ptr arg) : LTLfFormula(ctx), arg{std::move(arg)} {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;

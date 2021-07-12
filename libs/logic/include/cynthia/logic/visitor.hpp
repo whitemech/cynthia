@@ -21,12 +21,16 @@
 namespace cynthia {
 namespace logic {
 
+/*
+ * Abstract visitor class.
+ */
 class Visitor {
 public:
   virtual void visit(const Symbol&) = 0;
   virtual void visit(const LTLfTrue&) = 0;
   virtual void visit(const LTLfFalse&) = 0;
   virtual void visit(const LTLfAtom&) = 0;
+  virtual void visit(const LTLfNot&) = 0;
 };
 
 } // namespace logic

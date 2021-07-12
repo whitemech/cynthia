@@ -24,7 +24,7 @@
 namespace cynthia {
 namespace parser {
 namespace Test {
-TEST_CASE("Parsing tt", "[parser]") {
+TEST_CASE("Parsing tt", "[parser][ltlf]") {
   auto context = std::make_shared<logic::Context>();
   auto driver = ltlf::LTLfDriver(context);
   auto actual_formula = context->make_tt();
@@ -33,7 +33,7 @@ TEST_CASE("Parsing tt", "[parser]") {
   auto expected_formula = driver.result;
   REQUIRE(actual_formula == expected_formula);
 }
-TEST_CASE("Parsing ff", "[parser]") {
+TEST_CASE("Parsing ff", "[parser][ltlf]") {
   auto context = std::make_shared<logic::Context>();
   auto driver = ltlf::LTLfDriver(context);
   auto actual_formula = context->make_ff();
@@ -42,11 +42,21 @@ TEST_CASE("Parsing ff", "[parser]") {
   auto expected_formula = driver.result;
   REQUIRE(actual_formula == expected_formula);
 }
-TEST_CASE("Parsing atom", "[parser]") {
+TEST_CASE("Parsing atom", "[parser][ltlf]") {
   auto context = std::make_shared<logic::Context>();
   auto driver = ltlf::LTLfDriver(context);
   auto actual_formula = context->make_atom("a");
   std::istringstream fstring("a");
+  driver.parse(fstring);
+  auto expected_formula = driver.result;
+  REQUIRE(actual_formula == expected_formula);
+}
+TEST_CASE("Parsing not", "[parser][ltlf]") {
+  auto context = std::make_shared<logic::Context>();
+  auto driver = ltlf::LTLfDriver(context);
+  auto atom = context->make_atom("a");
+  auto actual_formula = context->make_not(atom);
+  std::istringstream fstring("!a");
   driver.parse(fstring);
   auto expected_formula = driver.result;
   REQUIRE(actual_formula == expected_formula);

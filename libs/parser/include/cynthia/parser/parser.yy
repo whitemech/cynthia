@@ -98,7 +98,7 @@ ltlf_formula: ltlf_formula EQUIVALENCE ltlf_formula                             
             | EVENTUALLY ltlf_formula                                                   {  }
             | WEAK_NEXT ltlf_formula                                                    {  }
             | NEXT ltlf_formula                                                         {  }
-            | NOT ltlf_formula                                                          {  }
+            | NOT ltlf_formula                                                          { $$ = d.add_LTLfNot($2); }
             | TT                                                                        { $$ = d.add_LTLfTrue(); }
             | FF                                                                        { $$ = d.add_LTLfFalse(); }
             | END                                                                       {  }

@@ -79,6 +79,10 @@ logic::ltlf_ptr LTLfDriver::add_LTLfAtom(const std::string& name) const {
   return context->make_atom(name);
 }
 
+logic::ltlf_ptr LTLfDriver::add_LTLfNot(const logic::ltlf_ptr& formula) const {
+  return context->make_not(formula);
+}
+
 //
 // ldlf_ptr LTLfDriver::add_LTLfAtom(std::string s) const {
 //  auto prop_atom = context->makePropRegex(context->makePropAtom(s));

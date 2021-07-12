@@ -77,5 +77,21 @@ int LTLfAtom::compare_(const Comparable& o) const {
   return this->symbol->compare(*dynamic_cast<const LTLfAtom&>(o).symbol);
 }
 
+void LTLfNot::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfNot::get_type_code() const { return TypeID::t_LTLfNot; }
+inline hash_t LTLfNot::compute_hash_() const {
+  hash_t result = type_code_id;
+  hash_combine(result, arg->hash());
+  return result;
+}
+bool LTLfNot::is_equal(const Comparable& o) const {
+  return is_a<LTLfNot>(o) and
+         arg->is_equal(*dynamic_cast<const LTLfNot&>(o).arg);
+}
+int LTLfNot::compare_(const Comparable& o) const {
+  assert(is_a<LTLfNot>(o));
+  return this->arg->compare(*dynamic_cast<const LTLfNot&>(o).arg);
+}
+
 } // namespace logic
 } // namespace cynthia
