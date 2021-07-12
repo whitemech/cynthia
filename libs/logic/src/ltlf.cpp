@@ -21,7 +21,7 @@
 namespace cynthia {
 namespace logic {
 
-void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); }
+void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline hash_t Symbol::compute_hash_() const {
   hash_t h1 = get_type_code();
   auto h2 = std::hash<std::string>()(name_);
@@ -40,6 +40,26 @@ int Symbol::compare_(const Comparable& o) const {
   if (name_ == s.name_)
     return 0;
   return name_ < s.name_ ? -1 : 1;
+}
+
+void LTLfTrue::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfTrue::get_type_code() const { return TypeID::t_LTLfTrue; }
+inline hash_t LTLfTrue::compute_hash_() const { return type_code_id; }
+bool LTLfTrue::is_equal(const Comparable& o) const { return is_a<LTLfTrue>(o); }
+int LTLfTrue::compare_(const Comparable& o) const {
+  assert(is_a<LTLfTrue>(o));
+  return 0;
+}
+
+void LTLfFalse::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfFalse::get_type_code() const { return TypeID::t_LTLfFalse; }
+inline hash_t LTLfFalse::compute_hash_() const { return type_code_id; }
+bool LTLfFalse::is_equal(const Comparable& o) const {
+  return is_a<LTLfFalse>(o);
+}
+int LTLfFalse::compare_(const Comparable& o) const {
+  assert(is_a<LTLfFalse>(o));
+  return 0;
 }
 
 } // namespace logic

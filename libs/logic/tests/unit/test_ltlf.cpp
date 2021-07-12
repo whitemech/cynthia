@@ -34,6 +34,20 @@ TEST_CASE("Test Symbol", "[logic][ltlf]") {
   // different value, different pointer
   REQUIRE(s1 != s2);
 }
+
+TEST_CASE("tt and ff", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto tt1 = context.make_tt();
+  auto tt2 = context.make_bool(true);
+
+  REQUIRE(tt1 == tt2);
+
+  auto ff1 = context.make_ff();
+  auto ff2 = context.make_bool(false);
+  REQUIRE(ff1 == ff2);
+}
+
 } // namespace Test
 } // namespace logic
 } // namespace cynthia

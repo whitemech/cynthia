@@ -29,12 +29,40 @@ private:
 
 public:
   const static TypeID type_code_id = TypeID::t_Symbol;
-  explicit Symbol(Context& ctx, const std::string& name)
-      : AstNode(&ctx), name_{name} {}
+  Symbol(Context& ctx, const std::string& name) : AstNode(ctx), name_{name} {}
 
   void accept(Visitor* visitor) const override;
-  inline hash_t compute_hash_() const override;
   inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
+class LTLfFormula : public AstNode {
+public:
+  explicit LTLfFormula(Context& c) : AstNode(c) {}
+};
+
+class LTLfTrue : public LTLfFormula {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfTrue;
+  explicit LTLfTrue(Context& ctx) : LTLfFormula(ctx) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
+class LTLfFalse : public LTLfFormula {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfFalse;
+  explicit LTLfFalse(Context& ctx) : LTLfFormula(ctx) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
   bool is_equal(const Comparable& o) const override;
   int compare_(const Comparable& o) const override;
 };

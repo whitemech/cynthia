@@ -15,16 +15,31 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+//#include <cynthia/logic/base.hpp>
 #include <cynthia/logic/ltlf.hpp>
 
 namespace cynthia {
 namespace logic {
-Context::Context() { table_ = utils::make_unique<HashTable>(); }
+Context::Context() {
+  table_ = utils::make_unique<HashTable>();
+
+  tt = std::make_shared<const LTLfTrue>(*this);
+  table_->insert_if_not_available(tt);
+
+  ff = std::make_shared<const LTLfFalse>(*this);
+  table_->insert_if_not_available(ff);
+}
 
 symbol_ptr Context::make_symbol(const std::string& name) {
   symbol_ptr symbol = std::make_shared<const Symbol>(*this, name);
   symbol_ptr result = table_->insert_if_not_available(symbol);
   return result;
 }
+ltlf_ptr Context::make_tt() { return tt; }
+ltlf_ptr Context::make_ff() { return ff; }
+ltlf_ptr Context::make_bool(bool value) {
+  return value ? make_tt() : make_ff();
+}
+
 } // namespace logic
 } // namespace cynthia

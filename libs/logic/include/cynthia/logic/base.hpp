@@ -29,29 +29,32 @@ namespace cynthia {
 namespace logic {
 
 class Context;
-typedef std::shared_ptr<Context> context_ptr;
 
 class AstNode : public Visitable, public Hashable, public Comparable {
 private:
   Context* m_ctx_;
 
 public:
-  explicit AstNode(Context* ctx) : m_ctx_{ctx} {}
+  explicit AstNode(Context& ctx) : m_ctx_{&ctx} {}
   Context& ctx() const { return *m_ctx_; }
   friend void check_context(AstNode const& a, AstNode const& b) {
     assert(a.m_ctx_ == b.m_ctx_);
   };
 };
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-
 class Context {
 private:
   std::unique_ptr<HashTable> table_;
 
+  ltlf_ptr tt;
+  ltlf_ptr ff;
+
 public:
   Context();
   symbol_ptr make_symbol(const std::string& name);
+  ltlf_ptr make_tt();
+  ltlf_ptr make_ff();
+  ltlf_ptr make_bool(bool value);
 };
 
 } // namespace logic
