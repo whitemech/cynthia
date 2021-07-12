@@ -23,10 +23,9 @@ namespace logic {
 
 void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline hash_t Symbol::compute_hash_() const {
-  hash_t h1 = get_type_code();
-  auto h2 = std::hash<std::string>()(name_);
-  hash_combine(h1, h2);
-  return h1;
+  hash_t result = get_type_code();
+  hash_combine(result, name_);
+  return result;
 }
 inline TypeID Symbol::get_type_code() const { return TypeID::t_Symbol; }
 bool Symbol::is_equal(const Comparable& o) const {
@@ -60,6 +59,22 @@ bool LTLfFalse::is_equal(const Comparable& o) const {
 int LTLfFalse::compare_(const Comparable& o) const {
   assert(is_a<LTLfFalse>(o));
   return 0;
+}
+
+void LTLfAtom::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfAtom::get_type_code() const { return TypeID::t_LTLfAtom; }
+inline hash_t LTLfAtom::compute_hash_() const {
+  hash_t result = type_code_id;
+  hash_combine(result, symbol->hash());
+  return result;
+}
+bool LTLfAtom::is_equal(const Comparable& o) const {
+  return is_a<LTLfAtom>(o) and
+         symbol->is_equal(*dynamic_cast<const LTLfAtom&>(o).symbol);
+}
+int LTLfAtom::compare_(const Comparable& o) const {
+  assert(is_a<LTLfAtom>(o));
+  return this->symbol->compare(*dynamic_cast<const LTLfAtom&>(o).symbol);
 }
 
 } // namespace logic

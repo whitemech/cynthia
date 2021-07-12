@@ -65,6 +65,7 @@ public:
 
   logic::ltlf_ptr add_LTLfTrue() const;
   logic::ltlf_ptr add_LTLfFalse() const;
+  logic::ltlf_ptr add_LTLfAtom(const std::string& name) const;
 };
 
 } // namespace ltlf

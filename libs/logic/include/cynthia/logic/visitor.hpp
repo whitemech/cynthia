@@ -23,9 +23,10 @@ namespace logic {
 
 class Visitor {
 public:
-  virtual void visit(const Symbol& symbol) = 0;
-  virtual void visit(const LTLfTrue& symbol) = 0;
-  virtual void visit(const LTLfFalse& symbol) = 0;
+  virtual void visit(const Symbol&) = 0;
+  virtual void visit(const LTLfTrue&) = 0;
+  virtual void visit(const LTLfFalse&) = 0;
+  virtual void visit(const LTLfAtom&) = 0;
 };
 
 } // namespace logic

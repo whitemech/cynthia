@@ -632,6 +632,8 @@ int LTLfParser::parse() {
         case 20:
 #line 108 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.yy"
         {
+          (yylhs.value.formula) =
+              d.add_LTLfAtom((yystack_[0].value.symbol_name));
         }
 #line 717 "/home/marcofavorito/workfolder/cynthia/libs/parser/include/cynthia/parser/parser.tab.cc"
         break;

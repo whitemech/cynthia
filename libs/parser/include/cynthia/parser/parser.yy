@@ -105,7 +105,7 @@ ltlf_formula: ltlf_formula EQUIVALENCE ltlf_formula                             
             | LAST                                                                      {  }
             | FALSE_                                                                    {  }
             | TRUE_                                                                     {  }
-            | SYMBOL                                                                    {  }
+            | SYMBOL                                                                    { $$ = d.add_LTLfAtom($1); }
             ;
 
 ltlf_formula: LPAR ltlf_formula RPAR                                                    { $$ = $2; };

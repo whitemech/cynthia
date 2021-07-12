@@ -35,17 +35,34 @@ TEST_CASE("Test Symbol", "[logic][ltlf]") {
   REQUIRE(s1 != s2);
 }
 
-TEST_CASE("tt and ff", "[logic][ltlf]") {
+TEST_CASE("tt", "[logic][ltlf]") {
   auto context = Context();
 
   auto tt1 = context.make_tt();
   auto tt2 = context.make_bool(true);
 
   REQUIRE(tt1 == tt2);
+  REQUIRE(*tt1 == *tt2);
+}
+
+TEST_CASE("ff", "[logic][ltlf]") {
+  auto context = Context();
 
   auto ff1 = context.make_ff();
   auto ff2 = context.make_bool(false);
+
   REQUIRE(ff1 == ff2);
+  REQUIRE(*ff1 == *ff2);
+}
+TEST_CASE("atom", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto expeted_atom1 = context.make_atom("a");
+
+  auto symbol = context.make_symbol("a");
+  auto expeted_atom2 = context.make_atom(symbol);
+  REQUIRE(expeted_atom1 == expeted_atom2);
+  REQUIRE(*expeted_atom1 == *expeted_atom2);
 }
 
 } // namespace Test

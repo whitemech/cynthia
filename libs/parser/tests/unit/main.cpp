@@ -42,6 +42,15 @@ TEST_CASE("Parsing ff", "[parser]") {
   auto expected_formula = driver.result;
   REQUIRE(actual_formula == expected_formula);
 }
+TEST_CASE("Parsing atom", "[parser]") {
+  auto context = std::make_shared<logic::Context>();
+  auto driver = ltlf::LTLfDriver(context);
+  auto actual_formula = context->make_atom("a");
+  std::istringstream fstring("a");
+  driver.parse(fstring);
+  auto expected_formula = driver.result;
+  REQUIRE(actual_formula == expected_formula);
+}
 } // namespace Test
 } // namespace parser
 } // namespace cynthia

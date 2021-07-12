@@ -67,5 +67,23 @@ public:
   int compare_(const Comparable& o) const override;
 };
 
+class LTLfAtom : public LTLfFormula {
+private:
+  const symbol_ptr symbol;
+
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfAtom;
+  LTLfAtom(Context& ctx, const std::string& name)
+      : LTLfFormula(ctx), symbol{ctx.make_symbol(name)} {}
+  LTLfAtom(Context& ctx, symbol_ptr symbol)
+      : LTLfFormula(ctx), symbol{std::move(symbol)} {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
 } // namespace logic
 } // namespace cynthia
