@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace cynthia {
 namespace logic {
@@ -29,6 +30,7 @@ typedef std::size_t hash_t;
 typedef std::shared_ptr<const AstNode> ast_ptr;
 typedef std::shared_ptr<const Symbol> symbol_ptr;
 typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
+typedef std::vector<ltlf_ptr> vec_ptr;
 } // namespace logic
 
 } // namespace cynthia

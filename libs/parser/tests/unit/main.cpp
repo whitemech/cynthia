@@ -61,6 +61,28 @@ TEST_CASE("Parsing not", "[parser][ltlf]") {
   auto expected_formula = driver.result;
   REQUIRE(actual_formula == expected_formula);
 }
+TEST_CASE("Parsing and", "[parser][ltlf]") {
+  auto context = std::make_shared<logic::Context>();
+  auto driver = ltlf::LTLfDriver(context);
+  auto atom_1 = context->make_atom("a");
+  auto atom_2 = context->make_atom("b");
+  auto actual_formula = context->make_and(logic::vec_ptr{atom_1, atom_2});
+  std::istringstream fstring("a & b");
+  driver.parse(fstring);
+  auto expected_formula = driver.result;
+  REQUIRE(actual_formula == expected_formula);
+}
+TEST_CASE("Parsing or", "[parser][ltlf]") {
+  auto context = std::make_shared<logic::Context>();
+  auto driver = ltlf::LTLfDriver(context);
+  auto atom_1 = context->make_atom("a");
+  auto atom_2 = context->make_atom("b");
+  auto actual_formula = context->make_or(logic::vec_ptr{atom_1, atom_2});
+  std::istringstream fstring("a | b");
+  driver.parse(fstring);
+  auto expected_formula = driver.result;
+  REQUIRE(actual_formula == expected_formula);
+}
 } // namespace Test
 } // namespace parser
 } // namespace cynthia

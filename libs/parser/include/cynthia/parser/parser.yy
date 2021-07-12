@@ -92,8 +92,8 @@ ltlf_formula: ltlf_formula EQUIVALENCE ltlf_formula                             
             | ltlf_formula IMPLICATION ltlf_formula                                     {  }
             | ltlf_formula RELEASE ltlf_formula                                         {  }
             | ltlf_formula UNTIL ltlf_formula                                           {  }
-            | ltlf_formula OR ltlf_formula                                              {  }
-            | ltlf_formula AND ltlf_formula                                             {  }
+            | ltlf_formula OR ltlf_formula                                              { $$ = d.add_LTLfOr($1, $3); }
+            | ltlf_formula AND ltlf_formula                                             { $$ = d.add_LTLfAnd($1, $3); }
             | ALWAYS ltlf_formula                                                       {  }
             | EVENTUALLY ltlf_formula                                                   {  }
             | WEAK_NEXT ltlf_formula                                                    {  }

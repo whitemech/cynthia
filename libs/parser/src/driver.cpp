@@ -83,6 +83,15 @@ logic::ltlf_ptr LTLfDriver::add_LTLfNot(const logic::ltlf_ptr& formula) const {
   return context->make_not(formula);
 }
 
+logic::ltlf_ptr LTLfDriver::add_LTLfAnd(logic::ltlf_ptr& lhs,
+                                        logic::ltlf_ptr& rhs) const {
+  return context->make_and(logic::vec_ptr{lhs, rhs});
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfOr(logic::ltlf_ptr& lhs,
+                                       logic::ltlf_ptr& rhs) const {
+  return context->make_or(logic::vec_ptr{lhs, rhs});
+}
 //
 // ldlf_ptr LTLfDriver::add_LTLfAtom(std::string s) const {
 //  auto prop_atom = context->makePropRegex(context->makePropAtom(s));

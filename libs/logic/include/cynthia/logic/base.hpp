@@ -56,8 +56,9 @@ public:
   ltlf_ptr make_ff();
   ltlf_ptr make_bool(bool value);
   ltlf_ptr make_atom(const std::string& name);
-  ltlf_ptr make_atom(const symbol_ptr& symbol);
   ltlf_ptr make_not(const ltlf_ptr& arg);
+  ltlf_ptr make_and(const vec_ptr& args);
+  ltlf_ptr make_or(const vec_ptr& arg);
 };
 
 } // namespace logic

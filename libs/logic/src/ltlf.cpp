@@ -17,6 +17,7 @@
 
 #include <cynthia/logic/ltlf.hpp>
 #include <cynthia/logic/visitor.hpp>
+#include <vector>
 
 namespace cynthia {
 namespace logic {
@@ -65,33 +66,64 @@ void LTLfAtom::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline TypeID LTLfAtom::get_type_code() const { return TypeID::t_LTLfAtom; }
 inline hash_t LTLfAtom::compute_hash_() const {
   hash_t result = type_code_id;
-  hash_combine(result, symbol->hash());
+  hash_combine(result, name);
   return result;
 }
 bool LTLfAtom::is_equal(const Comparable& o) const {
-  return is_a<LTLfAtom>(o) and
-         symbol->is_equal(*dynamic_cast<const LTLfAtom&>(o).symbol);
+  return is_a<LTLfAtom>(o) and name == dynamic_cast<const LTLfAtom&>(o).name;
 }
 int LTLfAtom::compare_(const Comparable& o) const {
   assert(is_a<LTLfAtom>(o));
-  return this->symbol->compare(*dynamic_cast<const LTLfAtom&>(o).symbol);
+  auto n1 = this->name;
+  auto n2 = dynamic_cast<const LTLfAtom&>(o).name;
+  return n1 == n2 ? 0 : n1 < n2 ? -1 : 1;
+}
+
+inline hash_t LTLfUnaryOp::compute_hash_() const {
+  hash_t result = get_type_code();
+  hash_combine(result, arg->hash());
+  return result;
+}
+bool LTLfUnaryOp::is_equal(const Comparable& o) const {
+  return get_type_code() == o.get_type_code() and
+         arg->is_equal(*dynamic_cast<const LTLfUnaryOp&>(o).arg);
+}
+int LTLfUnaryOp::compare_(const Comparable& o) const {
+  assert(get_type_code() == o.get_type_code());
+  return this->arg->compare(*dynamic_cast<const LTLfUnaryOp&>(o).arg);
 }
 
 void LTLfNot::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline TypeID LTLfNot::get_type_code() const { return TypeID::t_LTLfNot; }
-inline hash_t LTLfNot::compute_hash_() const {
-  hash_t result = type_code_id;
-  hash_combine(result, arg->hash());
+
+inline hash_t LTLfCommutativeBinaryOp::compute_hash_() const {
+  hash_t result = get_type_code();
+  auto first = args.begin();
+  auto last = args.end();
+  for (; first < last; ++first) {
+    hash_combine(result, **first);
+  }
   return result;
 }
-bool LTLfNot::is_equal(const Comparable& o) const {
-  return is_a<LTLfNot>(o) and
-         arg->is_equal(*dynamic_cast<const LTLfNot&>(o).arg);
+
+bool LTLfCommutativeBinaryOp::is_equal(const Comparable& o) const {
+  return get_type_code() == o.get_type_code() and
+         std::equal(
+             args.begin(), args.end(),
+             dynamic_cast<const LTLfCommutativeBinaryOp&>(o).args.begin(),
+             utils::Deref::Compare());
 }
-int LTLfNot::compare_(const Comparable& o) const {
-  assert(is_a<LTLfNot>(o));
-  return this->arg->compare(*dynamic_cast<const LTLfNot&>(o).arg);
+int LTLfCommutativeBinaryOp::compare_(const Comparable& o) const {
+  assert(this->get_type_code() == o.get_type_code());
+  return utils::ordered_compare(
+      this->args, dynamic_cast<const LTLfCommutativeBinaryOp&>(o).args);
 }
+
+void LTLfAnd::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfAnd::get_type_code() const { return TypeID::t_LTLfAnd; }
+
+void LTLfOr::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfOr::get_type_code() const { return TypeID::t_LTLfOr; }
 
 } // namespace logic
 } // namespace cynthia

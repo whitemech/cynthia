@@ -58,9 +58,7 @@ TEST_CASE("atom", "[logic][ltlf]") {
   auto context = Context();
 
   auto expeted_atom1 = context.make_atom("a");
-
-  auto symbol = context.make_symbol("a");
-  auto expeted_atom2 = context.make_atom(symbol);
+  auto expeted_atom2 = context.make_atom("a");
   REQUIRE(expeted_atom1 == expeted_atom2);
   REQUIRE(*expeted_atom1 == *expeted_atom2);
 }
@@ -72,6 +70,30 @@ TEST_CASE("negation", "[logic][ltlf]") {
 
   auto atom2 = context.make_atom("a");
   auto expected2 = context.make_not(atom2);
+  REQUIRE(expected1 == expected2);
+  REQUIRE(*expected1 == *expected2);
+}
+TEST_CASE("conjunction", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto atom2 = context.make_atom("a");
+  auto atom3 = context.make_atom("b");
+  auto atom4 = context.make_atom("b");
+  auto expected1 = context.make_and(vec_ptr{atom1, atom2, atom3});
+  auto expected2 = context.make_and(vec_ptr{atom1, atom3, atom4});
+  REQUIRE(expected1 == expected2);
+  REQUIRE(*expected1 == *expected2);
+}
+TEST_CASE("disjunction", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto atom2 = context.make_atom("a");
+  auto atom3 = context.make_atom("b");
+  auto atom4 = context.make_atom("b");
+  auto expected1 = context.make_or(vec_ptr{atom1, atom2, atom3});
+  auto expected2 = context.make_or(vec_ptr{atom1, atom3, atom4});
   REQUIRE(expected1 == expected2);
   REQUIRE(*expected1 == *expected2);
 }
