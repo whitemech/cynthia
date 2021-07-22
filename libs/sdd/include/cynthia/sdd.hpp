@@ -20,9 +20,5 @@ extern "C" {
 }
 
 namespace cynthia {
-namespace sdd {
-
-
-
-} // namespace sdd
+namespace sdd {} // namespace sdd
 } // namespace cynthia
