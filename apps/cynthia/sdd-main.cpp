@@ -14,17 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
+extern "C" {
+#include "sddapi.h"
+}
 
-#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this
-// in one cpp file
-#include <catch.hpp>
-
-#include <cynthia/sdd.hpp>
-
-namespace cynthia {
-namespace sdd {
-namespace Test {
-TEST_CASE("SDD Installation", "[example]") {
+int main() {
   // set up vtree and manager
   SddLiteral var_count = 4;
   SddLiteral var_order[4] = {2, 1, 4, 3};
@@ -52,7 +46,5 @@ TEST_CASE("SDD Installation", "[example]") {
   printf("done\n");
   sdd_vtree_free(vtree);
   sdd_manager_free(manager);
+  return 0;
 }
-} // namespace Test
-} // namespace sdd
-} // namespace cynthia
