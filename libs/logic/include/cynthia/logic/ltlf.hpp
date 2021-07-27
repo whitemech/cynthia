@@ -102,18 +102,24 @@ public:
   inline TypeID get_type_code() const override;
 };
 
-class LTLfCommutativeBinaryOp : public LTLfFormula {
+class LTLfBinaryOp : public LTLfFormula {
 public:
   const vec_ptr args;
   bool const (&fun)(bool, bool);
 
-  LTLfCommutativeBinaryOp(Context& ctx, vec_ptr args,
-                          bool const (&fun)(bool, bool))
-      : LTLfFormula(ctx), args{utils::setify(args)}, fun{fun} {}
+  LTLfBinaryOp(Context& ctx, vec_ptr args, bool const (&fun)(bool, bool))
+      : LTLfFormula(ctx), args{args}, fun{fun} {}
 
   inline hash_t compute_hash_() const override;
   bool is_equal(const Comparable& o) const override;
   int compare_(const Comparable& o) const override;
+};
+
+class LTLfCommutativeBinaryOp : public LTLfBinaryOp {
+public:
+  LTLfCommutativeBinaryOp(Context& ctx, vec_ptr args,
+                          bool const (&fun)(bool, bool))
+      : LTLfBinaryOp(ctx, utils::setify(args), fun) {}
 };
 
 class LTLfAnd : public LTLfCommutativeBinaryOp {
@@ -137,6 +143,34 @@ public:
   const static TypeID type_code_id = TypeID::t_LTLfOr;
   LTLfOr(Context& ctx, vec_ptr args)
       : LTLfCommutativeBinaryOp(ctx, std::move(args), or_) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfImplies : public LTLfBinaryOp {
+private:
+  static inline bool const implies_(bool b1, bool b2) { return not b1 or b2; }
+
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfImplies;
+  LTLfImplies(Context& ctx, vec_ptr args)
+      : LTLfBinaryOp(ctx, std::move(args), implies_) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfEquivalent : public LTLfBinaryOp {
+private:
+  static inline bool const equivalent_(bool b1, bool b2) {
+    return (b1 and b2) or (not b1 and not b2);
+  }
+
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfEquivalent;
+  LTLfEquivalent(Context& ctx, vec_ptr args)
+      : LTLfBinaryOp(ctx, std::move(args), equivalent_) {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;

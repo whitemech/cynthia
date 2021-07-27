@@ -69,5 +69,17 @@ ltlf_ptr Context::make_or(const vec_ptr& args) {
   return actual;
 }
 
+ltlf_ptr Context::make_implies(const vec_ptr& args) {
+  auto implies = std::make_shared<const LTLfImplies>(*this, args);
+  auto actual = table_->insert_if_not_available(implies);
+  return actual;
+}
+
+ltlf_ptr Context::make_equivalent(const vec_ptr& args) {
+  auto equivalent = std::make_shared<const LTLfEquivalent>(*this, args);
+  auto actual = table_->insert_if_not_available(equivalent);
+  return actual;
+}
+
 } // namespace logic
 } // namespace cynthia

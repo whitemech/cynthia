@@ -96,7 +96,7 @@ int LTLfUnaryOp::compare_(const Comparable& o) const {
 void LTLfNot::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline TypeID LTLfNot::get_type_code() const { return TypeID::t_LTLfNot; }
 
-inline hash_t LTLfCommutativeBinaryOp::compute_hash_() const {
+inline hash_t LTLfBinaryOp::compute_hash_() const {
   hash_t result = get_type_code();
   auto first = args.begin();
   auto last = args.end();
@@ -106,17 +106,16 @@ inline hash_t LTLfCommutativeBinaryOp::compute_hash_() const {
   return result;
 }
 
-bool LTLfCommutativeBinaryOp::is_equal(const Comparable& o) const {
+bool LTLfBinaryOp::is_equal(const Comparable& o) const {
   return get_type_code() == o.get_type_code() and
-         std::equal(
-             args.begin(), args.end(),
-             dynamic_cast<const LTLfCommutativeBinaryOp&>(o).args.begin(),
-             utils::Deref::Compare());
+         std::equal(args.begin(), args.end(),
+                    dynamic_cast<const LTLfBinaryOp&>(o).args.begin(),
+                    utils::Deref::Compare());
 }
-int LTLfCommutativeBinaryOp::compare_(const Comparable& o) const {
+int LTLfBinaryOp::compare_(const Comparable& o) const {
   assert(this->get_type_code() == o.get_type_code());
-  return utils::ordered_compare(
-      this->args, dynamic_cast<const LTLfCommutativeBinaryOp&>(o).args);
+  return utils::ordered_compare(this->args,
+                                dynamic_cast<const LTLfBinaryOp&>(o).args);
 }
 
 void LTLfAnd::accept(Visitor* visitor) const { visitor->visit(*this); };
@@ -124,6 +123,16 @@ inline TypeID LTLfAnd::get_type_code() const { return TypeID::t_LTLfAnd; }
 
 void LTLfOr::accept(Visitor* visitor) const { visitor->visit(*this); };
 inline TypeID LTLfOr::get_type_code() const { return TypeID::t_LTLfOr; }
+
+void LTLfImplies::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfImplies::get_type_code() const {
+  return TypeID::t_LTLfImplies;
+}
+
+void LTLfEquivalent::accept(Visitor* visitor) const { visitor->visit(*this); };
+inline TypeID LTLfEquivalent::get_type_code() const {
+  return TypeID::t_LTLfEquivalent;
+}
 
 } // namespace logic
 } // namespace cynthia

@@ -54,6 +54,7 @@ TEST_CASE("ff", "[logic][ltlf]") {
   REQUIRE(ff1 == ff2);
   REQUIRE(*ff1 == *ff2);
 }
+
 TEST_CASE("atom", "[logic][ltlf]") {
   auto context = Context();
 
@@ -62,6 +63,7 @@ TEST_CASE("atom", "[logic][ltlf]") {
   REQUIRE(expeted_atom1 == expeted_atom2);
   REQUIRE(*expeted_atom1 == *expeted_atom2);
 }
+
 TEST_CASE("negation", "[logic][ltlf]") {
   auto context = Context();
 
@@ -73,6 +75,7 @@ TEST_CASE("negation", "[logic][ltlf]") {
   REQUIRE(expected1 == expected2);
   REQUIRE(*expected1 == *expected2);
 }
+
 TEST_CASE("conjunction", "[logic][ltlf]") {
   auto context = Context();
 
@@ -85,6 +88,7 @@ TEST_CASE("conjunction", "[logic][ltlf]") {
   REQUIRE(expected1 == expected2);
   REQUIRE(*expected1 == *expected2);
 }
+
 TEST_CASE("disjunction", "[logic][ltlf]") {
   auto context = Context();
 
@@ -96,6 +100,44 @@ TEST_CASE("disjunction", "[logic][ltlf]") {
   auto expected2 = context.make_or(vec_ptr{atom1, atom3, atom4});
   REQUIRE(expected1 == expected2);
   REQUIRE(*expected1 == *expected2);
+}
+
+TEST_CASE("implication", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto atom2 = context.make_atom("a");
+  auto atom3 = context.make_atom("b");
+  auto atom4 = context.make_atom("b");
+  auto aab1 = context.make_implies(vec_ptr{atom1, atom2, atom4});
+  auto aab2 = context.make_implies(vec_ptr{atom1, atom2, atom3});
+  auto abb = context.make_implies(vec_ptr{atom1, atom3, atom4});
+  REQUIRE(aab1 == aab2);
+  REQUIRE(*aab1 == *aab2);
+
+  REQUIRE(aab1 != abb);
+  REQUIRE(*aab1 != *abb);
+}
+
+TEST_CASE("equivalence", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto atom2 = context.make_atom("a");
+  auto atom3 = context.make_atom("b");
+  auto atom4 = context.make_atom("b");
+  auto aa = context.make_equivalent(vec_ptr{atom1, atom2});
+  auto bb = context.make_equivalent(vec_ptr{atom3, atom4});
+  REQUIRE(aa != bb);
+  REQUIRE(*aa != *bb);
+
+  REQUIRE(aa == aa);
+  REQUIRE(*aa == *aa);
+
+  auto aa_bb = context.make_equivalent(vec_ptr{aa, bb});
+  auto bb_aa = context.make_equivalent(vec_ptr{bb, aa});
+  REQUIRE(aa_bb != bb_aa);
+  REQUIRE(*aa_bb != *bb_aa);
 }
 
 } // namespace Test

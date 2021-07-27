@@ -70,8 +70,10 @@ typename std::vector<T>::iterator insert_sorted(std::vector<T>& vec,
   return vec.insert(std::upper_bound(vec.begin(), vec.end(), item, pred), item);
 }
 
-template <typename T> typename std::vector<T> setify(std::vector<T>& vec) {
-  std::sort(vec.begin(), vec.end());
+template <typename T> typename std::vector<T> setify(std::vector<T> vec) {
+  if (!std::is_sorted(vec.begin(), vec.end())) {
+    std::sort(vec.begin(), vec.end());
+  }
   auto last = std::unique(vec.begin(), vec.end());
   vec.erase(last, vec.end());
   return vec;

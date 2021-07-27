@@ -59,6 +59,8 @@ public:
   ltlf_ptr make_not(const ltlf_ptr& arg);
   ltlf_ptr make_and(const vec_ptr& args);
   ltlf_ptr make_or(const vec_ptr& arg);
+  ltlf_ptr make_implies(const vec_ptr& arg);
+  ltlf_ptr make_equivalent(const vec_ptr& arg);
 };
 
 } // namespace logic

@@ -33,6 +33,8 @@ public:
   virtual void visit(const LTLfNot&) = 0;
   virtual void visit(const LTLfAnd&) = 0;
   virtual void visit(const LTLfOr&) = 0;
+  virtual void visit(const LTLfImplies&) = 0;
+  virtual void visit(const LTLfEquivalent&) = 0;
 };
 
 } // namespace logic
