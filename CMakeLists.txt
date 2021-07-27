@@ -78,9 +78,6 @@ find_package(BISON 3.0 REQUIRED)
 find_package(FLEX 2.6 REQUIRED)
 find_package(SDD REQUIRED)
 
-set(EXT_LIBRARIES_PATH ${SDD_LIBRARIES})
-set(EXT_INCLUDE_PATH ${SDD_INCLUDE_DIRS})
-
 add_subdirectory (vendor EXCLUDE_FROM_ALL)
 add_subdirectory(libs)
 add_subdirectory(apps)
