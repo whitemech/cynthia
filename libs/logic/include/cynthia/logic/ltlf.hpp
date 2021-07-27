@@ -102,13 +102,18 @@ public:
   inline TypeID get_type_code() const override;
 };
 
+class BooleanBinaryOp {
+public:
+  bool const (&fun)(bool, bool);
+
+  BooleanBinaryOp(bool const (&fun)(bool, bool)) : fun{fun} {}
+};
+
 class LTLfBinaryOp : public LTLfFormula {
 public:
   const vec_ptr args;
-  bool const (&fun)(bool, bool);
 
-  LTLfBinaryOp(Context& ctx, vec_ptr args, bool const (&fun)(bool, bool))
-      : LTLfFormula(ctx), args{args}, fun{fun} {}
+  LTLfBinaryOp(Context& ctx, vec_ptr args) : LTLfFormula(ctx), args{args} {}
 
   inline hash_t compute_hash_() const override;
   bool is_equal(const Comparable& o) const override;
@@ -117,51 +122,50 @@ public:
 
 class LTLfCommutativeBinaryOp : public LTLfBinaryOp {
 public:
-  LTLfCommutativeBinaryOp(Context& ctx, vec_ptr args,
-                          bool const (&fun)(bool, bool))
-      : LTLfBinaryOp(ctx, utils::setify(args), fun) {}
+  LTLfCommutativeBinaryOp(Context& ctx, vec_ptr args)
+      : LTLfBinaryOp(ctx, utils::setify(args)) {}
 };
 
-class LTLfAnd : public LTLfCommutativeBinaryOp {
+class LTLfAnd : public LTLfCommutativeBinaryOp, public BooleanBinaryOp {
 private:
   static inline bool const and_(bool b1, bool b2) { return b1 and b2; }
 
 public:
   const static TypeID type_code_id = TypeID::t_LTLfAnd;
   LTLfAnd(Context& ctx, vec_ptr args)
-      : LTLfCommutativeBinaryOp(ctx, std::move(args), and_) {}
+      : LTLfCommutativeBinaryOp(ctx, std::move(args)), BooleanBinaryOp(and_) {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
 };
 
-class LTLfOr : public LTLfCommutativeBinaryOp {
+class LTLfOr : public LTLfCommutativeBinaryOp, public BooleanBinaryOp {
 private:
   static inline bool const or_(bool b1, bool b2) { return b1 or b2; }
 
 public:
   const static TypeID type_code_id = TypeID::t_LTLfOr;
   LTLfOr(Context& ctx, vec_ptr args)
-      : LTLfCommutativeBinaryOp(ctx, std::move(args), or_) {}
+      : LTLfCommutativeBinaryOp(ctx, std::move(args)), BooleanBinaryOp(or_) {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
 };
 
-class LTLfImplies : public LTLfBinaryOp {
+class LTLfImplies : public LTLfBinaryOp, public BooleanBinaryOp {
 private:
   static inline bool const implies_(bool b1, bool b2) { return not b1 or b2; }
 
 public:
   const static TypeID type_code_id = TypeID::t_LTLfImplies;
   LTLfImplies(Context& ctx, vec_ptr args)
-      : LTLfBinaryOp(ctx, std::move(args), implies_) {}
+      : LTLfBinaryOp(ctx, std::move(args)), BooleanBinaryOp(implies_) {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
 };
 
-class LTLfEquivalent : public LTLfBinaryOp {
+class LTLfEquivalent : public LTLfBinaryOp, public BooleanBinaryOp {
 private:
   static inline bool const equivalent_(bool b1, bool b2) {
     return (b1 and b2) or (not b1 and not b2);
@@ -170,7 +174,77 @@ private:
 public:
   const static TypeID type_code_id = TypeID::t_LTLfEquivalent;
   LTLfEquivalent(Context& ctx, vec_ptr args)
-      : LTLfBinaryOp(ctx, std::move(args), equivalent_) {}
+      : LTLfBinaryOp(ctx, std::move(args)), BooleanBinaryOp(equivalent_) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfXor : public LTLfBinaryOp, public BooleanBinaryOp {
+private:
+  static inline bool const xor_(bool b1, bool b2) { return b1 xor b2; }
+
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfXor;
+  LTLfXor(Context& ctx, vec_ptr args)
+      : LTLfBinaryOp(ctx, std::move(args)), BooleanBinaryOp(xor_) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfNext : public LTLfUnaryOp {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfNext;
+  LTLfNext(Context& ctx, ltlf_ptr arg) : LTLfUnaryOp(ctx, std::move(arg)) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfWeakNext : public LTLfUnaryOp {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfWeakNext;
+  LTLfWeakNext(Context& ctx, ltlf_ptr arg) : LTLfUnaryOp(ctx, std::move(arg)) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfUntil : public LTLfBinaryOp {
+
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfUntil;
+  LTLfUntil(Context& ctx, vec_ptr args) : LTLfBinaryOp(ctx, std::move(args)) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfRelease : public LTLfBinaryOp {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfRelease;
+  LTLfRelease(Context& ctx, vec_ptr args)
+      : LTLfBinaryOp(ctx, std::move(args)) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfEventually : public LTLfUnaryOp {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfEventually;
+  LTLfEventually(Context& ctx, ltlf_ptr arg)
+      : LTLfUnaryOp(ctx, std::move(arg)) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+};
+
+class LTLfAlways : public LTLfUnaryOp {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfAlways;
+  LTLfAlways(Context& ctx, ltlf_ptr arg) : LTLfUnaryOp(ctx, std::move(arg)) {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;

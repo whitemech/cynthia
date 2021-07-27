@@ -35,6 +35,13 @@ public:
   virtual void visit(const LTLfOr&) = 0;
   virtual void visit(const LTLfImplies&) = 0;
   virtual void visit(const LTLfEquivalent&) = 0;
+  virtual void visit(const LTLfXor&) = 0;
+  virtual void visit(const LTLfNext&) = 0;
+  virtual void visit(const LTLfWeakNext&) = 0;
+  virtual void visit(const LTLfUntil&) = 0;
+  virtual void visit(const LTLfRelease&) = 0;
+  virtual void visit(const LTLfEventually&) = 0;
+  virtual void visit(const LTLfAlways&) = 0;
 };
 
 } // namespace logic

@@ -36,6 +36,7 @@ enum TypeID {
   t_LTLfOr,
   t_LTLfImplies,
   t_LTLfEquivalent,
+  t_LTLfXor,
   t_LTLfNext,
   t_LTLfWeakNext,
   t_LTLfUntil,

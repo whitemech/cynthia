@@ -22,7 +22,7 @@
 namespace cynthia {
 namespace logic {
 
-void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); };
+void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline hash_t Symbol::compute_hash_() const {
   hash_t result = get_type_code();
   hash_combine(result, name_);
@@ -42,7 +42,7 @@ int Symbol::compare_(const Comparable& o) const {
   return name_ < s.name_ ? -1 : 1;
 }
 
-void LTLfTrue::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfTrue::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfTrue::get_type_code() const { return TypeID::t_LTLfTrue; }
 inline hash_t LTLfTrue::compute_hash_() const { return type_code_id; }
 bool LTLfTrue::is_equal(const Comparable& o) const { return is_a<LTLfTrue>(o); }
@@ -51,7 +51,7 @@ int LTLfTrue::compare_(const Comparable& o) const {
   return 0;
 }
 
-void LTLfFalse::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfFalse::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfFalse::get_type_code() const { return TypeID::t_LTLfFalse; }
 inline hash_t LTLfFalse::compute_hash_() const { return type_code_id; }
 bool LTLfFalse::is_equal(const Comparable& o) const {
@@ -62,7 +62,7 @@ int LTLfFalse::compare_(const Comparable& o) const {
   return 0;
 }
 
-void LTLfAtom::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfAtom::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfAtom::get_type_code() const { return TypeID::t_LTLfAtom; }
 inline hash_t LTLfAtom::compute_hash_() const {
   hash_t result = type_code_id;
@@ -93,7 +93,7 @@ int LTLfUnaryOp::compare_(const Comparable& o) const {
   return this->arg->compare(*dynamic_cast<const LTLfUnaryOp&>(o).arg);
 }
 
-void LTLfNot::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfNot::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfNot::get_type_code() const { return TypeID::t_LTLfNot; }
 
 inline hash_t LTLfBinaryOp::compute_hash_() const {
@@ -118,21 +118,46 @@ int LTLfBinaryOp::compare_(const Comparable& o) const {
                                 dynamic_cast<const LTLfBinaryOp&>(o).args);
 }
 
-void LTLfAnd::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfAnd::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfAnd::get_type_code() const { return TypeID::t_LTLfAnd; }
 
-void LTLfOr::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfOr::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfOr::get_type_code() const { return TypeID::t_LTLfOr; }
 
-void LTLfImplies::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfImplies::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfImplies::get_type_code() const {
   return TypeID::t_LTLfImplies;
 }
 
-void LTLfEquivalent::accept(Visitor* visitor) const { visitor->visit(*this); };
+void LTLfEquivalent::accept(Visitor* visitor) const { visitor->visit(*this); }
 inline TypeID LTLfEquivalent::get_type_code() const {
   return TypeID::t_LTLfEquivalent;
 }
+
+void LTLfXor::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfXor::get_type_code() const { return TypeID::t_LTLfXor; }
+
+void LTLfNext::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfNext::get_type_code() const { return TypeID::t_LTLfNext; }
+
+void LTLfWeakNext::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfWeakNext::get_type_code() const { return TypeID::t_LTLfNext; }
+
+void LTLfUntil::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfUntil::get_type_code() const { return TypeID::t_LTLfUntil; }
+
+void LTLfRelease::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfRelease::get_type_code() const {
+  return TypeID::t_LTLfRelease;
+}
+
+void LTLfEventually::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfEventually::get_type_code() const {
+  return TypeID::t_LTLfEventually;
+}
+
+void LTLfAlways::accept(Visitor* visitor) const { visitor->visit(*this); }
+inline TypeID LTLfAlways::get_type_code() const { return TypeID::t_LTLfAlways; }
 
 } // namespace logic
 } // namespace cynthia

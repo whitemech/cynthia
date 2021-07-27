@@ -140,6 +140,50 @@ TEST_CASE("equivalence", "[logic][ltlf]") {
   REQUIRE(*aa_bb != *bb_aa);
 }
 
+TEST_CASE("xor", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto atom2 = context.make_atom("a");
+  auto atom3 = context.make_atom("b");
+  auto atom4 = context.make_atom("b");
+  auto aa = context.make_xor(vec_ptr{atom1, atom2});
+  auto bb = context.make_xor(vec_ptr{atom3, atom4});
+  REQUIRE(aa != bb);
+  REQUIRE(*aa != *bb);
+
+  REQUIRE(aa == aa);
+  REQUIRE(*aa == *aa);
+
+  auto aa_bb = context.make_xor(vec_ptr{aa, bb});
+  auto bb_aa = context.make_xor(vec_ptr{bb, aa});
+  REQUIRE(aa_bb != bb_aa);
+  REQUIRE(*aa_bb != *bb_aa);
+}
+
+TEST_CASE("next", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto expected1 = context.make_next(atom1);
+
+  auto atom2 = context.make_atom("a");
+  auto expected2 = context.make_next(atom2);
+  REQUIRE(expected1 == expected2);
+  REQUIRE(*expected1 == *expected2);
+}
+TEST_CASE("weak_next", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto expected1 = context.make_weak_next(atom1);
+
+  auto atom2 = context.make_atom("a");
+  auto expected2 = context.make_weak_next(atom2);
+  REQUIRE(expected1 == expected2);
+  REQUIRE(*expected1 == *expected2);
+}
+
 } // namespace Test
 } // namespace logic
 } // namespace cynthia

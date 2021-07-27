@@ -81,5 +81,47 @@ ltlf_ptr Context::make_equivalent(const vec_ptr& args) {
   return actual;
 }
 
+ltlf_ptr Context::make_xor(const vec_ptr& args) {
+  auto equivalent = std::make_shared<const LTLfEquivalent>(*this, args);
+  auto actual = table_->insert_if_not_available(equivalent);
+  return actual;
+}
+
+ltlf_ptr Context::make_next(const ltlf_ptr& arg) {
+  auto next = std::make_shared<const LTLfNext>(*this, arg);
+  auto actual = table_->insert_if_not_available(next);
+  return actual;
+}
+
+ltlf_ptr Context::make_weak_next(const ltlf_ptr& arg) {
+  auto next = std::make_shared<const LTLfWeakNext>(*this, arg);
+  auto actual = table_->insert_if_not_available(next);
+  return actual;
+}
+
+ltlf_ptr Context::make_until(const vec_ptr& args) {
+  auto and_ = std::make_shared<const LTLfUntil>(*this, args);
+  auto actual = table_->insert_if_not_available(and_);
+  return actual;
+}
+
+ltlf_ptr Context::make_release(const vec_ptr& args) {
+  auto and_ = std::make_shared<const LTLfRelease>(*this, args);
+  auto actual = table_->insert_if_not_available(and_);
+  return actual;
+}
+
+ltlf_ptr Context::make_eventually(const ltlf_ptr& arg) {
+  auto next = std::make_shared<const LTLfEventually>(*this, arg);
+  auto actual = table_->insert_if_not_available(next);
+  return actual;
+}
+
+ltlf_ptr Context::make_always(const ltlf_ptr& arg) {
+  auto next = std::make_shared<const LTLfAlways>(*this, arg);
+  auto actual = table_->insert_if_not_available(next);
+  return actual;
+}
+
 } // namespace logic
 } // namespace cynthia
