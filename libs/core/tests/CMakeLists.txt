@@ -25,7 +25,7 @@ set (TEST_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 set (TEST_UNIT_SRC_PATH  "${TEST_MODULE_PATH}/unit" )
 
 #set includes
-include_directories (${CYNTHIA_CORE_INCLUDE_PATH} ${TEST_THIRD_PARTY_INCLUDE_PATH})
+include_directories (${CYNTHIA_CORE_INCLUDE_PATH} ${TEST_THIRD_PARTY_INCLUDE_PATH} ${EXT_INCLUDE_PATH})
 
 #set test sources
 file (GLOB_RECURSE TEST_SOURCE_FILES "${TEST_UNIT_SRC_PATH}/*.cpp")
@@ -38,7 +38,7 @@ add_executable (${TEST_APP_NAME} ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
 target_link_libraries (${TEST_APP_NAME}
         PRIVATE
             Catch2::Catch2
-            ${CYNTHIA_CORE_LIB_NAME})
+            ${CYNTHIA_CORE_LIB_NAME} ${EXT_LIBRARIES_PATH})
 
 # Turn on CMake testing capabilities
 enable_testing()

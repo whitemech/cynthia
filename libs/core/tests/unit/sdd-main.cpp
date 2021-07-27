@@ -14,11 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#include <catch.hpp>
+
 extern "C" {
 #include "sddapi.h"
 }
 
-int main() {
+namespace cynthia {
+namespace core {
+namespace Test {
+
+TEST_CASE("Test SDD Installation", "[core][SDD]") {
   // set up vtree and manager
   SddLiteral var_count = 4;
   SddLiteral var_order[4] = {2, 1, 4, 3};
@@ -46,5 +53,7 @@ int main() {
   printf("done\n");
   sdd_vtree_free(vtree);
   sdd_manager_free(manager);
-  return 0;
 }
+} // namespace Test
+} // namespace core
+} // namespace cynthia

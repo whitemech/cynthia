@@ -31,9 +31,3 @@ target_link_libraries(${CYNTHIA_APP_NAME}
 target_include_directories(${CYNTHIA_APP_NAME}
         PRIVATE ${THIRD_PARTY_INCLUDE_PATH}
                 ${CYNTHIA_CORE_INCLUDE_PATH})
-
-set(SDD_TEST_NAME sdd-test)
-add_executable(${SDD_TEST_NAME} sdd-main.cpp)
-include_directories (${EXT_INCLUDE_PATH})
-target_link_libraries(sdd-test
-        PRIVATE ${EXT_LIBRARIES_PATH})
