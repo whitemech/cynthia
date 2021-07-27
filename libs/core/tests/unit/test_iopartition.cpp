@@ -17,9 +17,9 @@
 #include <catch.hpp>
 #include <cynthia/input_output_partition.hpp>
 
+#include <iostream>
 #include <stdio.h>
 #include <unistd.h>
-#include <iostream>
 
 namespace cynthia {
 namespace core {
