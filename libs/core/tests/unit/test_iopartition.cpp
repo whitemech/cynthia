@@ -17,11 +17,19 @@
 #include <catch.hpp>
 #include <cynthia/input_output_partition.hpp>
 
+#include <stdio.h>
+#include <unistd.h>
+#include <iostream>
+
 namespace cynthia {
 namespace core {
 namespace Test {
 
 TEST_CASE("IOPartition", "[iopartition]") {
+  char buff[FILENAME_MAX];
+  getcwd(buff, FILENAME_MAX);
+  std::string current_working_dir(buff);
+  std::cout << "Current path is : " << current_working_dir << std::endl;
   auto partition = InputOutputPartition::read_from_file(
       "../../../../libs/core/examples/partfile");
 
