@@ -16,8 +16,8 @@
  */
 
 #include <cynthia/input_output_partition.hpp>
-#include <fstream>
 #include <cynthia/utils.hpp>
+#include <fstream>
 
 namespace cynthia {
 namespace core {
@@ -59,7 +59,8 @@ InputOutputPartition::read_from_file(const std::string& filename) {
     throw bad_file_format_exception(line_number);
   }
 
-  partition.output_variables = utils::split_with_delimiter(output_substr[1], " ");
+  partition.output_variables =
+      utils::split_with_delimiter(output_substr[1], " ");
 
   return partition;
 }

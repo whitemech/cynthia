@@ -66,7 +66,6 @@ TEST_CASE("Split string with whitespace and colon", "[utils][split]") {
   REQUIRE(final_tokens == expected_tokens);
 }
 
-
 } // namespace Test
 } // namespace utils
 } // namespace cynthia
