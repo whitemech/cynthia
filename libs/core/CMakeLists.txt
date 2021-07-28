@@ -27,7 +27,7 @@ set (CYNTHIA_CORE_SRC_PATH  "${CYNTHIA_CORE_MODULE_PATH}/src" )
 set (CYNTHIA_CORE_INCLUDE_PATH  "${CYNTHIA_CORE_MODULE_PATH}/include")
 
 #set includes
-include_directories (${CYNTHIA_CORE_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH})
+include_directories (${CYNTHIA_CORE_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH} ${CYNTHIA_UTILS_INCLUDE_PATH})
 include_directories (${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 #set sources
@@ -40,7 +40,10 @@ file (GLOB_RECURSE CYNTHIA_CORE_SOURCE_FILES "${CYNTHIA_CORE_SRC_PATH}/*.cpp" ${
 # ------------------------------------------------------------------------------
 
 add_library (${CYNTHIA_CORE_LIB_NAME} STATIC ${CYNTHIA_CORE_SOURCE_FILES} ${CYNTHIA_CORE_HEADER_FILES})
-#target_link_libraries(${CYNTHIA_CORE_LIB_NAME})
+
+#add the library
+target_link_libraries (${CYNTHIA_CORE_LIB_NAME}
+        ${CYNTHIA_UTILS_LIB_NAME})
 
 add_subdirectory(tests)
 

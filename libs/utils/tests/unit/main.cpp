@@ -28,6 +28,45 @@ TEST_CASE("Make unique", "[example]") {
   auto a1 = make_unique<int>(1);
   REQUIRE(*a1.get());
 }
+
+TEST_CASE("Split string with colon", "[utils][split]") {
+  std::string str = "inputs: a b c_d \n";
+
+  auto tokens = split_with_delimiter(str, ":");
+  std::vector<std::string> expected_tokens;
+  expected_tokens.push_back("inputs");
+  expected_tokens.push_back(" a b c_d");
+
+  REQUIRE(tokens == expected_tokens);
+}
+
+TEST_CASE("Split string with whitespace", "[utils][split]") {
+  std::string str = " a b c_d\n";
+
+  auto tokens = split_with_delimiter(str, " ");
+  std::vector<std::string> expected_tokens;
+  expected_tokens.push_back("a");
+  expected_tokens.push_back("b");
+  expected_tokens.push_back("c_d");
+
+  REQUIRE(tokens == expected_tokens);
+}
+
+TEST_CASE("Split string with whitespace and colon", "[utils][split]") {
+  std::string str = "inputs: a b c_d \n";
+
+  auto tokens = split_with_delimiter(str, ":");
+  auto final_tokens = split_with_delimiter(tokens[1], " ");
+
+  std::vector<std::string> expected_tokens;
+  expected_tokens.push_back("a");
+  expected_tokens.push_back("b");
+  expected_tokens.push_back("c_d");
+
+  REQUIRE(final_tokens == expected_tokens);
+}
+
+
 } // namespace Test
 } // namespace utils
 } // namespace cynthia

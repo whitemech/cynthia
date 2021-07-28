@@ -17,10 +17,7 @@
 
 #include <cynthia/input_output_partition.hpp>
 #include <fstream>
-
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/trim.hpp>
+#include <cynthia/utils.hpp>
 
 namespace cynthia {
 namespace core {
@@ -45,29 +42,24 @@ InputOutputPartition::read_from_file(const std::string& filename) {
   std::getline(in, line);
 
   std::vector<std::string> input_substr;
-  boost::split(input_substr, line, boost::is_any_of(":"));
+  input_substr = utils::split_with_delimiter(line, ":");
 
   if (input_substr.size() != 2 || input_substr[0] != ".inputs") {
     throw bad_file_format_exception(line_number);
   }
-
-  boost::trim(input_substr[1]); // remove leading and trailing whitespace
-  boost::split(partition.input_variables, input_substr[1],
-               boost::is_any_of(" "));
+  partition.input_variables = utils::split_with_delimiter(input_substr[1], " ");
 
   ++line_number;
   std::getline(in, line);
 
   std::vector<std::string> output_substr;
-  boost::split(output_substr, line, boost::is_any_of(":"));
+  output_substr = utils::split_with_delimiter(line, ":");
 
   if (output_substr.size() != 2 || output_substr[0] != ".outputs") {
     throw bad_file_format_exception(line_number);
   }
 
-  boost::trim(output_substr[1]); // remove leading and trailing whitespace
-  boost::split(partition.output_variables, output_substr[1],
-               boost::is_any_of(" "));
+  partition.output_variables = utils::split_with_delimiter(output_substr[1], " ");
 
   return partition;
 }
