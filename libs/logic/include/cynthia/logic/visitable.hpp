@@ -23,7 +23,7 @@ class Visitor;
 
 class Visitable {
 public:
-  virtual void accept(Visitor* visitor) const = 0;
+  virtual void accept(Visitor& visitor) const = 0;
 };
 } // namespace logic
 } // namespace cynthia

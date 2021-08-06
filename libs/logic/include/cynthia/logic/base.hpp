@@ -30,7 +30,10 @@ namespace logic {
 
 class Context;
 
-class AstNode : public Visitable, public Hashable, public Comparable {
+class AstNode : public Visitable,
+                public Hashable,
+                public Comparable,
+                public std::enable_shared_from_this<const LTLfFormula> {
 private:
   Context* m_ctx_;
 
@@ -55,7 +58,6 @@ private:
 
 public:
   Context();
-  symbol_ptr make_symbol(const std::string& name);
   ltlf_ptr make_tt();
   ltlf_ptr make_ff();
   ltlf_ptr make_prop_true();

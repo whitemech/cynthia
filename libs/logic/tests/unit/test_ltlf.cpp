@@ -21,19 +21,6 @@
 namespace cynthia {
 namespace logic {
 namespace Test {
-TEST_CASE("Test Symbol", "[logic][ltlf]") {
-  auto context = Context();
-  auto s1 = context.make_symbol("symbol_1");
-  auto s2 = context.make_symbol("symbol_2");
-  auto s3 = context.make_symbol("symbol_1");
-
-  // same value, same pointer
-  REQUIRE(s1 == s3);
-  REQUIRE(*s1 == *s3);
-
-  // different value, different pointer
-  REQUIRE(s1 != s2);
-}
 
 TEST_CASE("tt", "[logic][ltlf]") {
   auto context = Context();
