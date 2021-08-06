@@ -43,7 +43,8 @@ set (CLI11_INCLUDE_PATH "${CLI11_MODULE_PATH}/include")
 #set variables
 set (THIRD_PARTY_INCLUDE_PATH
         ${SPDLOG_INCLUDE_PATH}
-        ${CLI11_INCLUDE_PATH})
+        ${CLI11_INCLUDE_PATH}
+        ${SDD_INCLUDE_DIRS})
 
 #set variables for tests
 set (TEST_THIRD_PARTY_INCLUDE_PATH
