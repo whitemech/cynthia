@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace cynthia {
@@ -52,6 +53,34 @@ std::unique_ptr<T> make_unique(Args&&... args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
+/**
+ * ltrim function, like the one in the boost API function boost::ltrim().
+ * \brief remove leading whitespace
+ */
+std::string ltrim(const std::string& s);
+
+/**
+ * rtrim function, like the one in the boost API function boost::rtrim().
+ * \brief remove trailing whitespace
+ */
+std::string rtrim(const std::string& s);
+
+/**
+ * trim function, like the one in the boost API function boost::trim().
+ * \brief remove leading and trailing whitespace
+ */
+std::string trim(const std::string& s);
+
+/**
+ * split_with_delimiter function, like the one in the boost API function
+ * boost::split().
+ *
+ * \param str The string that will be split.
+ * \param delimiter The delimiter used to follow for splitting.
+ * \return A vector of substrs after split.
+ */
+std::vector<std::string> split_with_delimiter(std::string str,
+                                              std::string delimiter);
 /*
  * Insert an element in a sorted vector.
  */
