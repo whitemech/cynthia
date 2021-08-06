@@ -64,8 +64,8 @@ jobs:
           sudo python3 -m pip install gcovr
 #      - name: Check clang-tidy
 #        run: ./scripts/check-clang-tidy.sh
-#      - name: Install dependencies
-#        run: sudo ./scripts/_ci-install-dependencies-ubuntu.sh
+      - name: Install dependencies
+        run: sudo ./scripts/_ci-install-dependencies-ubuntu.sh
       - name: Configure CMake
         env:
           CXX: ${{ matrix.compiler }}
@@ -113,8 +113,8 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov -t ${{ secrets.CODECOV_TOKEN }}
-#      - name: Install dependencies
-#        run: sudo ./scripts/_ci-install-dependencies-ubuntu.sh
+      - name: Install dependencies
+        run: sudo ./scripts/_ci-install-dependencies-ubuntu.sh
       - name: Configure CMake
         env:
           CXX: ${{ matrix.compiler }}
