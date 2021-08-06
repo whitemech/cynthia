@@ -35,6 +35,7 @@ ADD_FLEX_BISON_DEPENDENCY(LTLfLexer LTLfParser)
 
 #set includes
 include_directories (${CYNTHIA_PARSER_INCLUDE_PATH} ${THIRD_PARTY_INCLUDE_PATH})
+include_directories (${CYNTHIA_LOGIC_INCLUDE_PATH} ${CYNTHIA_UTILS_INCLUDE_PATH})
 include_directories (${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 #set sources

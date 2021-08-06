@@ -84,7 +84,7 @@ inline void hash_combine_impl(
 }
 
 inline void hash_combine_impl(hash_t& seed, const std::string& s) {
-  for (const char& c : s) {
+  for (const auto& c : s) {
     hash_combine<hash_t>(seed, static_cast<hash_t>(c));
   }
 }

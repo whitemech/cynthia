@@ -24,10 +24,26 @@
 namespace cynthia {
 namespace utils {
 namespace Test {
-TEST_CASE("Make unique", "[example]") {
+TEST_CASE("Make unique", "[utils]") {
   auto a1 = make_unique<int>(1);
   REQUIRE(*a1.get());
 }
+
+TEST_CASE("insert_sorted", "[utils]") {
+  auto v = std::vector<int>{0, 1, 3};
+  insert_sorted(v, 2);
+  REQUIRE(v.size() == 4);
+  REQUIRE(v.at(2) == 2);
+}
+
+TEST_CASE("setify vector", "[utils]") {
+  std::vector<int> v{1, 2, 1, 1, 3, 3, 3, 4, 5, 4};
+
+  std::vector<int> expected{1, 2, 3, 4, 5};
+  auto actual = setify(v);
+  REQUIRE(actual == expected);
+}
+
 } // namespace Test
 } // namespace utils
 } // namespace cynthia
