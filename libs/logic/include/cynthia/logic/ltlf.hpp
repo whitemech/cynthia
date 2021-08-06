@@ -24,6 +24,8 @@
 namespace cynthia {
 namespace logic {
 
+inline bool is_propositional(const ltlf_ptr& arg);
+
 class Symbol : public AstNode {
 private:
   const std::string name_;
@@ -68,6 +70,30 @@ public:
   int compare_(const Comparable& o) const override;
 };
 
+class LTLfPropTrue : public LTLfFormula {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfPropTrue;
+  explicit LTLfPropTrue(Context& ctx) : LTLfFormula(ctx) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
+class LTLfPropFalse : public LTLfFormula {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfPropFalse;
+  explicit LTLfPropFalse(Context& ctx) : LTLfFormula(ctx) {}
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
+  inline hash_t compute_hash_() const override;
+  bool is_equal(const Comparable& o) const override;
+  int compare_(const Comparable& o) const override;
+};
+
 class LTLfAtom : public LTLfFormula {
 public:
   const std::string name;
@@ -91,6 +117,20 @@ public:
   inline hash_t compute_hash_() const override;
   bool is_equal(const Comparable& o) const override;
   int compare_(const Comparable& o) const override;
+};
+
+class LTLfPropositionalNot : public LTLfUnaryOp {
+public:
+  const static TypeID type_code_id = TypeID::t_LTLfPropNot;
+  LTLfPropositionalNot(Context& ctx, ltlf_ptr arg)
+      : LTLfUnaryOp(ctx, std::move(arg)) {
+    if (!is_propositional(this->arg))
+      throw std::invalid_argument(
+          "PropositionalNot only accepts LTLfAtom as arguments.");
+  }
+
+  void accept(Visitor* visitor) const override;
+  inline TypeID get_type_code() const override;
 };
 
 class LTLfNot : public LTLfUnaryOp {
@@ -174,7 +214,8 @@ private:
 public:
   const static TypeID type_code_id = TypeID::t_LTLfEquivalent;
   LTLfEquivalent(Context& ctx, vec_ptr args)
-      : LTLfBinaryOp(ctx, std::move(args)), BooleanBinaryOp(equivalent_) {}
+      : LTLfBinaryOp(ctx, utils::sort(std::move(args))),
+        BooleanBinaryOp(equivalent_) {}
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
@@ -187,7 +228,8 @@ private:
 public:
   const static TypeID type_code_id = TypeID::t_LTLfXor;
   LTLfXor(Context& ctx, vec_ptr args)
-      : LTLfBinaryOp(ctx, std::move(args)), BooleanBinaryOp(xor_) {}
+      : LTLfBinaryOp(ctx, utils::sort(std::move(args))), BooleanBinaryOp(xor_) {
+  }
 
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
@@ -249,6 +291,75 @@ public:
   void accept(Visitor* visitor) const override;
   inline TypeID get_type_code() const override;
 };
+
+inline bool is_propositional(const ltlf_ptr& arg) {
+  return is_a<LTLfAtom>(*arg) || is_a<LTLfPropTrue>(*arg) ||
+         is_a<LTLfPropFalse>(*arg);
+}
+
+inline hash_t Symbol::compute_hash_() const {
+  hash_t result = get_type_code();
+  hash_combine(result, name_);
+  return result;
+}
+inline hash_t LTLfTrue::compute_hash_() const { return type_code_id; }
+inline hash_t LTLfFalse::compute_hash_() const { return type_code_id; }
+inline hash_t LTLfPropTrue::compute_hash_() const { return type_code_id; }
+inline hash_t LTLfPropFalse::compute_hash_() const { return type_code_id; }
+inline hash_t LTLfAtom::compute_hash_() const {
+  hash_t result = type_code_id;
+  hash_combine(result, name);
+  return result;
+}
+inline hash_t LTLfUnaryOp::compute_hash_() const {
+  hash_t result = get_type_code();
+  hash_combine(result, arg->hash());
+  return result;
+}
+
+inline hash_t LTLfBinaryOp::compute_hash_() const {
+  hash_t result = get_type_code();
+  auto first = args.begin();
+  auto last = args.end();
+  for (; first < last; ++first) {
+    hash_combine(result, **first);
+  }
+  return result;
+}
+
+inline TypeID Symbol::get_type_code() const { return TypeID::t_Symbol; }
+inline TypeID LTLfTrue::get_type_code() const { return TypeID::t_LTLfTrue; }
+inline TypeID LTLfFalse::get_type_code() const { return TypeID::t_LTLfFalse; }
+inline TypeID LTLfPropTrue::get_type_code() const {
+  return TypeID::t_LTLfPropTrue;
+}
+inline TypeID LTLfPropFalse::get_type_code() const {
+  return TypeID::t_LTLfPropFalse;
+}
+inline TypeID LTLfAtom::get_type_code() const { return TypeID::t_LTLfAtom; }
+inline TypeID LTLfNot::get_type_code() const { return TypeID::t_LTLfNot; }
+inline TypeID LTLfPropositionalNot::get_type_code() const {
+  return TypeID::t_LTLfPropNot;
+}
+inline TypeID LTLfAnd::get_type_code() const { return TypeID::t_LTLfAnd; }
+inline TypeID LTLfOr::get_type_code() const { return TypeID::t_LTLfOr; }
+inline TypeID LTLfImplies::get_type_code() const {
+  return TypeID::t_LTLfImplies;
+}
+inline TypeID LTLfEquivalent::get_type_code() const {
+  return TypeID::t_LTLfEquivalent;
+}
+inline TypeID LTLfXor::get_type_code() const { return TypeID::t_LTLfXor; }
+inline TypeID LTLfNext::get_type_code() const { return TypeID::t_LTLfNext; }
+inline TypeID LTLfWeakNext::get_type_code() const { return TypeID::t_LTLfNext; }
+inline TypeID LTLfUntil::get_type_code() const { return TypeID::t_LTLfUntil; }
+inline TypeID LTLfRelease::get_type_code() const {
+  return TypeID::t_LTLfRelease;
+}
+inline TypeID LTLfEventually::get_type_code() const {
+  return TypeID::t_LTLfEventually;
+}
+inline TypeID LTLfAlways::get_type_code() const { return TypeID::t_LTLfAlways; }
 
 } // namespace logic
 } // namespace cynthia

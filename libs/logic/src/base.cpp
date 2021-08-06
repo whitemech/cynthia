@@ -32,6 +32,18 @@ Context::Context() {
 
   ff = std::make_shared<const LTLfFalse>(*this);
   table_->insert_if_not_available(ff);
+
+  true_ = std::make_shared<const LTLfPropTrue>(*this);
+  table_->insert_if_not_available(true_);
+
+  false_ = std::make_shared<const LTLfPropFalse>(*this);
+  table_->insert_if_not_available(false_);
+
+  end = std::make_shared<const LTLfAlways>(*this, ff);
+  table_->insert_if_not_available(end);
+
+  last = std::make_shared<const LTLfWeakNext>(*this, ff);
+  table_->insert_if_not_available(last);
 }
 
 symbol_ptr Context::make_symbol(const std::string& name) {
@@ -41,6 +53,10 @@ symbol_ptr Context::make_symbol(const std::string& name) {
 }
 ltlf_ptr Context::make_tt() { return tt; }
 ltlf_ptr Context::make_ff() { return ff; }
+ltlf_ptr Context::make_prop_true() { return true_; }
+ltlf_ptr Context::make_prop_false() { return false_; }
+ltlf_ptr Context::make_end() { return end; }
+ltlf_ptr Context::make_last() { return last; }
 ltlf_ptr Context::make_bool(bool value) {
   return value ? make_tt() : make_ff();
 }
@@ -53,6 +69,18 @@ ltlf_ptr Context::make_atom(const std::string& name) {
 
 ltlf_ptr Context::make_not(const ltlf_ptr& arg) {
   auto negation = std::make_shared<const LTLfNot>(*this, arg);
+  auto actual = table_->insert_if_not_available(negation);
+  return actual;
+}
+
+ltlf_ptr Context::make_prop_not(const ltlf_ptr& arg) {
+  // !(!a) = a
+  if (is_a<LTLfPropositionalNot>(*arg)) {
+    return table_->insert_if_not_available(
+        std::static_pointer_cast<const LTLfPropositionalNot>(arg)->arg);
+  }
+  // argument must be an atom
+  auto negation = std::make_shared<const LTLfPropositionalNot>(*this, arg);
   auto actual = table_->insert_if_not_available(negation);
   return actual;
 }
@@ -82,7 +110,7 @@ ltlf_ptr Context::make_equivalent(const vec_ptr& args) {
 }
 
 ltlf_ptr Context::make_xor(const vec_ptr& args) {
-  auto equivalent = std::make_shared<const LTLfEquivalent>(*this, args);
+  auto equivalent = std::make_shared<const LTLfXor>(*this, args);
   auto actual = table_->insert_if_not_available(equivalent);
   return actual;
 }
@@ -100,26 +128,26 @@ ltlf_ptr Context::make_weak_next(const ltlf_ptr& arg) {
 }
 
 ltlf_ptr Context::make_until(const vec_ptr& args) {
-  auto and_ = std::make_shared<const LTLfUntil>(*this, args);
-  auto actual = table_->insert_if_not_available(and_);
+  auto until = std::make_shared<const LTLfUntil>(*this, args);
+  auto actual = table_->insert_if_not_available(until);
   return actual;
 }
 
 ltlf_ptr Context::make_release(const vec_ptr& args) {
-  auto and_ = std::make_shared<const LTLfRelease>(*this, args);
-  auto actual = table_->insert_if_not_available(and_);
+  auto release = std::make_shared<const LTLfRelease>(*this, args);
+  auto actual = table_->insert_if_not_available(release);
   return actual;
 }
 
 ltlf_ptr Context::make_eventually(const ltlf_ptr& arg) {
-  auto next = std::make_shared<const LTLfEventually>(*this, arg);
-  auto actual = table_->insert_if_not_available(next);
+  auto eventually = std::make_shared<const LTLfEventually>(*this, arg);
+  auto actual = table_->insert_if_not_available(eventually);
   return actual;
 }
 
 ltlf_ptr Context::make_always(const ltlf_ptr& arg) {
-  auto next = std::make_shared<const LTLfAlways>(*this, arg);
-  auto actual = table_->insert_if_not_available(next);
+  auto always = std::make_shared<const LTLfAlways>(*this, arg);
+  auto actual = table_->insert_if_not_available(always);
   return actual;
 }
 

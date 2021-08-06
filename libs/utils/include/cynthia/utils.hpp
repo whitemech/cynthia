@@ -78,6 +78,12 @@ template <typename T> typename std::vector<T> setify(std::vector<T> vec) {
   vec.erase(last, vec.end());
   return vec;
 }
+template <typename T> typename std::vector<T> sort(std::vector<T> vec) {
+  if (!std::is_sorted(vec.begin(), vec.end())) {
+    std::sort(vec.begin(), vec.end());
+  }
+  return vec;
+}
 
 template <class T> inline int ordered_compare(const T& A, const T& B) {
   // Can't be equal if # of entries differ:

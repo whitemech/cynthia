@@ -48,15 +48,24 @@ private:
 
   ltlf_ptr tt;
   ltlf_ptr ff;
+  ltlf_ptr true_;
+  ltlf_ptr false_;
+  ltlf_ptr end;
+  ltlf_ptr last;
 
 public:
   Context();
   symbol_ptr make_symbol(const std::string& name);
   ltlf_ptr make_tt();
   ltlf_ptr make_ff();
+  ltlf_ptr make_prop_true();
+  ltlf_ptr make_prop_false();
+  ltlf_ptr make_end();
+  ltlf_ptr make_last();
   ltlf_ptr make_bool(bool value);
   ltlf_ptr make_atom(const std::string& name);
   ltlf_ptr make_not(const ltlf_ptr& arg);
+  ltlf_ptr make_prop_not(const ltlf_ptr& arg);
   ltlf_ptr make_and(const vec_ptr& args);
   ltlf_ptr make_or(const vec_ptr& arg);
   ltlf_ptr make_implies(const vec_ptr& arg);

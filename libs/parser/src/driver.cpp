@@ -18,6 +18,7 @@
 #include <cassert>
 #include <fstream>
 
+#include <cynthia/logic/ltlf.hpp>
 #include <cynthia/parser/driver.hpp>
 
 namespace cynthia {
@@ -74,130 +75,88 @@ void LTLfDriver::parse_helper(std::istream& stream) {
 logic::ltlf_ptr LTLfDriver::add_LTLfTrue() const { return context->make_tt(); }
 
 logic::ltlf_ptr LTLfDriver::add_LTLfFalse() const { return context->make_ff(); }
+logic::ltlf_ptr LTLfDriver::add_LTLfPropTrue() const {
+  return context->make_prop_true();
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfPropFalse() const {
+  return context->make_prop_false();
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfEnd() const {
+  return context->make_always(context->make_ff());
+}
+logic::ltlf_ptr LTLfDriver::add_LTLfLast() const {
+  return context->make_weak_next(context->make_ff());
+}
 
 logic::ltlf_ptr LTLfDriver::add_LTLfAtom(const std::string& name) const {
   return context->make_atom(name);
 }
 
 logic::ltlf_ptr LTLfDriver::add_LTLfNot(const logic::ltlf_ptr& formula) const {
+  if (logic::is_a<logic::LTLfAtom>(*formula) ||
+      logic::is_a<logic::LTLfPropositionalNot>(*formula)) {
+    return context->make_prop_not(formula);
+  }
   return context->make_not(formula);
 }
 
-logic::ltlf_ptr LTLfDriver::add_LTLfAnd(logic::ltlf_ptr& lhs,
-                                        logic::ltlf_ptr& rhs) const {
+logic::ltlf_ptr LTLfDriver::add_LTLfAnd(const logic::ltlf_ptr& lhs,
+                                        const logic::ltlf_ptr& rhs) const {
   return context->make_and(logic::vec_ptr{lhs, rhs});
 }
 
-logic::ltlf_ptr LTLfDriver::add_LTLfOr(logic::ltlf_ptr& lhs,
-                                       logic::ltlf_ptr& rhs) const {
+logic::ltlf_ptr LTLfDriver::add_LTLfOr(const logic::ltlf_ptr& lhs,
+                                       const logic::ltlf_ptr& rhs) const {
   return context->make_or(logic::vec_ptr{lhs, rhs});
 }
+
+logic::ltlf_ptr LTLfDriver::add_LTLfImplies(const logic::ltlf_ptr& lhs,
+                                            const logic::ltlf_ptr& rhs) const {
+  return context->make_implies(logic::vec_ptr{lhs, rhs});
+}
+
+logic::ltlf_ptr
+LTLfDriver::add_LTLfEquivalent(const logic::ltlf_ptr& lhs,
+                               const logic::ltlf_ptr& rhs) const {
+  return context->make_equivalent(logic::vec_ptr{lhs, rhs});
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfXor(const logic::ltlf_ptr& lhs,
+                                        const logic::ltlf_ptr& rhs) const {
+  return context->make_xor(logic::vec_ptr{lhs, rhs});
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfNext(const logic::ltlf_ptr& formula) const {
+  return context->make_next(formula);
+}
+
+logic::ltlf_ptr
+LTLfDriver::add_LTLfWeakNext(const logic::ltlf_ptr& formula) const {
+  return context->make_weak_next(formula);
+}
 //
-// ldlf_ptr LTLfDriver::add_LTLfAtom(std::string s) const {
-//  auto prop_atom = context->makePropRegex(context->makePropAtom(s));
-//  auto logical_true = context->makeLdlfTrue();
-//  return context->makeLdlfDiamond(prop_atom, logical_true);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfAnd(ldlf_ptr& lhs, ldlf_ptr& rhs) const {
-//  auto children = set_formulas({lhs, rhs});
-//  return context->makeLdlfAnd(children);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfOr(ldlf_ptr& lhs, ldlf_ptr& rhs) const {
-//  auto children = set_formulas({lhs, rhs});
-//  return context->makeLdlfOr(children);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfNot(ldlf_ptr& formula) const {
-//  return context->makeLdlfNot(formula);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfNext(ldlf_ptr& formula) const {
-//  auto not_end = context->makeLdlfNot(context->makeLdlfEnd());
-//  auto formula_and_not_end = context->makeLdlfAnd({formula, not_end});
-//  return context->makeLdlfDiamond(context->makePropRegex(context->makeTrue()),
-//                                  formula_and_not_end);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfWeakNext(ldlf_ptr& formula) const {
-//  auto end = context->makeLdlfEnd();
-//  auto formula_or_end = context->makeLdlfOr({formula, end});
-//  return context->makeLdlfBox(context->makePropRegex(context->makeTrue()),
-//                              formula_or_end);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfEventually(ldlf_ptr& formula) const {
-//  auto not_end = context->makeLdlfNot(context->makeLdlfEnd());
-//  auto formula_and_not_end = context->makeLdlfAnd({formula, not_end});
-//  auto true_star =
-//      context->makeStarRegex(context->makePropRegex(context->makeTrue()));
-//  return context->makeLdlfDiamond(true_star, formula_and_not_end);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfAlways(ldlf_ptr& formula) const {
-//  auto end = context->makeLdlfEnd();
-//  auto formula_or_end = context->makeLdlfOr({formula, end});
-//  auto true_star =
-//      context->makeStarRegex(context->makePropRegex(context->makeTrue()));
-//  return context->makeLdlfBox(true_star, formula_or_end);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfUntil(ldlf_ptr& lhs, ldlf_ptr& rhs) const {
-//  auto not_end = context->makeLdlfNot(context->makeLdlfEnd());
-//  auto formula_and_not_end = context->makeLdlfAnd({rhs, not_end});
-//  auto true_regex = context->makePropRegex(context->makeTrue());
-//  auto formula_test = context->makeTestRegex(lhs);
-//  auto seq_star =
-//      context->makeStarRegex(context->makeSeqRegex({formula_test,
-//      true_regex}));
-//  return context->makeLdlfDiamond(seq_star, formula_and_not_end);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfRelease(ldlf_ptr& lhs, ldlf_ptr& rhs) const {
-//  auto end = context->makeLdlfEnd();
-//  auto formula_or_end = context->makeLdlfOr({rhs, end});
-//  auto true_regex = context->makePropRegex(context->makeTrue());
-//  auto formula_test = context->makeTestRegex(lhs);
-//  auto seq_star =
-//      context->makeStarRegex(context->makeSeqRegex({formula_test,
-//      true_regex}));
-//  return context->makeLdlfBox(seq_star, formula_or_end);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfImplication(ldlf_ptr& lhs, ldlf_ptr& rhs) const
-// {
-//  auto ptr_not_lhs = context->makeLdlfNot(lhs);
-//  auto children = set_formulas({ptr_not_lhs, rhs});
-//  return context->makeLdlfOr(children);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfEquivalence(ldlf_ptr& lhs, ldlf_ptr& rhs) const
-// {
-//  auto ptr_left_implication = this->add_LTLfImplication(lhs, rhs);
-//  auto ptr_right_implication = this->add_LTLfImplication(rhs, lhs);
-//  auto children = set_formulas({ptr_left_implication, ptr_right_implication});
-//  return context->makeLdlfAnd(children);
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfLast() const {
-//  return context->makeLdlfDiamond(context->makePropRegex(context->makeTrue()),
-//                                  context->makeLdlfEnd());
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfEnd() const { return context->makeLdlfEnd(); }
-//
-// ldlf_ptr LTLfDriver::add_LTLfPropTrue() const {
-//  return context->makeLdlfDiamond(context->makePropRegex(context->makeTrue()),
-//                                  context->makeLdlfTrue());
-//}
-//
-// ldlf_ptr LTLfDriver::add_LTLfPropFalse() const {
-//  return
-//  context->makeLdlfDiamond(context->makePropRegex(context->makeFalse()),
-//                                  context->makeLdlfTrue());
-//}
-//
+logic::ltlf_ptr
+LTLfDriver::add_LTLfEventually(const logic::ltlf_ptr& formula) const {
+  return context->make_eventually(formula);
+}
+
+logic::ltlf_ptr
+LTLfDriver::add_LTLfAlways(const logic::ltlf_ptr& formula) const {
+  return context->make_always(formula);
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfUntil(const logic::ltlf_ptr& lhs,
+                                          const logic::ltlf_ptr& rhs) const {
+  return context->make_until(logic::vec_ptr{lhs, rhs});
+}
+
+logic::ltlf_ptr LTLfDriver::add_LTLfRelease(const logic::ltlf_ptr& lhs,
+                                            const logic::ltlf_ptr& rhs) const {
+  return context->make_release(logic::vec_ptr{lhs, rhs});
+}
+
 std::ostream& LTLfDriver::print(std::ostream& stream) const {
   //  stream << this->result->str() << "\n";
   // TODO

@@ -55,25 +55,71 @@ TEST_CASE("ff", "[logic][ltlf]") {
   REQUIRE(*ff1 == *ff2);
 }
 
+TEST_CASE("true", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto prop_true1 = context.make_prop_true();
+  auto prop_true2 = context.make_prop_true();
+
+  REQUIRE(prop_true1 == prop_true2);
+  REQUIRE(*prop_true1 == *prop_true2);
+}
+
+TEST_CASE("false", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto prop_false1 = context.make_prop_false();
+  auto prop_false2 = context.make_prop_false();
+
+  REQUIRE(prop_false1 == prop_false2);
+  REQUIRE(*prop_false1 == *prop_false2);
+}
+
 TEST_CASE("atom", "[logic][ltlf]") {
   auto context = Context();
 
-  auto expeted_atom1 = context.make_atom("a");
-  auto expeted_atom2 = context.make_atom("a");
-  REQUIRE(expeted_atom1 == expeted_atom2);
-  REQUIRE(*expeted_atom1 == *expeted_atom2);
+  auto expected_atom2 = context.make_atom("a");
+  auto expected_atom1 = context.make_atom("a");
+  REQUIRE(expected_atom1 == expected_atom2);
+  REQUIRE(*expected_atom1 == *expected_atom2);
 }
 
-TEST_CASE("negation", "[logic][ltlf]") {
+TEST_CASE("logical negation of literals", "[logic][ltlf]") {
   auto context = Context();
 
   auto atom1 = context.make_atom("a");
-  auto expected1 = context.make_not(atom1);
-
   auto atom2 = context.make_atom("a");
-  auto expected2 = context.make_not(atom2);
-  REQUIRE(expected1 == expected2);
-  REQUIRE(*expected1 == *expected2);
+  SECTION("Same pointer") {
+    auto expected1 = context.make_not(atom1);
+    auto expected2 = context.make_not(atom2);
+    REQUIRE(expected1 == expected2);
+    REQUIRE(*expected1 == *expected2);
+  }
+}
+
+TEST_CASE("propositional negation of literals", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto atom1 = context.make_atom("a");
+  auto atom2 = context.make_atom("a");
+  SECTION("Same pointer") {
+    auto expected1 = context.make_prop_not(atom1);
+    auto expected2 = context.make_prop_not(atom2);
+    REQUIRE(expected1 == expected2);
+    REQUIRE(*expected1 == *expected2);
+  }
+
+  SECTION("Prop. negation of prop. negation of a is a") {
+    auto actual = context.make_prop_not(context.make_prop_not(atom1));
+    const auto& expected = atom1;
+    REQUIRE(actual == expected);
+    REQUIRE(*actual == *expected);
+  }
+
+  SECTION("Propositional negation of a non-atom raises exception") {
+    REQUIRE_THROWS_AS(context.make_prop_not(context.make_not(atom1)),
+                      std::invalid_argument);
+  }
 }
 
 TEST_CASE("conjunction", "[logic][ltlf]") {
@@ -128,16 +174,20 @@ TEST_CASE("equivalence", "[logic][ltlf]") {
   auto atom4 = context.make_atom("b");
   auto aa = context.make_equivalent(vec_ptr{atom1, atom2});
   auto bb = context.make_equivalent(vec_ptr{atom3, atom4});
-  REQUIRE(aa != bb);
-  REQUIRE(*aa != *bb);
+  SECTION("Test equal") {
+    REQUIRE(aa != bb);
+    REQUIRE(*aa != *bb);
 
-  REQUIRE(aa == aa);
-  REQUIRE(*aa == *aa);
+    REQUIRE(aa == aa);
+    REQUIRE(*aa == *aa);
+  }
 
-  auto aa_bb = context.make_equivalent(vec_ptr{aa, bb});
-  auto bb_aa = context.make_equivalent(vec_ptr{bb, aa});
-  REQUIRE(aa_bb != bb_aa);
-  REQUIRE(*aa_bb != *bb_aa);
+  SECTION("Test arguments are sorted") {
+    auto aa_bb = context.make_equivalent(vec_ptr{aa, bb});
+    auto bb_aa = context.make_equivalent(vec_ptr{bb, aa});
+    REQUIRE(aa_bb == bb_aa);
+    REQUIRE(*aa_bb == *bb_aa);
+  }
 }
 
 TEST_CASE("xor", "[logic][ltlf]") {
@@ -149,16 +199,21 @@ TEST_CASE("xor", "[logic][ltlf]") {
   auto atom4 = context.make_atom("b");
   auto aa = context.make_xor(vec_ptr{atom1, atom2});
   auto bb = context.make_xor(vec_ptr{atom3, atom4});
-  REQUIRE(aa != bb);
-  REQUIRE(*aa != *bb);
 
-  REQUIRE(aa == aa);
-  REQUIRE(*aa == *aa);
+  SECTION("Test equal") {
+    REQUIRE(aa != bb);
+    REQUIRE(*aa != *bb);
 
-  auto aa_bb = context.make_xor(vec_ptr{aa, bb});
-  auto bb_aa = context.make_xor(vec_ptr{bb, aa});
-  REQUIRE(aa_bb != bb_aa);
-  REQUIRE(*aa_bb != *bb_aa);
+    REQUIRE(aa == aa);
+    REQUIRE(*aa == *aa);
+  }
+
+  SECTION("Test arguments are sorted") {
+    auto aa_bb = context.make_xor(vec_ptr{aa, bb});
+    auto bb_aa = context.make_xor(vec_ptr{bb, aa});
+    REQUIRE(aa_bb == bb_aa);
+    REQUIRE(*aa_bb == *bb_aa);
+  }
 }
 
 TEST_CASE("next", "[logic][ltlf]") {
@@ -240,6 +295,24 @@ TEST_CASE("always", "[logic][ltlf]") {
   auto expected2 = context.make_always(atom2);
   REQUIRE(expected1 == expected2);
   REQUIRE(*expected1 == *expected2);
+}
+
+TEST_CASE("end", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto actual_end = context.make_end();
+  auto expected_end = context.make_always(context.make_ff());
+  REQUIRE(actual_end == expected_end);
+  REQUIRE(*actual_end == *expected_end);
+}
+
+TEST_CASE("last", "[logic][ltlf]") {
+  auto context = Context();
+
+  auto actual_last = context.make_last();
+  auto expected_last = context.make_weak_next(context.make_ff());
+  REQUIRE(actual_last == expected_last);
+  REQUIRE(*actual_last == *expected_last);
 }
 
 } // namespace Test
