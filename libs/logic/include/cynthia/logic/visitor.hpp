@@ -21,30 +21,35 @@
 namespace cynthia {
 namespace logic {
 
+inline void throw_not_implemented_error() {
+  throw std::logic_error("handler not implemented");
+}
+
 /*
  * Abstract visitor class.
  */
 class Visitor {
 public:
-  virtual void visit(const Symbol&) = 0;
-  virtual void visit(const LTLfTrue&) = 0;
-  virtual void visit(const LTLfFalse&) = 0;
-  virtual void visit(const LTLfPropTrue&) = 0;
-  virtual void visit(const LTLfPropFalse&) = 0;
-  virtual void visit(const LTLfAtom&) = 0;
-  virtual void visit(const LTLfNot&) = 0;
-  virtual void visit(const LTLfPropositionalNot&) = 0;
-  virtual void visit(const LTLfAnd&) = 0;
-  virtual void visit(const LTLfOr&) = 0;
-  virtual void visit(const LTLfImplies&) = 0;
-  virtual void visit(const LTLfEquivalent&) = 0;
-  virtual void visit(const LTLfXor&) = 0;
-  virtual void visit(const LTLfNext&) = 0;
-  virtual void visit(const LTLfWeakNext&) = 0;
-  virtual void visit(const LTLfUntil&) = 0;
-  virtual void visit(const LTLfRelease&) = 0;
-  virtual void visit(const LTLfEventually&) = 0;
-  virtual void visit(const LTLfAlways&) = 0;
+  virtual void visit(const LTLfTrue&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfFalse&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfPropTrue&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfPropFalse&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfAtom&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfNot&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfPropositionalNot&) {
+    throw_not_implemented_error();
+  };
+  virtual void visit(const LTLfAnd&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfOr&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfImplies&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfEquivalent&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfXor&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfNext&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfWeakNext&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfUntil&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfRelease&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfEventually&) { throw_not_implemented_error(); };
+  virtual void visit(const LTLfAlways&) { throw_not_implemented_error(); };
 };
 
 } // namespace logic

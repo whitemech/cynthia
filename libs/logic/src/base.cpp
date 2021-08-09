@@ -15,7 +15,6 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-//#include <cynthia/logic/base.hpp>
 #include <cynthia/logic/base.hpp>
 #include <cynthia/logic/ltlf.hpp>
 
@@ -46,11 +45,6 @@ Context::Context() {
   table_->insert_if_not_available(last);
 }
 
-symbol_ptr Context::make_symbol(const std::string& name) {
-  symbol_ptr symbol = std::make_shared<const Symbol>(*this, name);
-  symbol_ptr result = table_->insert_if_not_available(symbol);
-  return result;
-}
 ltlf_ptr Context::make_tt() { return tt; }
 ltlf_ptr Context::make_ff() { return ff; }
 ltlf_ptr Context::make_prop_true() { return true_; }

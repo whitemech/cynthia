@@ -96,27 +96,27 @@ int LTLfBinaryOp::compare_(const Comparable& o) const {
                                 dynamic_cast<const LTLfBinaryOp&>(o).args);
 }
 
-void Symbol::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfTrue::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfFalse::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfPropTrue::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfPropFalse::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfAtom::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfNot::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfPropositionalNot::accept(Visitor* visitor) const {
-  visitor->visit(*this);
+void Symbol::accept(Visitor& visitor) const {}
+void LTLfTrue::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfFalse::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfPropTrue::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfPropFalse::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfAtom::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfNot::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfPropositionalNot::accept(Visitor& visitor) const {
+  visitor.visit(*this);
 }
-void LTLfAnd::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfOr::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfImplies::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfEquivalent::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfXor::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfNext::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfWeakNext::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfUntil::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfRelease::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfEventually::accept(Visitor* visitor) const { visitor->visit(*this); }
-void LTLfAlways::accept(Visitor* visitor) const { visitor->visit(*this); }
+void LTLfAnd::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfOr::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfImplies::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfEquivalent::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfXor::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfNext::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfWeakNext::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfUntil::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfRelease::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfEventually::accept(Visitor& visitor) const { visitor.visit(*this); }
+void LTLfAlways::accept(Visitor& visitor) const { visitor.visit(*this); }
 
 } // namespace logic
 } // namespace cynthia
