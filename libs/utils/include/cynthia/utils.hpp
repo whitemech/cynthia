@@ -17,6 +17,7 @@
  */
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -107,6 +108,28 @@ template <typename T> typename std::vector<T> setify(std::vector<T> vec) {
   vec.erase(last, vec.end());
   return vec;
 }
+
+template <typename T>
+std::vector<T>
+from_index_map_to_vector(const std::map<T, size_t>& from_element_to_id) {
+  auto result = std::vector<T>(from_element_to_id.size());
+  for (const auto& pair : from_element_to_id) {
+    result[pair.second] = pair.first;
+  }
+  return result;
+}
+
+template <typename T>
+size_t binary_search_find_index(std::vector<T> v, T data) {
+  auto it = std::lower_bound(v.begin(), v.end(), data);
+  if (it == v.end() || *it != data) {
+    return -1;
+  } else {
+    std::size_t index = std::distance(v.begin(), it);
+    return index;
+  }
+}
+
 template <typename T> typename std::vector<T> sort(std::vector<T> vec) {
   if (!std::is_sorted(vec.begin(), vec.end())) {
     std::sort(vec.begin(), vec.end());
