@@ -39,7 +39,7 @@ TEST_CASE("Test VTree", "[core][SDD]") {
   auto formula_closure = closure(*ab_until_cd);
   auto builder = VTreeBuilder(formula_closure, partition);
   auto vtree = builder.get_vtree();
-  REQUIRE(vtree->var_count == 11);
+  REQUIRE(vtree->var_count == 12);
   sdd_vtree_free(vtree);
 }
 } // namespace Test

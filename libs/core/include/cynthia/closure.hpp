@@ -85,6 +85,11 @@ public:
   void visit(const logic::LTLfAlways&) override;
 
   void apply(const logic::LTLfFormula& f);
+
+  template <typename FactoryFunction>
+  inline void
+  apply_to_right_associative_binary_op_(const logic::LTLfBinaryOp& formula,
+                                        FactoryFunction function);
 };
 
 Closure closure(const logic::LTLfFormula& f);
@@ -108,6 +113,15 @@ ClosureVisitor::apply_to_binary_op_(const logic::LTLfBinaryOp& formula) {
 
   for (const auto& arg : formula.args) {
     apply(*arg);
+  }
+}
+template <typename FactoryFunction>
+inline void ClosureVisitor::apply_to_right_associative_binary_op_(
+    const logic::LTLfBinaryOp& formula, FactoryFunction function) {
+  apply_to_binary_op_(formula);
+  for (auto it = formula.args.begin() + 1; it < formula.args.end() - 1; ++it) {
+    auto subformula = function(logic::vec_ptr(it, formula.args.end()));
+    apply(*subformula);
   }
 }
 inline void

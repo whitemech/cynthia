@@ -28,7 +28,7 @@ void EvalVisitor::visit(const logic::LTLfPropTrue& formula) { result = false; }
 void EvalVisitor::visit(const logic::LTLfPropFalse& formula) { result = false; }
 void EvalVisitor::visit(const logic::LTLfAtom& formula) { result = false; }
 void EvalVisitor::visit(const logic::LTLfNot& formula) {
-  logic::throw_not_supported_error();
+  logic::throw_expected_nnf();
 }
 void EvalVisitor::visit(const logic::LTLfPropositionalNot& formula) {
   result = false;

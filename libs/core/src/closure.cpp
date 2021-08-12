@@ -82,16 +82,26 @@ void ClosureVisitor::visit(const logic::LTLfWeakNext& formula) {
   apply_to_unary_op_(formula);
 }
 void ClosureVisitor::visit(const logic::LTLfUntil& formula) {
-  apply_to_binary_op_(formula);
+  apply_to_right_associative_binary_op_(formula,
+                                        [&formula](const logic::vec_ptr& args) {
+                                          return formula.ctx().make_until(args);
+                                        });
+  apply(*formula.ctx().make_next(formula.shared_from_this()));
 }
 void ClosureVisitor::visit(const logic::LTLfRelease& formula) {
-  apply_to_binary_op_(formula);
+  apply_to_right_associative_binary_op_(
+      formula, [&formula](const logic::vec_ptr& args) {
+        return formula.ctx().make_release(args);
+      });
+  apply(*formula.ctx().make_weak_next(formula.shared_from_this()));
 }
 void ClosureVisitor::visit(const logic::LTLfEventually& formula) {
   apply_to_unary_op_(formula);
+  apply(*formula.ctx().make_next(formula.shared_from_this()));
 }
 void ClosureVisitor::visit(const logic::LTLfAlways& formula) {
   apply_to_unary_op_(formula);
+  apply(*formula.ctx().make_weak_next(formula.shared_from_this()));
 }
 void ClosureVisitor::apply(const logic::LTLfFormula& f) { f.accept(*this); }
 Closure closure(const logic::LTLfFormula& f) {
