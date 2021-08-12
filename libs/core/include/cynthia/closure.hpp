@@ -28,27 +28,23 @@ namespace core {
 
 class Closure {
 private:
-  std::vector<std::shared_ptr<const logic::LTLfAtom>> atoms;
+  std::vector<logic::atom_ptr> atoms;
   logic::vec_ptr from_id_to_subformula;
-  logic::map_ptr from_subformula_to_id;
   friend Closure closure(const logic::LTLfFormula& f);
-  Closure(const logic::map_ptr& from_subformula_to_id,
-          const std::vector<std::shared_ptr<const logic::LTLfAtom>>& atoms)
-      : from_id_to_subformula{utils::from_index_map_to_vector(
-            from_subformula_to_id)},
-        from_subformula_to_id{from_subformula_to_id}, atoms{atoms} {};
+  explicit Closure(const logic::set_ptr& formulas);
 
 public:
+  Closure() = default;
   size_t get_id(const logic::ltlf_ptr& formula) const;
   const logic::ltlf_ptr& get_formula(size_t index) const;
-  inline const size_t nb_formulas() const {
-    return from_id_to_subformula.size();
-  };
-  inline const size_t nb_atoms() const { return atoms.size(); };
-  logic::map_ptr::const_iterator begin_formulas() const;
-  logic::map_ptr::const_iterator end_formulas() const;
+  inline size_t nb_formulas() const { return from_id_to_subformula.size(); };
+  inline size_t nb_atoms() const { return atoms.size(); };
+  logic::vec_ptr::const_iterator begin_formulas() const;
+  logic::vec_ptr::const_iterator end_formulas() const;
   std::vector<logic::atom_ptr>::const_iterator begin_atoms() const;
   std::vector<logic::atom_ptr>::const_iterator end_atoms() const;
+
+  void find_atoms_();
 };
 
 class ClosureVisitor : public logic::Visitor {
@@ -63,8 +59,7 @@ private:
   inline void apply_to_unary_op_(const logic::LTLfUnaryOp& formula);
 
 public:
-  logic::map_ptr from_subformula_to_id;
-  std::set<std::shared_ptr<const logic::LTLfAtom>> atoms;
+  logic::set_ptr formulas;
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
   void visit(const logic::LTLfPropTrue&) override;
@@ -97,9 +92,8 @@ Closure closure(const logic::LTLfFormula& f);
 inline bool ClosureVisitor::insert_if_not_already_present_(
     const logic::LTLfFormula& formula) {
   auto formula_ptr = formula.shared_from_this();
-  if (from_subformula_to_id.find(formula_ptr) == from_subformula_to_id.end()) {
-    size_t new_id = from_subformula_to_id.size();
-    from_subformula_to_id[formula_ptr] = new_id;
+  if (formulas.find(formula_ptr) == formulas.end()) {
+    formulas.insert(formula_ptr);
     return true;
   }
   return false;
@@ -119,7 +113,7 @@ template <typename FactoryFunction>
 inline void ClosureVisitor::apply_to_right_associative_binary_op_(
     const logic::LTLfBinaryOp& formula, FactoryFunction function) {
   apply_to_binary_op_(formula);
-  for (auto it = formula.args.begin() + 1; it < formula.args.end() - 1; ++it) {
+  for (auto it = formula.args.begin() + 1; it != formula.args.end() - 1; ++it) {
     auto subformula = function(logic::vec_ptr(it, formula.args.end()));
     apply(*subformula);
   }

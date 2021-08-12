@@ -22,7 +22,7 @@ namespace cynthia {
 namespace core {
 namespace Test {
 
-TEST_CASE("Test eval of tt", "[core][SDD]") {
+TEST_CASE("Test closure of tt", "[core][SDD]") {
   auto context = logic::Context();
 
   auto tt = context.make_tt();
@@ -33,7 +33,7 @@ TEST_CASE("Test eval of tt", "[core][SDD]") {
   REQUIRE(tt_closure.get_formula(0) == tt);
 }
 
-TEST_CASE("Test eval of ff", "[core][SDD]") {
+TEST_CASE("Test closure of ff", "[core][SDD]") {
   auto context = logic::Context();
 
   auto ff = context.make_ff();
@@ -44,54 +44,97 @@ TEST_CASE("Test eval of ff", "[core][SDD]") {
   REQUIRE(ff_closure.get_formula(0) == ff);
 }
 
-TEST_CASE("Test eval of true", "[core][SDD]") {
+TEST_CASE("Test closure of true", "[core][SDD]") {
   auto context = logic::Context();
 
   auto true_ = context.make_prop_true();
   auto true_closure = closure(*true_);
 
-  REQUIRE(true_closure.nb_formulas() == 1);
-  REQUIRE(true_closure.get_id(true_) == 0);
-  REQUIRE(true_closure.get_formula(0) == true_);
+  REQUIRE(true_closure.nb_formulas() == 3);
+
+  auto tt = context.make_tt();
+  auto next_tt = context.make_next(tt);
+  auto eventually_tt = context.make_eventually(tt);
+
+  REQUIRE(true_closure.get_id(tt) == 0);
+  REQUIRE(true_closure.get_formula(0) == tt);
+  REQUIRE(true_closure.get_id(true_) == 1);
+  REQUIRE(true_closure.get_formula(1) == true_);
+  REQUIRE(true_closure.get_id(next_tt) == 2);
+  REQUIRE(true_closure.get_formula(2) == next_tt);
 }
 
-TEST_CASE("Test eval of false", "[core][SDD]") {
+TEST_CASE("Test closure of false", "[core][SDD]") {
   auto context = logic::Context();
 
   auto false_ = context.make_prop_false();
   auto false_closure = closure(*false_);
 
-  REQUIRE(false_closure.nb_formulas() == 1);
-  REQUIRE(false_closure.get_id(false_) == 0);
-  REQUIRE(false_closure.get_formula(0) == false_);
+  REQUIRE(false_closure.nb_formulas() == 3);
+
+  auto ff = context.make_ff();
+  auto next_ff = context.make_next(ff);
+
+  REQUIRE(false_closure.get_id(ff) == 0);
+  REQUIRE(false_closure.get_formula(0) == ff);
+  REQUIRE(false_closure.get_id(false_) == 1);
+  REQUIRE(false_closure.get_formula(1) == false_);
+  REQUIRE(false_closure.get_id(next_ff) == 2);
+  REQUIRE(false_closure.get_formula(2) == next_ff);
 }
 
-TEST_CASE("Test eval of a", "[core][SDD]") {
+TEST_CASE("Test closure of a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
-  auto true_closure = closure(*a);
+  auto a_closure = closure(*a);
 
-  REQUIRE(true_closure.nb_formulas() == 1);
-  REQUIRE(true_closure.get_id(a) == 0);
-  REQUIRE(true_closure.get_formula(0) == a);
+  REQUIRE(a_closure.nb_formulas() == 5);
+
+  auto ff = context.make_ff();
+  auto tt = context.make_tt();
+  auto next_tt = context.make_next(tt);
+  auto next_ff = context.make_next(ff);
+
+  REQUIRE(a_closure.get_id(tt) == 0);
+  REQUIRE(a_closure.get_formula(0) == tt);
+  REQUIRE(a_closure.get_id(ff) == 1);
+  REQUIRE(a_closure.get_formula(1) == ff);
+  REQUIRE(a_closure.get_id(a) == 2);
+  REQUIRE(a_closure.get_formula(2) == a);
+  REQUIRE(a_closure.get_id(next_tt) == 3);
+  REQUIRE(a_closure.get_formula(3) == next_tt);
+  REQUIRE(a_closure.get_id(next_ff) == 4);
+  REQUIRE(a_closure.get_formula(4) == next_ff);
 }
 
-TEST_CASE("Test eval of !a", "[core][SDD]") {
+TEST_CASE("Test closure of !a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
   auto not_a = context.make_prop_not(a);
   auto not_a_closure = closure(*not_a);
 
-  REQUIRE(not_a_closure.nb_formulas() == 2);
-  REQUIRE(not_a_closure.get_id(not_a) == 0);
-  REQUIRE(not_a_closure.get_formula(0) == not_a);
-  REQUIRE(not_a_closure.get_id(a) == 1);
-  REQUIRE(not_a_closure.get_formula(1) == a);
+  REQUIRE(not_a_closure.nb_formulas() == 5);
+
+  auto ff = context.make_ff();
+  auto tt = context.make_tt();
+  auto next_tt = context.make_next(tt);
+  auto next_ff = context.make_next(ff);
+
+  REQUIRE(not_a_closure.get_id(tt) == 0);
+  REQUIRE(not_a_closure.get_formula(0) == tt);
+  REQUIRE(not_a_closure.get_id(ff) == 1);
+  REQUIRE(not_a_closure.get_formula(1) == ff);
+  REQUIRE(not_a_closure.get_id(not_a) == 2);
+  REQUIRE(not_a_closure.get_formula(2) == not_a);
+  REQUIRE(not_a_closure.get_id(next_tt) == 3);
+  REQUIRE(not_a_closure.get_formula(3) == next_tt);
+  REQUIRE(not_a_closure.get_id(next_ff) == 4);
+  REQUIRE(not_a_closure.get_formula(4) == next_ff);
 }
 
-TEST_CASE("Test eval of a & b", "[core][SDD]") {
+TEST_CASE("Test closure of a & b", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -99,16 +142,19 @@ TEST_CASE("Test eval of a & b", "[core][SDD]") {
   auto a_and_b = context.make_and(logic::vec_ptr{a, b});
   auto a_and_b_closure = closure(*a_and_b);
 
-  REQUIRE(a_and_b_closure.nb_formulas() == 3);
-  REQUIRE(a_and_b_closure.get_id(a_and_b) == 0);
-  REQUIRE(a_and_b_closure.get_formula(0) == a_and_b);
-  REQUIRE(a_and_b_closure.get_id(a) == 1);
-  REQUIRE(a_and_b_closure.get_formula(1) == a);
-  REQUIRE(a_and_b_closure.get_id(b) == 2);
-  REQUIRE(a_and_b_closure.get_formula(2) == b);
+  auto ff = context.make_ff();
+  auto tt = context.make_tt();
+  auto next_tt = context.make_next(tt);
+  auto next_ff = context.make_next(ff);
+
+  REQUIRE(a_and_b_closure.nb_formulas() == 7);
+  auto actual = logic::vec_ptr(a_and_b_closure.begin_formulas(),
+                               a_and_b_closure.end_formulas());
+  auto expected = logic::vec_ptr({tt, ff, a, b, a_and_b, next_tt, next_ff});
+  REQUIRE(actual == expected);
 }
 
-TEST_CASE("Test eval of a | b", "[core][SDD]") {
+TEST_CASE("Test closure of a | b", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -116,27 +162,37 @@ TEST_CASE("Test eval of a | b", "[core][SDD]") {
   auto a_or_b = context.make_or(logic::vec_ptr{a, b});
   auto a_or_b_closure = closure(*a_or_b);
 
-  REQUIRE(a_or_b_closure.nb_formulas() == 3);
-  REQUIRE(a_or_b_closure.get_id(a_or_b) == 0);
-  REQUIRE(a_or_b_closure.get_formula(0) == a_or_b);
-  REQUIRE(a_or_b_closure.get_id(a) == 1);
-  REQUIRE(a_or_b_closure.get_formula(1) == a);
-  REQUIRE(a_or_b_closure.get_id(b) == 2);
-  REQUIRE(a_or_b_closure.get_formula(2) == b);
+  auto ff = context.make_ff();
+  auto tt = context.make_tt();
+  auto next_tt = context.make_next(tt);
+  auto next_ff = context.make_next(ff);
+
+  REQUIRE(a_or_b_closure.nb_formulas() == 7);
+  auto actual = logic::vec_ptr(a_or_b_closure.begin_formulas(),
+                               a_or_b_closure.end_formulas());
+  auto expected = logic::vec_ptr({tt, ff, a, b, a_or_b, next_tt, next_ff});
+  REQUIRE(actual == expected);
 }
 
-TEST_CASE("Test eval of X[!]a", "[core][SDD]") {
+TEST_CASE("Test closure of X[!]a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
   auto next_a = context.make_next(a);
   auto next_a_closure = closure(*next_a);
 
-  REQUIRE(next_a_closure.nb_formulas() == 2);
-  REQUIRE(next_a_closure.get_id(next_a) == 0);
-  REQUIRE(next_a_closure.get_formula(0) == next_a);
-  REQUIRE(next_a_closure.get_id(a) == 1);
-  REQUIRE(next_a_closure.get_formula(1) == a);
+  auto ff = context.make_ff();
+  auto tt = context.make_tt();
+  auto next_tt = context.make_next(tt);
+  auto next_ff = context.make_next(ff);
+  auto eventually_tt = context.make_eventually(tt);
+
+  REQUIRE(next_a_closure.nb_formulas() == 7);
+  auto actual = logic::vec_ptr(next_a_closure.begin_formulas(),
+                               next_a_closure.end_formulas());
+  auto expected =
+      logic::vec_ptr({tt, ff, a, next_tt, next_ff, next_a, eventually_tt});
+  REQUIRE(actual == expected);
 }
 
 } // namespace Test

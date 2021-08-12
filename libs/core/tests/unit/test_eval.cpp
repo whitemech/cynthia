@@ -22,41 +22,41 @@ namespace cynthia {
 namespace core {
 namespace Test {
 
-TEST_CASE("Test Closure of tt", "[core][SDD]") {
+TEST_CASE("Test eval of tt", "[core][SDD]") {
   auto context = logic::Context();
 
   auto tt = context.make_tt();
   REQUIRE(eval(*tt));
 }
 
-TEST_CASE("Test Closure of ff", "[core][SDD]") {
+TEST_CASE("Test eval of ff", "[core][SDD]") {
   auto context = logic::Context();
   auto ff = context.make_ff();
   REQUIRE(!eval(*ff));
 }
 
-TEST_CASE("Test Closure of true", "[core][SDD]") {
+TEST_CASE("Test eval of true", "[core][SDD]") {
   auto context = logic::Context();
 
   auto true_ = context.make_prop_true();
   REQUIRE(!eval(*true_));
 }
 
-TEST_CASE("Test Closure of false", "[core][SDD]") {
+TEST_CASE("Test eval of false", "[core][SDD]") {
   auto context = logic::Context();
 
   auto false_ = context.make_prop_false();
   REQUIRE(!eval(*false_));
 }
 
-TEST_CASE("Test Closure of a", "[core][SDD]") {
+TEST_CASE("Test eval of a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
   REQUIRE(!eval(*a));
 }
 
-TEST_CASE("Test Closure of !a", "[core][SDD]") {
+TEST_CASE("Test eval of !a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -64,7 +64,7 @@ TEST_CASE("Test Closure of !a", "[core][SDD]") {
   REQUIRE(!eval(*not_a));
 }
 
-TEST_CASE("Test Closure of a & b", "[core][SDD]") {
+TEST_CASE("Test eval of a & b", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -73,7 +73,7 @@ TEST_CASE("Test Closure of a & b", "[core][SDD]") {
   REQUIRE(!eval(*a_and_b));
 }
 
-TEST_CASE("Test Closure of a | b", "[core][SDD]") {
+TEST_CASE("Test eval of a | b", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -82,7 +82,7 @@ TEST_CASE("Test Closure of a | b", "[core][SDD]") {
   REQUIRE(!eval(*a_or_b));
 }
 
-TEST_CASE("Test Closure of X[!]a", "[core][SDD]") {
+TEST_CASE("Test eval of X[!]a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -90,7 +90,7 @@ TEST_CASE("Test Closure of X[!]a", "[core][SDD]") {
   REQUIRE(!eval(*next_a));
 }
 
-TEST_CASE("Test Closure of X a", "[core][SDD]") {
+TEST_CASE("Test eval of X a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");

@@ -19,8 +19,9 @@
 #include <cynthia/closure.hpp>
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/logic/types.hpp>
-#include <sddapi.h>
-
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
 namespace core {
 
@@ -42,15 +43,32 @@ bool is_realizable(const logic::ltlf_ptr& formula,
 }
 
 class ForwardSynthesis : public ISynthesis {
-private:
-  Closure closure_;
-  Vtree* vtree_;
-  SddManager* manager_;
-
 public:
+  class Context {
+  public:
+    logic::ltlf_ptr formula;
+    InputOutputPartition partition;
+    logic::ltlf_ptr nnf_formula;
+    Closure closure_;
+    std::map<std::string, size_t> prop_to_id;
+    Vtree* vtree_{};
+    SddManager* manager{};
+    Context(const logic::ltlf_ptr& formula,
+            const InputOutputPartition& partition);
+    ~Context() {
+      sdd_vtree_free(vtree_);
+      sdd_manager_free(manager);
+    }
+  };
+  static std::map<std::string, size_t>
+  compute_prop_to_id_map(const Closure& closure,
+                         const InputOutputPartition& partition);
   bool is_realizable() override;
 
   bool forward_synthesis_();
+
+private:
+  Context context_;
 };
 
 } // namespace core

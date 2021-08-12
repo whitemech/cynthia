@@ -131,6 +131,9 @@ public:
 
   void accept(Visitor& visitor) const override;
   inline TypeID get_type_code() const override;
+  inline atom_ptr get_atom() const {
+    return std::static_pointer_cast<const LTLfAtom>(arg);
+  }
 };
 
 class LTLfNot : public LTLfUnaryOp {

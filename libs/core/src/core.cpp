@@ -28,21 +28,38 @@ ISynthesis::ISynthesis(const logic::ltlf_ptr& formula,
 
 bool ForwardSynthesis::is_realizable() {
   bool result = false;
-
-  const auto& formula_nnf = logic::to_nnf(*formula);
-  closure_ = closure(*formula_nnf);
-  auto builder = VTreeBuilder(closure_, partition);
-  vtree_ = builder.get_vtree();
-  manager_ = sdd_manager_new(vtree_);
-
+  context_ = ForwardSynthesis::Context(formula, partition);
   auto strategy = forward_synthesis_();
 
-  sdd_vtree_free(vtree_);
-  sdd_manager_free(manager_);
   return result;
 }
 
 bool ForwardSynthesis::forward_synthesis_() { return false; }
 
+std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
+    const Closure& closure, const InputOutputPartition& partition) {
+  std::map<std::string, size_t> result;
+  size_t offset = closure.nb_formulas();
+  size_t i = offset;
+  for (const auto& p : partition.input_variables) {
+    result[p] = i++;
+  }
+  for (const auto& p : partition.output_variables) {
+    result[p] = i++;
+  }
+  return result;
+}
+
+ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
+                                   const InputOutputPartition& partition)
+    : formula{formula}, partition{partition} {
+  nnf_formula = logic::to_nnf(*formula);
+  Closure closure_object = closure(*nnf_formula);
+  closure_ = closure_object;
+  auto builder = VTreeBuilder(closure_, partition);
+  vtree_ = builder.get_vtree();
+  manager = sdd_manager_new(vtree_);
+  prop_to_id = compute_prop_to_id_map(closure_, partition);
+}
 } // namespace core
 } // namespace cynthia

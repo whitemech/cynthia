@@ -22,10 +22,12 @@ namespace cynthia {
 namespace core {
 
 size_t Closure::get_id(const logic::ltlf_ptr& formula) const {
-  if (from_subformula_to_id.find(formula) == from_subformula_to_id.end()) {
-    throw std::invalid_argument("cannot find formula in closure");
+  auto result = utils::binary_search_find_index(from_id_to_subformula, formula,
+                                                utils::Deref::Less());
+  if (result > from_id_to_subformula.size()) {
+    throw std::invalid_argument("formula not found");
   }
-  return from_subformula_to_id.at(formula);
+  return result;
 }
 const logic::ltlf_ptr& Closure::get_formula(size_t index) const {
   if (index > from_id_to_subformula.size()) {
@@ -42,23 +44,56 @@ void ClosureVisitor::visit(const logic::LTLfFalse& formula) {
 }
 void ClosureVisitor::visit(const logic::LTLfPropTrue& formula) {
   insert_if_not_already_present_(formula);
+  // 'true' in the closure implies 'X(tt)' in the closure
+  // note: we don't recursively call 'apply' because we don't need F(tt)
+  //       that would be created by 'X(tt)'.
+  auto& c = formula.ctx();
+  const auto& tt = c.make_tt();
+  const auto& next_tt = c.make_next(tt);
+  insert_if_not_already_present_(*tt);
+  insert_if_not_already_present_(*next_tt);
 }
 void ClosureVisitor::visit(const logic::LTLfPropFalse& formula) {
   insert_if_not_already_present_(formula);
+  // 'false' in the closure implies 'X(ff)' in the closure
+  auto& c = formula.ctx();
+  const auto& ff = c.make_ff();
+  const auto& next_ff = c.make_next(ff);
+  insert_if_not_already_present_(*ff);
+  insert_if_not_already_present_(*next_ff);
 }
 void ClosureVisitor::visit(const logic::LTLfAtom& formula) {
   insert_if_not_already_present_(formula);
-  auto atom = std::static_pointer_cast<const logic::LTLfAtom>(
-      formula.shared_from_this());
-  atoms.insert(atom);
+  // 'atom' in the closure implies:
+  //   (1) 'X(tt)' in the closure
+  //   (2) 'X(ff)' in the closure
+  auto& c = formula.ctx();
+  const auto& tt = c.make_tt();
+  const auto& ff = c.make_ff();
+  const auto& next_tt = c.make_next(tt);
+  const auto& next_ff = c.make_next(ff);
+  insert_if_not_already_present_(*tt);
+  insert_if_not_already_present_(*ff);
+  insert_if_not_already_present_(*next_tt);
+  insert_if_not_already_present_(*next_ff);
 }
 void ClosureVisitor::visit(const logic::LTLfNot& formula) {
-  apply_to_unary_op_(formula);
+  logic::throw_expected_nnf();
 }
 void ClosureVisitor::visit(const logic::LTLfPropositionalNot& formula) {
-  apply_to_unary_op_(formula);
-  auto atom = std::static_pointer_cast<const logic::LTLfAtom>(formula.arg);
-  atoms.insert(atom);
+  insert_if_not_already_present_(formula);
+  // 'atom' in the closure implies:
+  //   (1) 'X(tt)' in the closure
+  //   (2) 'X(ff)' in the closure
+  auto& c = formula.ctx();
+  const auto& tt = c.make_tt();
+  const auto& ff = c.make_ff();
+  const auto& next_tt = c.make_next(tt);
+  const auto& next_ff = c.make_next(ff);
+  insert_if_not_already_present_(*tt);
+  insert_if_not_already_present_(*ff);
+  insert_if_not_already_present_(*next_tt);
+  insert_if_not_already_present_(*next_ff);
 }
 void ClosureVisitor::visit(const logic::LTLfAnd& formula) {
   apply_to_binary_op_(formula);
@@ -77,9 +112,15 @@ void ClosureVisitor::visit(const logic::LTLfXor& formula) {
 }
 void ClosureVisitor::visit(const logic::LTLfNext& formula) {
   apply_to_unary_op_(formula);
+  // 'X[!](phi)' in the closure implies 'F(tt)' in the closure
+  auto& c = formula.ctx();
+  insert_if_not_already_present_(*c.make_eventually(c.make_tt()));
 }
 void ClosureVisitor::visit(const logic::LTLfWeakNext& formula) {
   apply_to_unary_op_(formula);
+  // 'X(phi)' in the closure implies 'G(ff)' in the closure
+  auto& c = formula.ctx();
+  insert_if_not_already_present_(*c.make_always(c.make_ff()));
 }
 void ClosureVisitor::visit(const logic::LTLfUntil& formula) {
   apply_to_right_associative_binary_op_(formula,
@@ -107,17 +148,15 @@ void ClosureVisitor::apply(const logic::LTLfFormula& f) { f.accept(*this); }
 Closure closure(const logic::LTLfFormula& f) {
   auto visitor = ClosureVisitor{};
   visitor.apply(f);
-  return Closure{visitor.from_subformula_to_id,
-                 std::vector<std::shared_ptr<const logic::LTLfAtom>>{
-                     visitor.atoms.begin(), visitor.atoms.end()}};
+  return Closure{visitor.formulas};
 }
 
-logic::map_ptr::const_iterator Closure::begin_formulas() const {
-  return from_subformula_to_id.begin();
+logic::vec_ptr::const_iterator Closure::begin_formulas() const {
+  return from_id_to_subformula.begin();
 }
 
-logic::map_ptr::const_iterator Closure::end_formulas() const {
-  return from_subformula_to_id.end();
+logic::vec_ptr::const_iterator Closure::end_formulas() const {
+  return from_id_to_subformula.end();
 }
 
 std::vector<logic::atom_ptr>::const_iterator Closure::begin_atoms() const {
@@ -126,6 +165,24 @@ std::vector<logic::atom_ptr>::const_iterator Closure::begin_atoms() const {
 
 std::vector<logic::atom_ptr>::const_iterator Closure::end_atoms() const {
   return atoms.end();
+}
+
+Closure::Closure(const logic::set_ptr& formulas)
+    : from_id_to_subformula(utils::vectify(formulas)) {
+  find_atoms_();
+}
+
+void Closure::find_atoms_() {
+  for (const auto& formula : this->from_id_to_subformula) {
+    if (logic::is_a<logic::LTLfAtom>(*formula)) {
+      atoms.push_back(std::static_pointer_cast<const logic::LTLfAtom>(formula));
+    } else if (logic::is_a<logic::LTLfPropositionalNot>(*formula)) {
+      atoms.push_back(
+          std::static_pointer_cast<const logic::LTLfPropositionalNot>(formula)
+              ->get_atom());
+    }
+  }
+  std::sort(atoms.begin(), atoms.end(), utils::Deref::Less());
 }
 
 } // namespace core

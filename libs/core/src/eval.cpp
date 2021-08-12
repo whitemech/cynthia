@@ -47,7 +47,7 @@ void EvalVisitor::visit(const logic::LTLfImplies& formula) {
   bool temp_result = std::any_of(
       formula.args.begin(), formula.args.end() - 1,
       [this](const logic::ltlf_ptr& arg) { return not apply(*arg); });
-  result = temp_result or apply(**formula.args.rbegin());
+  result = temp_result or apply(*formula.args.back());
 }
 void EvalVisitor::visit(const logic::LTLfEquivalent& formula) {
   std::vector<bool> evals(formula.args.size());

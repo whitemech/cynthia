@@ -30,6 +30,9 @@ inline void throw_not_supported_error() {
 inline void throw_expected_nnf() {
   throw std::logic_error("expected formula in Negation-Normal Form");
 }
+inline void throw_expected_xnf() {
+  throw std::logic_error("expected formula in Next-Normal Form");
+}
 
 /*
  * Abstract visitor class.

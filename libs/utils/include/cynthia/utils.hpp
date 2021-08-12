@@ -142,13 +142,13 @@ from_index_map_to_vector(const std::map<T, size_t, C>& from_element_to_id) {
   return result;
 }
 
-template <typename T>
-size_t binary_search_find_index(std::vector<T> v, T data) {
-  auto it = std::lower_bound(v.begin(), v.end(), data);
+template <typename T, typename Comparator>
+int binary_search_find_index(std::vector<T> v, T data, Comparator compare) {
+  auto it = std::lower_bound(v.begin(), v.end(), data, compare);
   if (it == v.end() || *it != data) {
     return -1;
   } else {
-    std::size_t index = std::distance(v.begin(), it);
+    int index = std::distance(v.begin(), it);
     return index;
   }
 }
