@@ -26,6 +26,14 @@
 namespace cynthia {
 namespace utils {
 
+static inline bool and_(bool b1, bool b2) { return b1 and b2; }
+static inline bool or_(bool b1, bool b2) { return b1 and b2; }
+static inline bool implies_(bool b1, bool b2) { return not b1 or b2; }
+static inline bool equivalent_(bool b1, bool b2) {
+  return (b1 and b2) or (not b1 and not b2);
+}
+static inline bool xor_(bool b1, bool b2) { return b1 xor b2; }
+
 /*
  * Dereferenced versions of hashing and comparison.
  */

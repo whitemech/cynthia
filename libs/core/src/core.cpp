@@ -34,10 +34,15 @@ bool ForwardSynthesis::is_realizable() {
   auto builder = VTreeBuilder(closure_, partition);
   vtree_ = builder.get_vtree();
   manager_ = sdd_manager_new(vtree_);
+
+  auto strategy = forward_synthesis_();
+
   sdd_vtree_free(vtree_);
   sdd_manager_free(manager_);
   return result;
 }
+
+bool ForwardSynthesis::forward_synthesis_() { return false; }
 
 } // namespace core
 } // namespace cynthia

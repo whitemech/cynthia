@@ -22,7 +22,7 @@ namespace cynthia {
 namespace core {
 namespace Test {
 
-TEST_CASE("Test Closure of tt", "[core][SDD]") {
+TEST_CASE("Test eval of tt", "[core][SDD]") {
   auto context = logic::Context();
 
   auto tt = context.make_tt();
@@ -33,7 +33,7 @@ TEST_CASE("Test Closure of tt", "[core][SDD]") {
   REQUIRE(tt_closure.get_formula(0) == tt);
 }
 
-TEST_CASE("Test Closure of ff", "[core][SDD]") {
+TEST_CASE("Test eval of ff", "[core][SDD]") {
   auto context = logic::Context();
 
   auto ff = context.make_ff();
@@ -44,7 +44,7 @@ TEST_CASE("Test Closure of ff", "[core][SDD]") {
   REQUIRE(ff_closure.get_formula(0) == ff);
 }
 
-TEST_CASE("Test Closure of true", "[core][SDD]") {
+TEST_CASE("Test eval of true", "[core][SDD]") {
   auto context = logic::Context();
 
   auto true_ = context.make_prop_true();
@@ -55,7 +55,7 @@ TEST_CASE("Test Closure of true", "[core][SDD]") {
   REQUIRE(true_closure.get_formula(0) == true_);
 }
 
-TEST_CASE("Test Closure of false", "[core][SDD]") {
+TEST_CASE("Test eval of false", "[core][SDD]") {
   auto context = logic::Context();
 
   auto false_ = context.make_prop_false();
@@ -66,7 +66,7 @@ TEST_CASE("Test Closure of false", "[core][SDD]") {
   REQUIRE(false_closure.get_formula(0) == false_);
 }
 
-TEST_CASE("Test Closure of a", "[core][SDD]") {
+TEST_CASE("Test eval of a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -77,7 +77,7 @@ TEST_CASE("Test Closure of a", "[core][SDD]") {
   REQUIRE(true_closure.get_formula(0) == a);
 }
 
-TEST_CASE("Test Closure of !a", "[core][SDD]") {
+TEST_CASE("Test eval of !a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -91,7 +91,7 @@ TEST_CASE("Test Closure of !a", "[core][SDD]") {
   REQUIRE(not_a_closure.get_formula(1) == a);
 }
 
-TEST_CASE("Test Closure of a & b", "[core][SDD]") {
+TEST_CASE("Test eval of a & b", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -108,7 +108,7 @@ TEST_CASE("Test Closure of a & b", "[core][SDD]") {
   REQUIRE(a_and_b_closure.get_formula(2) == b);
 }
 
-TEST_CASE("Test Closure of a | b", "[core][SDD]") {
+TEST_CASE("Test eval of a | b", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
@@ -125,7 +125,7 @@ TEST_CASE("Test Closure of a | b", "[core][SDD]") {
   REQUIRE(a_or_b_closure.get_formula(2) == b);
 }
 
-TEST_CASE("Test Closure of X[!]a", "[core][SDD]") {
+TEST_CASE("Test eval of X[!]a", "[core][SDD]") {
   auto context = logic::Context();
 
   auto a = context.make_atom("a");
