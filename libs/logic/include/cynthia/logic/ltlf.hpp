@@ -163,7 +163,10 @@ public:
 class LTLfCommutativeBinaryOp : public LTLfBinaryOp {
 public:
   LTLfCommutativeBinaryOp(Context& ctx, vec_ptr args)
-      : LTLfBinaryOp(ctx, utils::setify(args)) {}
+      : LTLfBinaryOp(
+            ctx,
+            utils::setify<ltlf_ptr, utils::Deref::Equal, utils::Deref::Less>(
+                args)) {}
 };
 
 class LTLfAnd : public LTLfCommutativeBinaryOp, public BooleanBinaryOp {

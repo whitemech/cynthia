@@ -28,6 +28,7 @@ TEST_CASE("Test Closure of tt", "[core][SDD]") {
   auto tt = context.make_tt();
   auto tt_closure = closure(*tt);
 
+  REQUIRE(tt_closure.nb_formulas() == 1);
   REQUIRE(tt_closure.get_id(tt) == 0);
   REQUIRE(tt_closure.get_formula(0) == tt);
 }
@@ -38,6 +39,7 @@ TEST_CASE("Test Closure of ff", "[core][SDD]") {
   auto ff = context.make_ff();
   auto ff_closure = closure(*ff);
 
+  REQUIRE(ff_closure.nb_formulas() == 1);
   REQUIRE(ff_closure.get_id(ff) == 0);
   REQUIRE(ff_closure.get_formula(0) == ff);
 }
@@ -48,6 +50,7 @@ TEST_CASE("Test Closure of true", "[core][SDD]") {
   auto true_ = context.make_prop_true();
   auto true_closure = closure(*true_);
 
+  REQUIRE(true_closure.nb_formulas() == 1);
   REQUIRE(true_closure.get_id(true_) == 0);
   REQUIRE(true_closure.get_formula(0) == true_);
 }
@@ -58,6 +61,7 @@ TEST_CASE("Test Closure of false", "[core][SDD]") {
   auto false_ = context.make_prop_false();
   auto false_closure = closure(*false_);
 
+  REQUIRE(false_closure.nb_formulas() == 1);
   REQUIRE(false_closure.get_id(false_) == 0);
   REQUIRE(false_closure.get_formula(0) == false_);
 }
@@ -68,6 +72,7 @@ TEST_CASE("Test Closure of a", "[core][SDD]") {
   auto a = context.make_atom("a");
   auto true_closure = closure(*a);
 
+  REQUIRE(true_closure.nb_formulas() == 1);
   REQUIRE(true_closure.get_id(a) == 0);
   REQUIRE(true_closure.get_formula(0) == a);
 }
@@ -79,6 +84,7 @@ TEST_CASE("Test Closure of !a", "[core][SDD]") {
   auto not_a = context.make_prop_not(a);
   auto not_a_closure = closure(*not_a);
 
+  REQUIRE(not_a_closure.nb_formulas() == 2);
   REQUIRE(not_a_closure.get_id(not_a) == 0);
   REQUIRE(not_a_closure.get_formula(0) == not_a);
   REQUIRE(not_a_closure.get_id(a) == 1);
@@ -93,6 +99,7 @@ TEST_CASE("Test Closure of a & b", "[core][SDD]") {
   auto a_and_b = context.make_and(logic::vec_ptr{a, b});
   auto a_and_b_closure = closure(*a_and_b);
 
+  REQUIRE(a_and_b_closure.nb_formulas() == 3);
   REQUIRE(a_and_b_closure.get_id(a_and_b) == 0);
   REQUIRE(a_and_b_closure.get_formula(0) == a_and_b);
   REQUIRE(a_and_b_closure.get_id(a) == 1);
@@ -109,6 +116,7 @@ TEST_CASE("Test Closure of a | b", "[core][SDD]") {
   auto a_or_b = context.make_or(logic::vec_ptr{a, b});
   auto a_or_b_closure = closure(*a_or_b);
 
+  REQUIRE(a_or_b_closure.nb_formulas() == 3);
   REQUIRE(a_or_b_closure.get_id(a_or_b) == 0);
   REQUIRE(a_or_b_closure.get_formula(0) == a_or_b);
   REQUIRE(a_or_b_closure.get_id(a) == 1);
@@ -124,6 +132,7 @@ TEST_CASE("Test Closure of X[!]a", "[core][SDD]") {
   auto next_a = context.make_next(a);
   auto next_a_closure = closure(*next_a);
 
+  REQUIRE(next_a_closure.nb_formulas() == 2);
   REQUIRE(next_a_closure.get_id(next_a) == 0);
   REQUIRE(next_a_closure.get_formula(0) == next_a);
   REQUIRE(next_a_closure.get_id(a) == 1);

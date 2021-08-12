@@ -15,8 +15,9 @@ MODULE_TEST_APP="${MODULE_ID}-test"
 
 cd build &&\
  make -j "${MODULE_TEST_APP}" &&\
- ./libs/"${MODULE_NAME}"/tests/"${MODULE_TEST_APP}" &&\
- cd ..
+ cd libs/"${MODULE_NAME}"/tests/ &&\
+ ./"${MODULE_TEST_APP}" &&\
+ cd ../../../../
 
 echo "========== Code coverage =========="
 gcovr -r . --config "gcovr.cfg" --print-summary --html --html-details -o coverage.html

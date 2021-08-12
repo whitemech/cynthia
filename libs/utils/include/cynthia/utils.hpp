@@ -108,11 +108,13 @@ typename std::vector<T>::iterator insert_sorted(std::vector<T>& vec,
   return vec.insert(std::upper_bound(vec.begin(), vec.end(), item, pred), item);
 }
 
-template <typename T> typename std::vector<T> setify(std::vector<T> vec) {
-  if (!std::is_sorted(vec.begin(), vec.end())) {
+template <typename T, typename Equal = std::equal_to<T>,
+          typename Less = std::less<T>>
+std::vector<T> setify(std::vector<T> vec) {
+  if (!std::is_sorted(vec.begin(), vec.end(), Less())) {
     std::sort(vec.begin(), vec.end());
   }
-  auto last = std::unique(vec.begin(), vec.end());
+  auto last = std::unique(vec.begin(), vec.end(), Equal());
   vec.erase(last, vec.end());
   return vec;
 }
