@@ -16,11 +16,28 @@
  */
 
 #include <cynthia/core.hpp>
+#include <cynthia/logic/nnf.hpp>
+#include <cynthia/vtree.hpp>
 
 namespace cynthia {
 namespace core {
 
-int meaning_of_life() { return 42; }
+ISynthesis::ISynthesis(const logic::ltlf_ptr& formula,
+                       const InputOutputPartition& partition)
+    : formula{formula}, partition{partition} {}
+
+bool ForwardSynthesis::is_realizable() {
+  bool result = false;
+
+  const auto& formula_nnf = logic::to_nnf(*formula);
+  closure_ = closure(*formula_nnf);
+  auto builder = VTreeBuilder(closure_, partition);
+  vtree_ = builder.get_vtree();
+  manager_ = sdd_manager_new(vtree_);
+  sdd_vtree_free(vtree_);
+  sdd_manager_free(manager_);
+  return result;
+}
 
 } // namespace core
 } // namespace cynthia

@@ -48,12 +48,17 @@ void ClosureVisitor::visit(const logic::LTLfPropFalse& formula) {
 }
 void ClosureVisitor::visit(const logic::LTLfAtom& formula) {
   insert_if_not_already_present_(formula);
+  auto atom = std::static_pointer_cast<const logic::LTLfAtom>(
+      formula.shared_from_this());
+  atoms.insert(atom);
 }
 void ClosureVisitor::visit(const logic::LTLfNot& formula) {
   apply_to_unary_op_(formula);
 }
 void ClosureVisitor::visit(const logic::LTLfPropositionalNot& formula) {
   apply_to_unary_op_(formula);
+  auto atom = std::static_pointer_cast<const logic::LTLfAtom>(formula.arg);
+  atoms.insert(atom);
 }
 void ClosureVisitor::visit(const logic::LTLfAnd& formula) {
   apply_to_binary_op_(formula);
@@ -92,7 +97,25 @@ void ClosureVisitor::apply(const logic::LTLfFormula& f) { f.accept(*this); }
 Closure closure(const logic::LTLfFormula& f) {
   auto visitor = ClosureVisitor{};
   visitor.apply(f);
-  return Closure(visitor.from_subformula_to_id);
+  return Closure{visitor.from_subformula_to_id,
+                 std::vector<std::shared_ptr<const logic::LTLfAtom>>{
+                     visitor.atoms.begin(), visitor.atoms.end()}};
+}
+
+logic::map_ptr::const_iterator Closure::begin_formulas() const {
+  return from_subformula_to_id.begin();
+}
+
+logic::map_ptr::const_iterator Closure::end_formulas() const {
+  return from_subformula_to_id.end();
+}
+
+std::vector<logic::atom_ptr>::const_iterator Closure::begin_atoms() const {
+  return atoms.begin();
+}
+
+std::vector<logic::atom_ptr>::const_iterator Closure::end_atoms() const {
+  return atoms.end();
 }
 
 } // namespace core

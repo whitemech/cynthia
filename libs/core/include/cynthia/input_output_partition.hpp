@@ -17,6 +17,7 @@
  */
 
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 
 namespace cynthia {
@@ -27,15 +28,19 @@ namespace core {
 class InputOutputPartition {
 private:
   static std::runtime_error bad_file_format_exception(std::size_t line_number);
+  std::unordered_map<std::string, bool> from_var_to_type;
+
+  void build_from_var_to_type_map_();
 
 public:
   std::vector<std::string> input_variables;
   std::vector<std::string> output_variables;
 
   /**
-   * \brief Creates a partition with no variables.
+   * \brief Creates a partition.
    */
-  InputOutputPartition();
+  InputOutputPartition(const std::vector<std::string>& input_variables,
+                       const std::vector<std::string>& output_variables);
 
   /**
    * \brief Constructs a partition from a file.
@@ -48,6 +53,18 @@ public:
    * \return A partition with the input and output variables listed in the file
    */
   static InputOutputPartition read_from_file(const std::string& filename);
+
+  inline bool is_var(const std::string& variable_name) const {
+    return from_var_to_type.find(variable_name) != from_var_to_type.end();
+  }
+  inline bool is_input(const std::string& variable_name) const {
+    auto it = from_var_to_type.find(variable_name);
+    if (it == from_var_to_type.end()) {
+      throw std::logic_error("cannot find variable " + variable_name +
+                             " in partition");
+    }
+    return it->second;
+  }
 };
 
 } // namespace core

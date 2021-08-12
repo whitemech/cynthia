@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -16,8 +17,10 @@
  */
 
 #include <cynthia/logic/visitor.hpp>
+#include <cynthia/utils.hpp>
 #include <iostream>
 #include <map>
+#include <set>
 #include <utility>
 
 namespace cynthia {
@@ -25,18 +28,27 @@ namespace core {
 
 class Closure {
 private:
-  // a sorted array
-  const std::vector<logic::ltlf_ptr> from_id_to_subformula;
-  const std::map<logic::ltlf_ptr, size_t> from_subformula_to_id;
-
-public:
-  explicit Closure(
-      const std::map<logic::ltlf_ptr, size_t>& from_subformula_to_id)
+  std::vector<std::shared_ptr<const logic::LTLfAtom>> atoms;
+  logic::vec_ptr from_id_to_subformula;
+  logic::map_ptr from_subformula_to_id;
+  friend Closure closure(const logic::LTLfFormula& f);
+  Closure(const logic::map_ptr& from_subformula_to_id,
+          const std::vector<std::shared_ptr<const logic::LTLfAtom>>& atoms)
       : from_id_to_subformula{utils::from_index_map_to_vector(
             from_subformula_to_id)},
-        from_subformula_to_id{from_subformula_to_id} {};
+        from_subformula_to_id{from_subformula_to_id}, atoms{atoms} {};
+
+public:
   size_t get_id(const logic::ltlf_ptr& formula) const;
   const logic::ltlf_ptr& get_formula(size_t index) const;
+  inline const size_t nb_formulas() const {
+    return from_id_to_subformula.size();
+  };
+  inline const size_t nb_atoms() const { return atoms.size(); };
+  logic::map_ptr::const_iterator begin_formulas() const;
+  logic::map_ptr::const_iterator end_formulas() const;
+  std::vector<logic::atom_ptr>::const_iterator begin_atoms() const;
+  std::vector<logic::atom_ptr>::const_iterator end_atoms() const;
 };
 
 class ClosureVisitor : public logic::Visitor {
@@ -51,7 +63,8 @@ private:
   inline void apply_to_unary_op_(const logic::LTLfUnaryOp& formula);
 
 public:
-  std::map<logic::ltlf_ptr, size_t> from_subformula_to_id{};
+  logic::map_ptr from_subformula_to_id;
+  std::set<std::shared_ptr<const logic::LTLfAtom>> atoms;
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
   void visit(const logic::LTLfPropTrue&) override;

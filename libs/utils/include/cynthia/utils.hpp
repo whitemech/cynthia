@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -36,11 +37,18 @@ struct Deref {
     }
   };
 
-  struct Compare {
+  struct Equal {
     template <typename T>
     size_t operator()(std::shared_ptr<const T> const& a,
                       std::shared_ptr<const T> const& b) const {
       return *a == *b;
+    }
+  };
+  struct Less {
+    template <typename T>
+    size_t operator()(std::shared_ptr<const T> const& a,
+                      std::shared_ptr<const T> const& b) const {
+      return *a < *b;
     }
   };
 };
@@ -109,9 +117,14 @@ template <typename T> typename std::vector<T> setify(std::vector<T> vec) {
   return vec;
 }
 
-template <typename T>
+template <typename T, typename C>
+typename std::vector<T> vectify(std::set<T, C> set) {
+  return std::vector<T>(set.begin(), set.end());
+}
+
+template <typename T, typename C>
 std::vector<T>
-from_index_map_to_vector(const std::map<T, size_t>& from_element_to_id) {
+from_index_map_to_vector(const std::map<T, size_t, C>& from_element_to_id) {
   auto result = std::vector<T>(from_element_to_id.size());
   for (const auto& pair : from_element_to_id) {
     result[pair.second] = pair.first;
