@@ -51,26 +51,26 @@ InputOutputPartition::read_from_file(const std::string& filename) {
   std::getline(in, line);
 
   std::vector<std::string> input_substr;
-  input_substr = utils::split_with_delimiter(line, ":");
+  input_substr = utils::split_with_delimiter(line, " ");
 
-  if (input_substr.size() != 2 || input_substr[0] != ".inputs") {
+  if (input_substr.size() < 2 || input_substr[0] != ".inputs") {
     throw bad_file_format_exception(line_number);
   }
   const auto& input_variables =
-      utils::split_with_delimiter(input_substr[1], " ");
+      std::vector<std::string>(input_substr.begin() + 1, input_substr.end());
 
   ++line_number;
   std::getline(in, line);
 
   std::vector<std::string> output_substr;
-  output_substr = utils::split_with_delimiter(line, ":");
+  output_substr = utils::split_with_delimiter(line, " ");
 
-  if (output_substr.size() != 2 || output_substr[0] != ".outputs") {
+  if (output_substr.size() < 2 || output_substr[0] != ".outputs") {
     throw bad_file_format_exception(line_number);
   }
 
   const auto& output_variables =
-      utils::split_with_delimiter(output_substr[1], " ");
+      std::vector<std::string>(output_substr.begin() + 1, output_substr.end());
 
   return {input_variables, output_variables};
 }
