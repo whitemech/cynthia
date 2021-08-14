@@ -72,7 +72,6 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 
   auto xnf_formula = xnf(*formula);
   auto sdd = SddNodeWrapper(to_sdd(*xnf_formula, context_));
-  sdd_save_as_dot("sdd.dot", sdd.get_raw());
   path.insert(formula);
   if (!sdd.is_decision()) {
     auto new_strategy = env_move_(sdd, path);
@@ -163,8 +162,6 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
   vtree_ = builder.get_vtree();
   manager = sdd_manager_new(vtree_);
   prop_to_id = compute_prop_to_id_map(closure_, partition);
-
-  sdd_vtree_save_as_dot("vtree.dot", vtree_);
 }
 } // namespace core
 } // namespace cynthia
