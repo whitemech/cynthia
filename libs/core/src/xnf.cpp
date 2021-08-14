@@ -126,8 +126,10 @@ void XnfVisitor::visit(const logic::LTLfEventually& formula) {
 }
 void XnfVisitor::visit(const logic::LTLfAlways& formula) {
   auto& c = formula.ctx();
-  auto temp = c.make_and({c.make_or({formula.arg, c.make_end()}),
-                          c.make_weak_next(formula.shared_from_this())});
+  //  auto temp = c.make_and({c.make_or({formula.arg, c.make_end()}),
+  //                          c.make_weak_next(formula.shared_from_this())});
+  auto temp =
+      c.make_and({formula.arg, c.make_weak_next(formula.shared_from_this())});
   result = apply(*temp);
 }
 

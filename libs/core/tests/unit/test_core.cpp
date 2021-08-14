@@ -53,90 +53,110 @@ TEST_CASE("forward synthesis of 'false'") {
   bool result = is_realizable<ForwardSynthesis>(false_, partition);
   REQUIRE(!result);
 }
-TEST_CASE("forward synthesis of atom (controllable)") {
+TEST_CASE("forward synthesis of atom") {
   logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
   auto a = context.make_atom("a");
-  bool result = is_realizable<ForwardSynthesis>(a, partition);
-  REQUIRE(result);
-}
-TEST_CASE("forward synthesis of atom (not controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
-  auto b = context.make_atom("b");
-  bool result = is_realizable<ForwardSynthesis>(b, partition);
-  REQUIRE(!result);
-}
-TEST_CASE("forward synthesis of 'a and b' (only one controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
-  auto a = context.make_atom("a");
-  auto b = context.make_atom("b");
-  auto a_and_b = context.make_and({a, b});
-  bool result = is_realizable<ForwardSynthesis>(a_and_b, partition);
-  REQUIRE(!result);
-}
-TEST_CASE("forward synthesis of 'a and b' (both controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"c"}, {"a", "b"});
-  auto a = context.make_atom("a");
-  auto b = context.make_atom("b");
-  auto a_and_b = context.make_and({a, b});
-  bool result = is_realizable<ForwardSynthesis>(a_and_b, partition);
-  REQUIRE(result);
-}
-TEST_CASE("forward synthesis of 'a or b' (only one controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"a"}, {"b"});
-  auto a = context.make_atom("a");
-  auto b = context.make_atom("b");
-  auto a_or_b = context.make_or({a, b});
-  bool result = is_realizable<ForwardSynthesis>(a_or_b, partition);
-  REQUIRE(result);
-}
-TEST_CASE("forward synthesis of 'a or b' (no one controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"a", "b"}, {"c"});
-  auto a = context.make_atom("a");
-  auto b = context.make_atom("b");
-  auto a_or_b = context.make_or({a, b});
-  bool result = is_realizable<ForwardSynthesis>(a_or_b, partition);
-  REQUIRE(!result);
-}
-TEST_CASE("forward synthesis of 'X[!]a' (controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
-  auto a = context.make_atom("a");
-  auto next_a = context.make_next(a);
-  bool result = is_realizable<ForwardSynthesis>(next_a, partition);
-  REQUIRE(result);
-}
-TEST_CASE("forward synthesis of 'X[!]a' (non controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
-  auto b = context.make_atom("b");
-  auto next_b = context.make_next(b);
-  bool result = is_realizable<ForwardSynthesis>(next_b, partition);
-  REQUIRE(!result);
-}
-TEST_CASE("forward synthesis of 'X a' (controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
-  auto a = context.make_atom("a");
-  auto next_a = context.make_weak_next(a);
-  bool result = is_realizable<ForwardSynthesis>(next_a, partition);
-  REQUIRE(result);
-}
-TEST_CASE("forward synthesis of 'X a' (non controllable)") {
-  logic::Context context;
-  auto partition = InputOutputPartition({"b"}, {"a"});
-  auto b = context.make_atom("b");
-  auto next_b = context.make_weak_next(b);
-  bool result = is_realizable<ForwardSynthesis>(next_b, partition);
-  // weak next! empty trace reaches the final state
-  REQUIRE(result);
+
+  SECTION("atom controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(a, partition);
+    REQUIRE(result);
+  }
+  SECTION("atom not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(a, partition);
+    REQUIRE(!result);
+  }
 }
 
+TEST_CASE("forward synthesis of 'a and b'") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto b = context.make_atom("b");
+  auto a_and_b = context.make_and({a, b});
+
+  SECTION("left not-controllable, right not-controllable") {
+    auto partition = InputOutputPartition({"a", "b"}, {"c"});
+    bool result = is_realizable<ForwardSynthesis>(a_and_b, partition);
+    REQUIRE(!result);
+  }
+  SECTION("left not-controllable, right controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(a_and_b, partition);
+    REQUIRE(!result);
+  }
+  SECTION("left controllable, right not-controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(a_and_b, partition);
+    REQUIRE(!result);
+  }
+  SECTION("left controllable, right controllable") {
+    auto partition = InputOutputPartition({"c"}, {"a", "b"});
+    bool result = is_realizable<ForwardSynthesis>(a_and_b, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'a or b'") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto b = context.make_atom("b");
+  auto a_or_b = context.make_or({a, b});
+  SECTION("left not-controllable, right not-controllable") {
+    auto partition = InputOutputPartition({"a", "b"}, {"c"});
+    bool result = is_realizable<ForwardSynthesis>(a_or_b, partition);
+    REQUIRE(!result);
+  }
+  SECTION("left not-controllable, right controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(a_or_b, partition);
+    REQUIRE(result);
+  }
+  SECTION("left controllable, right not-controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(a_or_b, partition);
+    REQUIRE(result);
+  }
+  SECTION("left controllable, right controllable") {
+    auto partition = InputOutputPartition({"c"}, {"a", "b"});
+    bool result = is_realizable<ForwardSynthesis>(a_or_b, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'X[!]a' (controllable)") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto next_a = context.make_next(a);
+
+  SECTION("body controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(next_a, partition);
+    REQUIRE(result);
+  }
+  SECTION("body not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(next_a, partition);
+    REQUIRE(!result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'X a' (controllable)") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto weak_next_a = context.make_weak_next(a);
+
+  SECTION("body controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(weak_next_a, partition);
+    REQUIRE(result);
+  }
+  SECTION("body not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(weak_next_a, partition);
+    REQUIRE(result);
+  }
+}
 TEST_CASE("forward synthesis of 'a U b'") {
   logic::Context context;
   auto b = context.make_atom("b");
