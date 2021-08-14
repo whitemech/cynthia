@@ -19,11 +19,15 @@
 #include <cynthia/closure.hpp>
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/logic/types.hpp>
+#include <cynthia/sddcpp.hpp>
+
 extern "C" {
 #include "sddapi.h"
 }
 namespace cynthia {
 namespace core {
+
+typedef std::map<logic::ltlf_ptr, SddNode*> strategy_t;
 
 class ISynthesis {
 public:
@@ -47,6 +51,7 @@ public:
   class Context {
   public:
     logic::ltlf_ptr formula;
+    logic::Context* ast_manager;
     InputOutputPartition partition;
     logic::ltlf_ptr nnf_formula;
     Closure closure_;
@@ -69,6 +74,9 @@ public:
 
 private:
   Context context_;
+
+  strategy_t system_move_(const logic::ltlf_ptr& formula, logic::set_ptr& path);
+  strategy_t env_move_(SddNodeWrapper& wrapper, logic::set_ptr& path);
 };
 
 } // namespace core

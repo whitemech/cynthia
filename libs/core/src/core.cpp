@@ -16,7 +16,11 @@
  */
 
 #include <cynthia/core.hpp>
+#include <cynthia/eval.hpp>
 #include <cynthia/logic/nnf.hpp>
+#include <cynthia/sdd_to_formula.hpp>
+#include <cynthia/sddcpp.hpp>
+#include <cynthia/to_sdd.hpp>
 #include <cynthia/vtree.hpp>
 
 namespace cynthia {
@@ -34,7 +38,10 @@ bool ForwardSynthesis::is_realizable() {
   return result;
 }
 
-bool ForwardSynthesis::forward_synthesis_() { return false; }
+bool ForwardSynthesis::forward_synthesis_() {
+  auto path = logic::set_ptr{};
+  auto strategy = system_move_(context_.nnf_formula, path);
+}
 
 std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
     const Closure& closure, const InputOutputPartition& partition) {
@@ -49,10 +56,67 @@ std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
   }
   return result;
 }
+strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
+                                          logic::set_ptr& path) {
+  strategy_t strategy;
+  if (eval(*formula)) {
+    strategy[formula] = sdd_manager_true(context_.manager);
+    return strategy;
+  }
+  if (path.find(formula) != path.end()) {
+    strategy[formula] = sdd_manager_false(context_.manager);
+    return strategy;
+  }
+
+  auto sdd = SddNodeWrapper(to_sdd(*formula, context_));
+  auto child_it = sdd.begin();
+  auto children_end = sdd.end();
+
+  if (child_it == children_end) {
+    strategy[formula] = sdd_manager_false(context_.manager);
+    return strategy;
+  }
+
+  path.insert(formula);
+  while (child_it != children_end) {
+    auto system_move = child_it.get_prime();
+    if (sdd_node_is_false(system_move))
+      continue;
+    auto env_state_node = SddNodeWrapper(child_it.get_sub());
+    if (env_state_node.nb_children() == 0)
+      continue;
+    auto new_strategy = env_move_(env_state_node, path);
+    if (!new_strategy.empty()) {
+      path.erase(formula);
+      new_strategy[formula] = system_move;
+      return new_strategy;
+    }
+    ++child_it;
+  }
+
+  path.erase(formula);
+  strategy[formula] = sdd_manager_false(context_.manager);
+  return strategy;
+}
+
+strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
+                                       logic::set_ptr& path) {
+  auto child_it = wrapper.begin();
+  auto children_end = wrapper.end();
+  strategy_t final_strategy;
+  for (; child_it != children_end; ++child_it) {
+    logic::ltlf_ptr next_state = sdd_to_formula(*child_it, context_);
+    auto strategy = system_move_(next_state, path);
+    if (strategy[formula] == sdd_manager_false(context_.manager))
+      return strategy_t{};
+    final_strategy.insert(strategy.begin(), strategy.end());
+  }
+  return final_strategy;
+}
 
 ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
                                    const InputOutputPartition& partition)
-    : formula{formula}, partition{partition} {
+    : formula{formula}, partition{partition}, ast_manager{&formula->ctx()} {
   nnf_formula = logic::to_nnf(*formula);
   Closure closure_object = closure(*nnf_formula);
   closure_ = closure_object;
