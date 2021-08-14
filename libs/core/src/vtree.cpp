@@ -49,15 +49,15 @@ Vtree* VTreeBuilder::get_vtree() {
   auto state_leaves = build_leaves(closure_.nb_formulas(), offset);
   auto state_root = build_binary_tree_from_list(state_leaves);
 
-  // build the system root
-  offset = offset + state_leaves.size();
-  auto system_leaves = build_leaves(partition_.input_variables.size(), offset);
-  auto system_root = build_binary_tree_from_list(system_leaves);
-
   // build the env root
-  offset = offset + system_leaves.size();
-  auto env_leaves = build_leaves(partition_.output_variables.size(), offset);
+  offset = offset + state_leaves.size();
+  auto env_leaves = build_leaves(partition_.input_variables.size(), offset);
   auto env_root = build_binary_tree_from_list(env_leaves);
+
+  // build the system root
+  offset = offset + env_leaves.size();
+  auto system_leaves = build_leaves(partition_.output_variables.size(), offset);
+  auto system_root = build_binary_tree_from_list(system_leaves);
 
   // build the final root
   auto env_state_root = std::make_shared<VTreeNode>();

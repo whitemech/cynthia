@@ -56,13 +56,29 @@ public:
     logic::ltlf_ptr nnf_formula;
     Closure closure_;
     std::map<std::string, size_t> prop_to_id;
-    Vtree* vtree_{};
-    SddManager* manager{};
+    Vtree* vtree_ = nullptr;
+    SddManager* manager = nullptr;
     Context(const logic::ltlf_ptr& formula,
             const InputOutputPartition& partition);
     ~Context() {
-      //      sdd_vtree_free(vtree_);
-      //      sdd_manager_free(manager);
+      if (vtree_) {
+        sdd_vtree_free(vtree_);
+      }
+      if (manager) {
+        sdd_manager_free(manager);
+      }
+    }
+
+    logic::ltlf_ptr get_formula(size_t index) const {
+      if (index < closure_.nb_formulas()) {
+        return closure_.get_formula(index);
+      }
+      index -= closure_.nb_formulas();
+      if (index < partition.input_variables.size()) {
+        return ast_manager->make_atom(partition.input_variables[index]);
+      }
+      index -= partition.input_variables.size();
+      return ast_manager->make_atom(partition.output_variables[index]);
     }
   };
   ForwardSynthesis(const logic::ltlf_ptr& formula,

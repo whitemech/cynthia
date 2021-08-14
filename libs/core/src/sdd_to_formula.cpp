@@ -31,8 +31,15 @@ logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
   }
   if (sdd_node_is_literal(sdd_node)) {
     auto literal_id = sdd_node_literal(sdd_node);
-    auto formula_id = literal_id - 1;
-    auto formula = context_.closure_.get_formula(formula_id);
+    auto formula = context_.get_formula(abs(literal_id) - 1);
+    if (literal_id < 0) {
+      if (logic::is_a<logic::LTLfAtom>(*formula)) {
+        formula = context_.ast_manager->make_prop_not(formula);
+      } else {
+        // if not an atom ignore, it is a state component
+        formula = context_.ast_manager->make_tt();
+      }
+    }
     return formula;
   }
   if (sdd_node_is_decision(sdd_node)) {

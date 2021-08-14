@@ -55,9 +55,9 @@ void ToSddVisitor::visit(const logic::LTLfAtom& formula) {
   auto next_ff_id = context_.closure_.get_id(next_ff);
   auto next_ff_sdd = sdd_manager_literal(next_ff_id + 1, context_.manager);
 
-  result = sdd_disjoin(sdd_conjoin(atom_sdd, next_tt_sdd, context_.manager),
-                       sdd_conjoin(not_atom_sdd, next_ff_sdd, context_.manager),
-                       context_.manager);
+  auto left = sdd_conjoin(atom_sdd, next_tt_sdd, context_.manager);
+  auto right = sdd_conjoin(not_atom_sdd, next_ff_sdd, context_.manager);
+  result = sdd_disjoin(left, right, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();

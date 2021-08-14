@@ -91,11 +91,11 @@ void NNFTransformer::visit(const LTLfXor& formula) {
 }
 
 void NNFTransformer::visit(const LTLfNext& formula) {
-  result = formula.ctx().make_next(apply(formula));
+  result = formula.ctx().make_next(apply(*formula.arg));
 }
 
 void NNFTransformer::visit(const LTLfWeakNext& formula) {
-  result = formula.ctx().make_weak_next(apply(formula));
+  result = formula.ctx().make_weak_next(apply(*formula.arg));
 }
 
 void NNFTransformer::visit(const LTLfUntil& formula) {
@@ -115,11 +115,11 @@ void NNFTransformer::visit(const LTLfRelease& formula) {
 }
 
 void NNFTransformer::visit(const LTLfEventually& formula) {
-  result = formula.ctx().make_eventually(apply(formula));
+  result = formula.ctx().make_eventually(apply(*formula.arg));
 }
 
 void NNFTransformer::visit(const LTLfAlways& formula) {
-  result = formula.ctx().make_always(apply(formula));
+  result = formula.ctx().make_always(apply(*formula.arg));
 }
 
 ltlf_ptr NNFTransformer::apply(const LTLfFormula& f) {
