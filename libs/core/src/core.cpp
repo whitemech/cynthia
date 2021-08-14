@@ -70,8 +70,9 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     return strategy;
   }
 
-  auto sdd = SddNodeWrapper(to_sdd(*formula, context_));
-
+  auto xnf_formula = xnf(*formula);
+  auto sdd = SddNodeWrapper(to_sdd(*xnf_formula, context_));
+  sdd_save_as_dot("sdd.dot", sdd.get_raw());
   path.insert(formula);
   if (!sdd.is_decision()) {
     auto new_strategy = env_move_(sdd, path);
@@ -125,7 +126,14 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
                                        logic::set_ptr& path) {
   logic::ltlf_ptr next_state;
   if (!wrapper.is_decision()) {
-    next_state = xnf(*strip_next(*sdd_to_formula(wrapper.get_raw(), context_)));
+    next_state = strip_next(*sdd_to_formula(wrapper.get_raw(), context_));
+    auto strategy = system_move_(next_state, path);
+    if (strategy[next_state] == sdd_manager_false(context_.manager))
+      return strategy_t{};
+    return strategy;
+  } else if (wrapper.get_raw()->vtree->parent != context_.vtree_) {
+    // parent is not the vtree root; it means that environment has no choice
+    next_state = strip_next(*sdd_to_formula(wrapper.get_raw(), context_));
     auto strategy = system_move_(next_state, path);
     if (strategy[next_state] == sdd_manager_false(context_.manager))
       return strategy_t{};
@@ -135,8 +143,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     auto children_end = wrapper.end();
     strategy_t final_strategy;
     for (; child_it != children_end; ++child_it) {
-      next_state =
-          xnf(*strip_next(*sdd_to_formula(child_it.get_sub(), context_)));
+      next_state = strip_next(*sdd_to_formula(child_it.get_sub(), context_));
       auto strategy = system_move_(next_state, path);
       if (strategy[next_state] == sdd_manager_false(context_.manager))
         return strategy_t{};
@@ -156,6 +163,8 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
   vtree_ = builder.get_vtree();
   manager = sdd_manager_new(vtree_);
   prop_to_id = compute_prop_to_id_map(closure_, partition);
+
+  sdd_vtree_save_as_dot("vtree.dot", vtree_);
 }
 } // namespace core
 } // namespace cynthia

@@ -137,6 +137,98 @@ TEST_CASE("forward synthesis of 'X a' (non controllable)") {
   REQUIRE(result);
 }
 
+TEST_CASE("forward synthesis of 'a U b'") {
+  logic::Context context;
+  auto b = context.make_atom("b");
+  auto a = context.make_atom("a");
+  auto a_until_b = context.make_until({a, b});
+
+  SECTION("head non-controllable, tail non-controllable") {
+    auto partition = InputOutputPartition({"a", "b"}, {"c"});
+    bool result = is_realizable<ForwardSynthesis>(a_until_b, partition);
+    REQUIRE(!result);
+  }
+  SECTION("head non-controllable, tail controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(a_until_b, partition);
+    REQUIRE(result);
+  }
+  SECTION("head controllable, tail non-controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(a_until_b, partition);
+    REQUIRE(!result);
+  }
+  SECTION("head controllable, tail controllable") {
+    auto partition = InputOutputPartition({"c"}, {"a", "b"});
+    bool result = is_realizable<ForwardSynthesis>(a_until_b, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'a R b'") {
+  // NOTE: safety formula, always realizable with empty traces
+  logic::Context context;
+  auto b = context.make_atom("b");
+  auto a = context.make_atom("a");
+  auto a_release_b = context.make_release({a, b});
+
+  SECTION("head non-controllable, tail non-controllable") {
+    auto partition = InputOutputPartition({"a", "b"}, {"c"});
+    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+    REQUIRE(result);
+  }
+  SECTION("head non-controllable, tail controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+    REQUIRE(result);
+  }
+  SECTION("head controllable, tail non-controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+    REQUIRE(result);
+  }
+  SECTION("head controllable, tail controllable") {
+    auto partition = InputOutputPartition({"c"}, {"a", "b"});
+    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'F a'") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto eventually_a = context.make_eventually(a);
+
+  SECTION("tail not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(eventually_a, partition);
+    REQUIRE(!result);
+  }
+  SECTION("tail controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(eventually_a, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'G a'") {
+  // NOTE: safety formula, always realizable with empty traces
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto always_a = context.make_always(a);
+
+  SECTION("tail not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(always_a, partition);
+    REQUIRE(result);
+  }
+  SECTION("tail controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(always_a, partition);
+    REQUIRE(result);
+  }
+}
+
 } // namespace Test
 } // namespace core
 } // namespace cynthia

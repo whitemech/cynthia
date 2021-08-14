@@ -80,12 +80,22 @@ ltlf_ptr Context::make_prop_not(const ltlf_ptr& arg) {
 }
 
 ltlf_ptr Context::make_and(const vec_ptr& args) {
-  auto and_ = std::make_shared<const LTLfAnd>(*this, args);
+  auto setified_args = utils::setify(args);
+  if (setified_args.size() == 1) {
+    auto actual = table_->insert_if_not_available(setified_args[0]);
+    return actual;
+  }
+  auto and_ = std::make_shared<const LTLfAnd>(*this, setified_args);
   auto actual = table_->insert_if_not_available(and_);
   return actual;
 }
 
 ltlf_ptr Context::make_or(const vec_ptr& args) {
+  auto setified_args = utils::setify(args);
+  if (setified_args.size() == 1) {
+    auto actual = table_->insert_if_not_available(setified_args[0]);
+    return actual;
+  }
   auto or_ = std::make_shared<const LTLfOr>(*this, args);
   auto actual = table_->insert_if_not_available(or_);
   return actual;

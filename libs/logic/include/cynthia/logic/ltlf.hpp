@@ -156,7 +156,12 @@ class LTLfBinaryOp : public LTLfFormula {
 public:
   const vec_ptr args;
 
-  LTLfBinaryOp(Context& ctx, vec_ptr args) : LTLfFormula(ctx), args{args} {}
+  LTLfBinaryOp(Context& ctx, vec_ptr args) : LTLfFormula(ctx), args{args} {
+    if (args.size() < 2) {
+      throw std::invalid_argument(
+          "the number of arguments must not be less than two");
+    }
+  }
 
   inline hash_t compute_hash_() const override;
   bool is_equal(const Comparable& o) const override;
