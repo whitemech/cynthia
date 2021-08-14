@@ -22,7 +22,37 @@ namespace cynthia {
 namespace core {
 namespace Test {
 
-TEST_CASE("forward synthesis of 'a'") {}
+TEST_CASE("forward synthesis of 'tt'") {
+  logic::Context context;
+  auto partition = InputOutputPartition({"a"}, {"b"});
+  auto tt = context.make_tt();
+  bool result = is_realizable<ForwardSynthesis>(tt, partition);
+  REQUIRE(result);
+}
+
+TEST_CASE("forward synthesis of 'ff'") {
+  logic::Context context;
+  auto partition = InputOutputPartition({"a"}, {"b"});
+  auto ff = context.make_ff();
+  bool result = is_realizable<ForwardSynthesis>(ff, partition);
+  REQUIRE(!result);
+}
+
+TEST_CASE("forward synthesis of 'true'") {
+  logic::Context context;
+  auto partition = InputOutputPartition({"a"}, {"b"});
+  auto true_ = context.make_prop_true();
+  bool result = is_realizable<ForwardSynthesis>(true_, partition);
+  REQUIRE(result);
+}
+
+TEST_CASE("forward synthesis of 'false'") {
+  logic::Context context;
+  auto partition = InputOutputPartition({"a"}, {"b"});
+  auto false_ = context.make_prop_false();
+  bool result = is_realizable<ForwardSynthesis>(false_, partition);
+  REQUIRE(!result);
+}
 
 } // namespace Test
 } // namespace core

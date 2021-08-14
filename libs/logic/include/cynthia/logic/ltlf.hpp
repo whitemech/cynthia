@@ -363,7 +363,9 @@ inline TypeID LTLfEquivalent::get_type_code() const {
 }
 inline TypeID LTLfXor::get_type_code() const { return TypeID::t_LTLfXor; }
 inline TypeID LTLfNext::get_type_code() const { return TypeID::t_LTLfNext; }
-inline TypeID LTLfWeakNext::get_type_code() const { return TypeID::t_LTLfNext; }
+inline TypeID LTLfWeakNext::get_type_code() const {
+  return TypeID::t_LTLfWeakNext;
+}
 inline TypeID LTLfUntil::get_type_code() const { return TypeID::t_LTLfUntil; }
 inline TypeID LTLfRelease::get_type_code() const {
   return TypeID::t_LTLfRelease;

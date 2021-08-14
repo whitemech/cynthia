@@ -16,20 +16,17 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/core.hpp>
 #include <cynthia/logic/visitor.hpp>
 
 namespace cynthia {
 namespace core {
 
-class ToSddVisitor : public logic::Visitor {
+class StripNextVisitor : public logic::Visitor {
 private:
-  ForwardSynthesis::Context& context_;
-  SddNode* result{};
+  logic::ltlf_ptr result;
 
 public:
-  explicit ToSddVisitor(ForwardSynthesis::Context& context)
-      : context_{context} {}
+  StripNextVisitor() = default;
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
   void visit(const logic::LTLfPropTrue&) override;
@@ -49,25 +46,10 @@ public:
   void visit(const logic::LTLfEventually&) override;
   void visit(const logic::LTLfAlways&) override;
 
-  SddNode* apply(const logic::LTLfFormula& formula);
-
-  inline SddNode* get_sdd_node(const logic::LTLfFormula& formula) const {
-    auto formula_id = context_.closure_.get_id(formula.shared_from_this());
-    return sdd_manager_literal(formula_id + 1, context_.manager);
-  }
+  logic::ltlf_ptr apply(const logic::LTLfFormula& formula);
 };
 
-SddNode* to_sdd(const logic::LTLfFormula& formula,
-                ForwardSynthesis::Context& context);
-
-// returns an SDD node representing ( node1 => node2 )
-SddNode* sdd_imply(SddNode* node1, SddNode* node2, SddManager* manager);
-
-// returns an SDD node representing ( node1 <=> node2 )
-SddNode* sdd_equiv(SddNode* node1, SddNode* node2, SddManager* manager);
-
-// returns an SDD node representing ( node1 ^ node2 )
-SddNode* sdd_xor(SddNode* node1, SddNode* node2, SddManager* manager);
+logic::ltlf_ptr strip_next(const logic::LTLfFormula& formula);
 
 } // namespace core
 } // namespace cynthia

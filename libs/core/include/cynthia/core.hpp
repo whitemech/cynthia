@@ -61,10 +61,14 @@ public:
     Context(const logic::ltlf_ptr& formula,
             const InputOutputPartition& partition);
     ~Context() {
-      sdd_vtree_free(vtree_);
-      sdd_manager_free(manager);
+      //      sdd_vtree_free(vtree_);
+      //      sdd_manager_free(manager);
     }
   };
+  ForwardSynthesis(const logic::ltlf_ptr& formula,
+                   const InputOutputPartition& partition)
+      : context_{formula, partition}, ISynthesis(formula, partition){};
+
   static std::map<std::string, size_t>
   compute_prop_to_id_map(const Closure& closure,
                          const InputOutputPartition& partition);

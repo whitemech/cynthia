@@ -15,7 +15,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/logic/nnf.hpp>
+#include <cynthia/logic/utils.hpp>
 #include <cynthia/xnf.hpp>
 
 namespace cynthia {

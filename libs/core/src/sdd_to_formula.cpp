@@ -24,10 +24,10 @@ namespace core {
 logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
                                ForwardSynthesis::Context& context_) {
   if (sdd_node_is_false(sdd_node)) {
-    return context_.ast_manager.make_ff();
+    return context_.ast_manager->make_ff();
   }
   if (sdd_node_is_true(sdd_node)) {
-    return context_.ast_manager.make_tt();
+    return context_.ast_manager->make_tt();
   }
   if (sdd_node_is_literal(sdd_node)) {
     auto literal_id = sdd_node_literal(sdd_node);
@@ -42,9 +42,9 @@ logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
     for (auto it = wrapper.begin(); it != wrapper.end(); ++it) {
       auto prime = sdd_to_formula(it.get_prime(), context_);
       auto sub = sdd_to_formula(it.get_sub(), context_);
-      args.push_back(context_.ast_manager.make_and({prime, sub}));
+      args.push_back(context_.ast_manager->make_and({prime, sub}));
     }
-    return context_.ast_manager.make_or(args);
+    return context_.ast_manager->make_or(args);
   }
   throw std::logic_error("SDD node type not recognized");
 }
