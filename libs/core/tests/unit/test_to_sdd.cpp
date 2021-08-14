@@ -67,8 +67,6 @@ TEST_CASE("Test SDD of a", "[core][SDD]") {
   auto context = ForwardSynthesis::Context(a, partition);
   auto sdd = to_sdd(*a, context);
   REQUIRE(sdd_size(sdd) == 2);
-  //  sdd_save_as_dot("a_sdd.dot", sdd);
-  //  sdd_vtree_save_as_dot("a_vtree.dot", context.vtree_);
 }
 
 } // namespace Test
