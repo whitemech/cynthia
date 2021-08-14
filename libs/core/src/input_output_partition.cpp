@@ -18,6 +18,8 @@
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/utils.hpp>
 #include <fstream>
+#include <unistd.h>
+#include <utility>
 
 namespace cynthia {
 namespace core {
@@ -29,11 +31,18 @@ InputOutputPartition::bad_file_format_exception(std::size_t line_number) {
                             " of the partition file.");
 }
 
-InputOutputPartition::InputOutputPartition() {}
+InputOutputPartition::InputOutputPartition(
+    const std::vector<std::string>& input_variables,
+    const std::vector<std::string>& output_variables)
+    : input_variables{input_variables}, output_variables{output_variables} {
+  if (input_variables.empty() or output_variables.empty()) {
+    throw std::invalid_argument("inputs/outputs set cannot be empty");
+  }
+  build_from_var_to_type_map_();
+}
 
 InputOutputPartition
 InputOutputPartition::read_from_file(const std::string& filename) {
-  InputOutputPartition partition;
 
   std::ifstream in(filename);
 
@@ -47,7 +56,8 @@ InputOutputPartition::read_from_file(const std::string& filename) {
   if (input_substr.size() != 2 || input_substr[0] != ".inputs") {
     throw bad_file_format_exception(line_number);
   }
-  partition.input_variables = utils::split_with_delimiter(input_substr[1], " ");
+  const auto& input_variables =
+      utils::split_with_delimiter(input_substr[1], " ");
 
   ++line_number;
   std::getline(in, line);
@@ -59,10 +69,19 @@ InputOutputPartition::read_from_file(const std::string& filename) {
     throw bad_file_format_exception(line_number);
   }
 
-  partition.output_variables =
+  const auto& output_variables =
       utils::split_with_delimiter(output_substr[1], " ");
 
-  return partition;
+  return {input_variables, output_variables};
+}
+
+void InputOutputPartition::build_from_var_to_type_map_() {
+  for (const auto& var : input_variables) {
+    from_var_to_type[var] = true;
+  }
+  for (const auto& var : output_variables) {
+    from_var_to_type[var] = false;
+  }
 }
 
 } // namespace core

@@ -17,12 +17,22 @@
  */
 
 #include <algorithm>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace cynthia {
 namespace utils {
+
+static inline bool and_(bool b1, bool b2) { return b1 and b2; }
+static inline bool or_(bool b1, bool b2) { return b1 and b2; }
+static inline bool implies_(bool b1, bool b2) { return not b1 or b2; }
+static inline bool equivalent_(bool b1, bool b2) {
+  return (b1 and b2) or (not b1 and not b2);
+}
+static inline bool xor_(bool b1, bool b2) { return b1 xor b2; }
 
 /*
  * Dereferenced versions of hashing and comparison.
@@ -35,11 +45,18 @@ struct Deref {
     }
   };
 
-  struct Compare {
+  struct Equal {
     template <typename T>
     size_t operator()(std::shared_ptr<const T> const& a,
                       std::shared_ptr<const T> const& b) const {
       return *a == *b;
+    }
+  };
+  struct Less {
+    template <typename T>
+    size_t operator()(std::shared_ptr<const T> const& a,
+                      std::shared_ptr<const T> const& b) const {
+      return *a < *b;
     }
   };
 };
@@ -99,14 +116,43 @@ typename std::vector<T>::iterator insert_sorted(std::vector<T>& vec,
   return vec.insert(std::upper_bound(vec.begin(), vec.end(), item, pred), item);
 }
 
-template <typename T> typename std::vector<T> setify(std::vector<T> vec) {
-  if (!std::is_sorted(vec.begin(), vec.end())) {
+template <typename T, typename Equal = std::equal_to<T>,
+          typename Less = std::less<T>>
+std::vector<T> setify(std::vector<T> vec) {
+  if (!std::is_sorted(vec.begin(), vec.end(), Less())) {
     std::sort(vec.begin(), vec.end());
   }
-  auto last = std::unique(vec.begin(), vec.end());
+  auto last = std::unique(vec.begin(), vec.end(), Equal());
   vec.erase(last, vec.end());
   return vec;
 }
+
+template <typename T, typename C>
+typename std::vector<T> vectify(std::set<T, C> set) {
+  return std::vector<T>(set.begin(), set.end());
+}
+
+template <typename T, typename C>
+std::vector<T>
+from_index_map_to_vector(const std::map<T, size_t, C>& from_element_to_id) {
+  auto result = std::vector<T>(from_element_to_id.size());
+  for (const auto& pair : from_element_to_id) {
+    result[pair.second] = pair.first;
+  }
+  return result;
+}
+
+template <typename T, typename Comparator>
+int binary_search_find_index(std::vector<T> v, T data, Comparator compare) {
+  auto it = std::lower_bound(v.begin(), v.end(), data, compare);
+  if (it == v.end() || *it != data) {
+    return -1;
+  } else {
+    int index = std::distance(v.begin(), it);
+    return index;
+  }
+}
+
 template <typename T> typename std::vector<T> sort(std::vector<T> vec) {
   if (!std::is_sorted(vec.begin(), vec.end())) {
     std::sort(vec.begin(), vec.end());

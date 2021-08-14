@@ -88,7 +88,7 @@ bool LTLfBinaryOp::is_equal(const Comparable& o) const {
   return get_type_code() == o.get_type_code() and
          std::equal(args.begin(), args.end(),
                     dynamic_cast<const LTLfBinaryOp&>(o).args.begin(),
-                    utils::Deref::Compare());
+                    utils::Deref::Equal());
 }
 int LTLfBinaryOp::compare_(const Comparable& o) const {
   assert(this->get_type_code() == o.get_type_code());

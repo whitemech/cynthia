@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -14,28 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <catch.hpp>
-#include <cynthia/input_output_partition.hpp>
+
+#include <cynthia/logic/ltlf.hpp>
 
 namespace cynthia {
-namespace core {
-namespace Test {
+namespace logic {
 
-TEST_CASE("IOPartition", "[iopartition]") {
-  auto partition = InputOutputPartition::read_from_file(
-      "../../../../libs/core/examples/partfile");
-
-  std::vector<std::string> inputs, outputs;
-  inputs.push_back("a");
-  inputs.push_back("b");
-
-  outputs.push_back("c");
-  outputs.push_back("d");
-
-  // same inputs and same outputs
-  REQUIRE(inputs == partition.input_variables);
-  REQUIRE(outputs == partition.output_variables);
+template <typename Function1, typename Function2>
+inline ltlf_ptr forward_call_to_arguments(const LTLfBinaryOp& formula,
+                                          Function1 mapping_function,
+                                          Function2 factory_function) {
+  const auto& container = formula.args;
+  auto new_container = vec_ptr(container.size());
+  std::transform(container.begin(), container.end(), new_container.begin(),
+                 mapping_function);
+  return factory_function(new_container);
 }
-} // namespace Test
-} // namespace core
+} // namespace logic
 } // namespace cynthia

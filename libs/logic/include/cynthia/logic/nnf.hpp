@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <memory>
 
+#include <cynthia/logic/utils.hpp>
 #include <cynthia/logic/visitor.hpp>
 
 namespace cynthia {
@@ -51,17 +52,6 @@ public:
 };
 
 ltlf_ptr to_nnf(const LTLfFormula& f);
-
-template <typename Function1, typename Function2>
-inline ltlf_ptr forward_call_to_arguments(const LTLfBinaryOp& formula,
-                                          Function1 mapping_function,
-                                          Function2 factory_function) {
-  const auto& container = formula.args;
-  auto new_container = vec_ptr(container.size());
-  std::transform(container.begin(), container.end(), new_container.begin(),
-                 mapping_function);
-  return factory_function(new_container);
-}
 
 } // namespace logic
 } // namespace cynthia

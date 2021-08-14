@@ -16,11 +16,9 @@
  */
 
 #include <CLI/CLI.hpp>
-#include <cynthia/core.hpp>
 
 int main(int argc, char** argv) {
   CLI::App app{"A tool for LTLf synthesis."};
   CLI11_PARSE(app, argc, argv)
-  std::cout << cynthia::core::meaning_of_life() << std::endl;
   return 0;
 }

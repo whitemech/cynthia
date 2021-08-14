@@ -17,6 +17,7 @@
 
 #include <cynthia/logic/duality.hpp>
 #include <cynthia/logic/nnf.hpp>
+#include <cynthia/logic/utils.hpp>
 
 namespace cynthia {
 namespace logic {

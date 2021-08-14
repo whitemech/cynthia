@@ -24,6 +24,15 @@ namespace logic {
 inline void throw_not_implemented_error() {
   throw std::logic_error("handler not implemented");
 }
+inline void throw_not_supported_error() {
+  throw std::logic_error("this case is not supported");
+}
+inline void throw_expected_nnf() {
+  throw std::logic_error("expected formula in Negation-Normal Form");
+}
+inline void throw_expected_xnf() {
+  throw std::logic_error("expected formula in Next-Normal Form");
+}
 
 /*
  * Abstract visitor class.

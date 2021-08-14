@@ -38,8 +38,7 @@ add_executable (${TEST_APP_NAME} ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES})
 target_link_libraries (${TEST_APP_NAME}
         PRIVATE
             Catch2::Catch2
-            ${CYNTHIA_CORE_LIB_NAME}
-            ${SDD_LIBRARIES})
+            ${CYNTHIA_CORE_LIB_NAME})
 
 # Turn on CMake testing capabilities
 enable_testing()

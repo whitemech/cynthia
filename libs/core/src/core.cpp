@@ -16,11 +16,155 @@
  */
 
 #include <cynthia/core.hpp>
+#include <cynthia/eval.hpp>
+#include <cynthia/logic/nnf.hpp>
+#include <cynthia/sdd_to_formula.hpp>
+#include <cynthia/sddcpp.hpp>
+#include <cynthia/strip_next.hpp>
+#include <cynthia/to_sdd.hpp>
+#include <cynthia/vtree.hpp>
+#include <cynthia/xnf.hpp>
 
 namespace cynthia {
 namespace core {
 
-int meaning_of_life() { return 42; }
+ISynthesis::ISynthesis(const logic::ltlf_ptr& formula,
+                       const InputOutputPartition& partition)
+    : formula{formula}, partition{partition} {}
 
+bool ForwardSynthesis::is_realizable() {
+  bool result = forward_synthesis_();
+  return result;
+}
+
+bool ForwardSynthesis::forward_synthesis_() {
+  auto path = logic::set_ptr{};
+  auto strategy = system_move_(context_.nnf_formula, path);
+  bool result =
+      strategy[context_.nnf_formula] != sdd_manager_false(context_.manager);
+  return result;
+}
+
+std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
+    const Closure& closure, const InputOutputPartition& partition) {
+  std::map<std::string, size_t> result;
+  size_t offset = closure.nb_formulas();
+  size_t i = offset;
+  for (const auto& p : partition.input_variables) {
+    result[p] = i++;
+  }
+  for (const auto& p : partition.output_variables) {
+    result[p] = i++;
+  }
+  return result;
+}
+strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
+                                          logic::set_ptr& path) {
+  strategy_t strategy;
+  if (eval(*formula)) {
+    strategy[formula] = sdd_manager_true(context_.manager);
+    return strategy;
+  }
+  if (path.find(formula) != path.end()) {
+    strategy[formula] = sdd_manager_false(context_.manager);
+    return strategy;
+  }
+
+  auto xnf_formula = xnf(*formula);
+  auto sdd = SddNodeWrapper(to_sdd(*xnf_formula, context_));
+  sdd_save_as_dot("sdd.dot", sdd.get_raw());
+  path.insert(formula);
+  if (!sdd.is_decision()) {
+    auto new_strategy = env_move_(sdd, path);
+    if (!new_strategy.empty()) {
+      path.erase(formula);
+      new_strategy[formula] = sdd_manager_true(context_.manager);
+      return new_strategy;
+    }
+  } else if (sdd.get_raw()->vtree->parent != NULL) {
+    // not at the vtree root; it means that system has no choice
+    auto env_state_node = sdd;
+    auto new_strategy = env_move_(env_state_node, path);
+    if (!new_strategy.empty()) {
+      path.erase(formula);
+      // all system moves are OK, since it does not have control
+      new_strategy[formula] = sdd_manager_true(context_.manager);
+      return new_strategy;
+    }
+  } else {
+    // is a decision node
+    auto child_it = sdd.begin();
+    auto children_end = sdd.end();
+
+    if (child_it == children_end) {
+      path.erase(formula);
+      strategy[formula] = sdd_manager_false(context_.manager);
+      return strategy;
+    }
+
+    while (child_it != children_end) {
+      auto system_move = child_it.get_prime();
+      auto env_state_node = SddNodeWrapper(child_it.get_sub());
+      ++child_it;
+      if (sdd_node_is_false(system_move))
+        continue;
+      auto new_strategy = env_move_(env_state_node, path);
+      if (!new_strategy.empty()) {
+        path.erase(formula);
+        new_strategy[formula] = system_move;
+        return new_strategy;
+      }
+    }
+  }
+
+  path.erase(formula);
+  strategy[formula] = sdd_manager_false(context_.manager);
+  return strategy;
+}
+
+strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
+                                       logic::set_ptr& path) {
+  logic::ltlf_ptr next_state;
+  if (!wrapper.is_decision()) {
+    next_state = strip_next(*sdd_to_formula(wrapper.get_raw(), context_));
+    auto strategy = system_move_(next_state, path);
+    if (strategy[next_state] == sdd_manager_false(context_.manager))
+      return strategy_t{};
+    return strategy;
+  } else if (wrapper.get_raw()->vtree->parent != context_.vtree_) {
+    // parent is not the vtree root; it means that environment has no choice
+    next_state = strip_next(*sdd_to_formula(wrapper.get_raw(), context_));
+    auto strategy = system_move_(next_state, path);
+    if (strategy[next_state] == sdd_manager_false(context_.manager))
+      return strategy_t{};
+    return strategy;
+  } else {
+    auto child_it = wrapper.begin();
+    auto children_end = wrapper.end();
+    strategy_t final_strategy;
+    for (; child_it != children_end; ++child_it) {
+      next_state = strip_next(*sdd_to_formula(child_it.get_sub(), context_));
+      auto strategy = system_move_(next_state, path);
+      if (strategy[next_state] == sdd_manager_false(context_.manager))
+        return strategy_t{};
+      final_strategy.insert(strategy.begin(), strategy.end());
+    }
+    return final_strategy;
+  }
+}
+
+ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
+                                   const InputOutputPartition& partition)
+    : formula{formula}, partition{partition}, ast_manager{&formula->ctx()} {
+  nnf_formula = logic::to_nnf(*formula);
+  Closure closure_object = closure(*nnf_formula);
+  closure_ = closure_object;
+  auto builder = VTreeBuilder(closure_, partition);
+  vtree_ = builder.get_vtree();
+  manager = sdd_manager_new(vtree_);
+  prop_to_id = compute_prop_to_id_map(closure_, partition);
+
+  sdd_vtree_save_as_dot("vtree.dot", vtree_);
+}
 } // namespace core
 } // namespace cynthia
