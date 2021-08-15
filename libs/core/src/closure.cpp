@@ -44,56 +44,42 @@ void ClosureVisitor::visit(const logic::LTLfFalse& formula) {
 }
 void ClosureVisitor::visit(const logic::LTLfPropTrue& formula) {
   insert_if_not_already_present_(formula);
-  // 'true' in the closure implies 'X(tt)' in the closure
-  // note: we don't recursively call 'apply' because we don't need F(tt)
-  //       that would be created by 'X(tt)'.
+  // 'true' in the closure implies 'tt' in the closure
   auto& c = formula.ctx();
   const auto& tt = c.make_tt();
-  const auto& next_tt = c.make_next(tt);
   insert_if_not_already_present_(*tt);
-  insert_if_not_already_present_(*next_tt);
 }
 void ClosureVisitor::visit(const logic::LTLfPropFalse& formula) {
   insert_if_not_already_present_(formula);
-  // 'false' in the closure implies 'X(ff)' in the closure
+  // 'false' in the closure implies 'ff' in the closure
   auto& c = formula.ctx();
   const auto& ff = c.make_ff();
-  const auto& next_ff = c.make_next(ff);
   insert_if_not_already_present_(*ff);
-  insert_if_not_already_present_(*next_ff);
 }
 void ClosureVisitor::visit(const logic::LTLfAtom& formula) {
   insert_if_not_already_present_(formula);
   // 'atom' in the closure implies:
-  //   (1) 'X(tt)' in the closure
-  //   (2) 'X(ff)' in the closure
+  //   (1) 'tt' in the closure (in case of success transition)
+  //   (2) 'ff' in the closure (in case of failing transition)
   auto& c = formula.ctx();
   const auto& tt = c.make_tt();
   const auto& ff = c.make_ff();
-  const auto& next_tt = c.make_next(tt);
-  const auto& next_ff = c.make_next(ff);
   insert_if_not_already_present_(*tt);
   insert_if_not_already_present_(*ff);
-  insert_if_not_already_present_(*next_tt);
-  insert_if_not_already_present_(*next_ff);
 }
 void ClosureVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();
 }
 void ClosureVisitor::visit(const logic::LTLfPropositionalNot& formula) {
   insert_if_not_already_present_(formula);
-  // 'atom' in the closure implies:
-  //   (1) 'X(tt)' in the closure
-  //   (2) 'X(ff)' in the closure
+  // '!atom' in the closure implies:
+  //   (1) 'tt' in the closure (in case of success transition)
+  //   (2) 'ff' in the closure (in case of failing transition)
   auto& c = formula.ctx();
   const auto& tt = c.make_tt();
   const auto& ff = c.make_ff();
-  const auto& next_tt = c.make_next(tt);
-  const auto& next_ff = c.make_next(ff);
   insert_if_not_already_present_(*tt);
   insert_if_not_already_present_(*ff);
-  insert_if_not_already_present_(*next_tt);
-  insert_if_not_already_present_(*next_ff);
 }
 void ClosureVisitor::visit(const logic::LTLfAnd& formula) {
   apply_to_binary_op_(formula);

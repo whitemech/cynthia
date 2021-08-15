@@ -136,10 +136,6 @@ void ClosureVisitor::add_end_and_not_end_(logic::Context& context) {
   auto end = c.make_end();
   insert_if_not_already_present_(*end);
   insert_if_not_already_present_(*c.make_weak_next(end));
-  auto not_last = c.make_next(c.make_tt());
-  insert_if_not_already_present_(*not_last);
-  auto last = c.make_last();
-  insert_if_not_already_present_(*last);
 }
 
 } // namespace core
