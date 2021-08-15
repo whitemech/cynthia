@@ -57,6 +57,8 @@ private:
   inline bool insert_if_not_already_present_(const logic::LTLfFormula& formula);
   inline void apply_to_binary_op_(const logic::LTLfBinaryOp& formula);
   inline void apply_to_unary_op_(const logic::LTLfUnaryOp& formula);
+  inline void add_end_and_not_end_(logic::Context& context);
+  friend Closure closure(const logic::LTLfFormula& f);
 
 public:
   logic::set_ptr formulas;
@@ -124,6 +126,20 @@ ClosureVisitor::apply_to_unary_op_(const logic::LTLfUnaryOp& formula) {
   if (result) {
     apply(*formula.arg);
   }
+}
+
+void ClosureVisitor::add_end_and_not_end_(logic::Context& context) {
+  auto& c = context;
+  auto not_end = c.make_not_end();
+  insert_if_not_already_present_(*not_end);
+  insert_if_not_already_present_(*c.make_next(not_end));
+  auto end = c.make_end();
+  insert_if_not_already_present_(*end);
+  insert_if_not_already_present_(*c.make_weak_next(end));
+  auto not_last = c.make_next(c.make_tt());
+  insert_if_not_already_present_(*not_last);
+  auto last = c.make_last();
+  insert_if_not_already_present_(*last);
 }
 
 } // namespace core

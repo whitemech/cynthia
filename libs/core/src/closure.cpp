@@ -112,15 +112,9 @@ void ClosureVisitor::visit(const logic::LTLfXor& formula) {
 }
 void ClosureVisitor::visit(const logic::LTLfNext& formula) {
   apply_to_unary_op_(formula);
-  // 'X[!](phi)' in the closure implies 'F(tt)' in the closure
-  auto& c = formula.ctx();
-  insert_if_not_already_present_(*c.make_eventually(c.make_tt()));
 }
 void ClosureVisitor::visit(const logic::LTLfWeakNext& formula) {
   apply_to_unary_op_(formula);
-  // 'X(phi)' in the closure implies 'G(ff)' in the closure
-  auto& c = formula.ctx();
-  insert_if_not_already_present_(*c.make_always(c.make_ff()));
 }
 void ClosureVisitor::visit(const logic::LTLfUntil& formula) {
   apply_to_right_associative_binary_op_(formula,
@@ -148,6 +142,7 @@ void ClosureVisitor::apply(const logic::LTLfFormula& f) { f.accept(*this); }
 Closure closure(const logic::LTLfFormula& f) {
   auto visitor = ClosureVisitor{};
   visitor.apply(f);
+  visitor.add_end_and_not_end_(f.ctx());
   return Closure{visitor.formulas};
 }
 

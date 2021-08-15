@@ -31,14 +31,14 @@ void ToSddVisitor::visit(const logic::LTLfFalse& formula) {
 }
 void ToSddVisitor::visit(const logic::LTLfPropTrue& formula) {
   auto true_sdd = sdd_manager_true(context_.manager);
-  auto next_tt = formula.ctx().make_next(formula.ctx().make_tt());
+  auto next_tt = formula.ctx().make_tt();
   auto next_tt_id = context_.closure_.get_id(next_tt);
   auto next_tt_sdd = sdd_manager_literal(next_tt_id + 1, context_.manager);
   result = sdd_conjoin(true_sdd, next_tt_sdd, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfPropFalse& formula) {
   auto false_sdd = sdd_manager_false(context_.manager);
-  auto next_ff = formula.ctx().make_next(formula.ctx().make_ff());
+  auto next_ff = formula.ctx().make_ff();
   auto next_ff_id = context_.closure_.get_id(next_ff);
   auto next_ff_sdd = sdd_manager_literal(next_ff_id + 1, context_.manager);
   result = sdd_conjoin(false_sdd, next_ff_sdd, context_.manager);
@@ -48,10 +48,10 @@ void ToSddVisitor::visit(const logic::LTLfAtom& formula) {
   auto atom_sdd = sdd_manager_literal(formula_id + 1, context_.manager);
   auto not_atom_sdd = sdd_negate(atom_sdd, context_.manager);
 
-  auto next_tt = formula.ctx().make_next(formula.ctx().make_tt());
+  auto next_tt = formula.ctx().make_tt();
   auto next_tt_id = context_.closure_.get_id(next_tt);
   auto next_tt_sdd = sdd_manager_literal(next_tt_id + 1, context_.manager);
-  auto next_ff = formula.ctx().make_next(formula.ctx().make_ff());
+  auto next_ff = formula.ctx().make_ff();
   auto next_ff_id = context_.closure_.get_id(next_ff);
   auto next_ff_sdd = sdd_manager_literal(next_ff_id + 1, context_.manager);
 
@@ -63,8 +63,8 @@ void ToSddVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();
 }
 void ToSddVisitor::visit(const logic::LTLfPropositionalNot& formula) {
-  auto tmp = apply(*formula.arg);
-  result = sdd_negate(tmp, context_.manager);
+  // 'LTLfAtom' case also handles negation
+  result = apply(*formula.arg);
 }
 void ToSddVisitor::visit(const logic::LTLfAnd& formula) {
   SddNode* tmp = sdd_manager_true(context_.manager);

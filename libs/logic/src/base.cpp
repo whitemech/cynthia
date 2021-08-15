@@ -41,6 +41,9 @@ Context::Context() {
   end = std::make_shared<const LTLfAlways>(*this, ff);
   table_->insert_if_not_available(end);
 
+  not_end = std::make_shared<const LTLfEventually>(*this, tt);
+  table_->insert_if_not_available(not_end);
+
   last = std::make_shared<const LTLfWeakNext>(*this, ff);
   table_->insert_if_not_available(last);
 }
@@ -50,6 +53,7 @@ ltlf_ptr Context::make_ff() { return ff; }
 ltlf_ptr Context::make_prop_true() { return true_; }
 ltlf_ptr Context::make_prop_false() { return false_; }
 ltlf_ptr Context::make_end() { return end; }
+ltlf_ptr Context::make_not_end() { return not_end; }
 ltlf_ptr Context::make_last() { return last; }
 ltlf_ptr Context::make_bool(bool value) {
   return value ? make_tt() : make_ff();
@@ -80,24 +84,18 @@ ltlf_ptr Context::make_prop_not(const ltlf_ptr& arg) {
 }
 
 ltlf_ptr Context::make_and(const vec_ptr& args) {
-  auto setified_args = utils::setify(args);
-  if (setified_args.size() == 1) {
-    auto actual = table_->insert_if_not_available(setified_args[0]);
-    return actual;
-  }
-  auto and_ = std::make_shared<const LTLfAnd>(*this, setified_args);
-  auto actual = table_->insert_if_not_available(and_);
+  ltlf_ptr (Context::*fun)(bool) = &Context::make_bool;
+  auto tmp = and_or<const LTLfFormula, LTLfAnd, LTLfTrue, LTLfFalse, LTLfNot,
+                    LTLfAnd, LTLfOr>(*this, args, false, fun);
+  auto actual = table_->insert_if_not_available(tmp);
   return actual;
 }
 
 ltlf_ptr Context::make_or(const vec_ptr& args) {
-  auto setified_args = utils::setify(args);
-  if (setified_args.size() == 1) {
-    auto actual = table_->insert_if_not_available(setified_args[0]);
-    return actual;
-  }
-  auto or_ = std::make_shared<const LTLfOr>(*this, args);
-  auto actual = table_->insert_if_not_available(or_);
+  ltlf_ptr (Context::*fun)(bool) = &Context::make_bool;
+  auto tmp = and_or<const LTLfFormula, LTLfOr, LTLfTrue, LTLfFalse, LTLfNot,
+                    LTLfAnd, LTLfOr>(*this, args, true, fun);
+  auto actual = table_->insert_if_not_available(tmp);
   return actual;
 }
 
