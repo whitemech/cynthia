@@ -36,7 +36,7 @@ class Logger {
 public:
   explicit Logger(std::string section);
 
-  static constexpr const char* const logger_name = "lydia";
+  static constexpr const char* const logger_name = "cynthia";
 
   std::string section() const noexcept { return section_; }
 
