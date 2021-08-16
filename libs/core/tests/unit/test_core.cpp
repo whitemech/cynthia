@@ -431,6 +431,31 @@ TEST_CASE("forward synthesis of '(X(F(~b))) U (G(a))'") {
   }
 }
 
+/* TODO
+ *
+ *  ((((G(~(p4))) & ((~(p5)) | (G(p5)))) | ((p5) & (F(p4)) & (F(~(p5))))) R
+ * (X(F(~(p4))))) U (G(p1)) inputs={'p1'} outputs={'p5', 'p4'} inputs={'p4'}
+ * outputs={'p1', 'p5'}
+ *
+ *  (((p0) | (G(F(p5)))) & (F(p4))) U (((p3) & ((~(p1)) | (F(~(p4))))) | ((p1) &
+ * (~(p3)) & (G(p4)))) inputs={'p4'} outputs={'p1', 'p5'} inputs={'p1'}
+ * outputs={'p5', 'p4'} inputs={'p3', 'p1'} outputs={'p0', 'p4', 'p5'}
+ *
+ *  ((((G(~(p5))) & ((~(p6)) | (G(p6)))) | ((p6) & (F(p5)) & (F(~(p6))))) R
+ * (X(F(~(p4))))) U (G(p2)) inputs={'p5'} outputs={'p6', 'p4', 'p2'}
+ *  inputs={'p4'} outputs={'p6', 'p5', 'p2'}
+ *  inputs={'p2'} outputs={'p6', 'p5', 'p4'}
+ *  inputs={'p5', 'p4'} outputs={'p6', 'p2'}
+ *  inputs={'p5', 'p2'} outputs={'p6', 'p4'}
+ *  inputs={'p6', 'p4'} outputs={'p5', 'p2'}
+ *  inputs={'p6', 'p2'} outputs={'p5', 'p4'}
+ *  inputs={'p4', 'p2'} outputs={'p6', 'p5'}
+ *
+ *  (((p0) | (G(F(p6)))) & (F(p4))) U (((p4) & ((~(p1)) | (F(~(p5))))) | ((p1) &
+ * (~(p4)) & (G(p5))))
+ *
+ */
+
 } // namespace Test
 } // namespace core
 } // namespace cynthia
