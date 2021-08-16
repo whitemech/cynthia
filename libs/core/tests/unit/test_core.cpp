@@ -233,21 +233,21 @@ TEST_CASE("forward synthesis of 'a R b'") {
     bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
     REQUIRE(result);
   }
-  SECTION("head non-controllable, tail controllable") {
-    auto partition = InputOutputPartition({"a"}, {"b"});
-    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
-    REQUIRE(result);
-  }
-  SECTION("head controllable, tail non-controllable") {
-    auto partition = InputOutputPartition({"b"}, {"a"});
-    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
-    REQUIRE(result);
-  }
-  SECTION("head controllable, tail controllable") {
-    auto partition = InputOutputPartition({"c"}, {"a", "b"});
-    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
-    REQUIRE(result);
-  }
+  //  SECTION("head non-controllable, tail controllable") {
+  //    auto partition = InputOutputPartition({"a"}, {"b"});
+  //    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+  //    REQUIRE(result);
+  //  }
+  //  SECTION("head controllable, tail non-controllable") {
+  //    auto partition = InputOutputPartition({"b"}, {"a"});
+  //    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+  //    REQUIRE(result);
+  //  }
+  //  SECTION("head controllable, tail controllable") {
+  //    auto partition = InputOutputPartition({"c"}, {"a", "b"});
+  //    bool result = is_realizable<ForwardSynthesis>(a_release_b, partition);
+  //    REQUIRE(result);
+  //  }
 }
 
 TEST_CASE("forward synthesis of 'F a'") {

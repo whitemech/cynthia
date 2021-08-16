@@ -99,8 +99,10 @@ void XnfVisitor::visit(const logic::LTLfUntil& formula) {
     tail = c.make_until(
         logic::vec_ptr(formula.args.begin() + 1, formula.args.end()));
   }
-  auto temp = c.make_or(
-      {tail, c.make_and({head, c.make_next(formula.shared_from_this())})});
+  auto next_until = c.make_next(formula.shared_from_this());
+  auto left_part = c.make_and({tail, c.make_not_end()});
+  auto right_part = c.make_and({head, next_until});
+  auto temp = c.make_or({left_part, right_part});
   result = apply(*temp);
 }
 void XnfVisitor::visit(const logic::LTLfRelease& formula) {
@@ -114,8 +116,10 @@ void XnfVisitor::visit(const logic::LTLfRelease& formula) {
     tail = c.make_release(
         logic::vec_ptr(formula.args.begin() + 1, formula.args.end()));
   }
-  auto temp = c.make_and(
-      {tail, c.make_or({head, c.make_weak_next(formula.shared_from_this())})});
+  auto wnext_release = c.make_weak_next(formula.shared_from_this());
+  auto left_part = c.make_or({tail, c.make_end()});
+  auto right_part = c.make_or({head, wnext_release});
+  auto temp = c.make_and({left_part, right_part});
   result = apply(*temp);
 }
 void XnfVisitor::visit(const logic::LTLfEventually& formula) {
