@@ -59,6 +59,7 @@ std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
   }
   return result;
 }
+
 strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                           logic::set_ptr& path) {
   strategy_t strategy;
