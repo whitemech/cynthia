@@ -33,8 +33,8 @@ private:
   void build_from_var_to_type_map_();
 
 public:
-  std::vector<std::string> input_variables;
-  std::vector<std::string> output_variables;
+  const std::vector<std::string> input_variables;
+  const std::vector<std::string> output_variables;
 
   /**
    * \brief Creates a partition.

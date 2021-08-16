@@ -38,6 +38,44 @@ TEST_CASE("forward synthesis of random formula 1") {
   REQUIRE(result);
 }
 
+TEST_CASE("forward synthesis of random formula 2") {
+  auto driver = parser::ltlf::LTLfDriver();
+  std::istringstream fstring(
+      "(((p0) | (G(F(p4)))) & (F(p3))) U ((p3) & ((~(p1)) | (F(~(p3)))))");
+  driver.parse(fstring);
+  auto temp = driver.result;
+  auto not_end = temp->ctx().make_not_end();
+  auto formula = temp->ctx().make_and({temp, not_end});
+  auto partition = InputOutputPartition({"p1", "p0", "p4"}, {"p3"});
+  bool result = is_realizable<ForwardSynthesis>(formula, partition);
+  REQUIRE(result);
+}
+TEST_CASE("forward synthesis of random formula 3") {
+  auto driver = parser::ltlf::LTLfDriver();
+  std::istringstream fstring(
+      "(((p0) | (G(F(p5)))) & (F(p4))) U (((p3) & ((~(p1)) | (F(~(p4))))) | "
+      "((p1) & (~(p3)) & (G(p4))))");
+  driver.parse(fstring);
+  auto temp = driver.result;
+  auto not_end = temp->ctx().make_not_end();
+  auto formula = temp->ctx().make_and({temp, not_end});
+  auto partition = InputOutputPartition({"p5", "p3"}, {"p1", "p0", "p4"});
+  bool result = is_realizable<ForwardSynthesis>(formula, partition);
+  REQUIRE(result);
+}
+TEST_CASE("forward synthesis of random formula 4") {
+  auto driver = parser::ltlf::LTLfDriver();
+  std::istringstream fstring("(((~(p2)) | (p4)) & (F((~(p0)) & (~(p1))))) | "
+                             "((p2) & (~(p4)) & (G((p0) | (p1))))");
+  driver.parse(fstring);
+  auto temp = driver.result;
+  auto not_end = temp->ctx().make_not_end();
+  auto formula = temp->ctx().make_and({temp, not_end});
+  auto partition = InputOutputPartition({"p2", "p4"}, {"p1", "p0"});
+  bool result = is_realizable<ForwardSynthesis>(formula, partition);
+  REQUIRE(result);
+}
+
 } // namespace Test
 } // namespace core
 } // namespace cynthia
