@@ -57,6 +57,7 @@ public:
     logic::ltlf_ptr xnf_formula;
     Closure closure_;
     std::map<std::string, size_t> prop_to_id;
+    std::set<SddSize> discovered;
     Vtree* vtree_ = nullptr;
     SddManager* manager = nullptr;
     Context(const logic::ltlf_ptr& formula,

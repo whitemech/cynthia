@@ -40,8 +40,9 @@ bool ForwardSynthesis::is_realizable() {
 
 bool ForwardSynthesis::forward_synthesis_() {
   auto path = std::set<SddSize>{};
+  auto root_sdd_node = to_sdd(*context_.xnf_formula, context_);
+  auto sdd_formula_id = sdd_id(root_sdd_node);
   auto strategy = system_move_(context_.xnf_formula, path);
-  auto sdd_formula_id = sdd_id(to_sdd(*context_.xnf_formula, context_));
   bool result = strategy[sdd_formula_id] != sdd_manager_false(context_.manager);
   return result;
 }
@@ -69,10 +70,13 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
   auto sdd_formula_id = sdd_id(sdd.get_raw());
   if (eval(*formula)) {
     strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
+    context_.discovered.insert(sdd_formula_id);
     return strategy;
   }
-  if (path.find(sdd_formula_id) != path.end()) {
+  if (path.find(sdd_formula_id) != path.end() or
+      context_.discovered.find(sdd_formula_id) != context_.discovered.end()) {
     strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
+    context_.discovered.insert(sdd_formula_id);
     return strategy;
   }
 
@@ -82,6 +86,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
     if (!new_strategy.empty()) {
       path.erase(sdd_formula_id);
       new_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
+      context_.discovered.insert(sdd_formula_id);
       return new_strategy;
     }
   } else if (sdd.get_raw()->vtree->parent != NULL) {
@@ -92,6 +97,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
       path.erase(sdd_formula_id);
       // all system moves are OK, since it does not have control
       new_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
+      context_.discovered.insert(sdd_formula_id);
       return new_strategy;
     }
   } else {
@@ -102,6 +108,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
     if (child_it == children_end) {
       path.erase(sdd_formula_id);
       strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
+      context_.discovered.insert(sdd_formula_id);
       return strategy;
     }
 
@@ -115,6 +122,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
       if (!new_strategy.empty()) {
         path.erase(sdd_formula_id);
         new_strategy[sdd_formula_id] = system_move;
+        context_.discovered.insert(sdd_formula_id);
         return new_strategy;
       }
     }
@@ -122,6 +130,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
 
   path.erase(sdd_formula_id);
   strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
+  context_.discovered.insert(sdd_formula_id);
   return strategy;
 }
 
