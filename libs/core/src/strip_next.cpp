@@ -88,26 +88,26 @@ void StripNextVisitor::visit(const logic::LTLfWeakNext& formula) {
   result = formula.ctx().make_or({formula.arg, formula.ctx().make_end()});
 }
 void StripNextVisitor::visit(const logic::LTLfUntil& formula) {
-  result = logic::forward_call_to_arguments(
-      formula,
-      [this](const logic::ltlf_ptr& formula) { return apply(*formula); },
-      [formula](const logic::vec_ptr& container) {
-        return formula.ctx().make_until(container);
-      });
+  logic::throw_expected_xnf();
 }
 void StripNextVisitor::visit(const logic::LTLfRelease& formula) {
-  result = logic::forward_call_to_arguments(
-      formula,
-      [this](const logic::ltlf_ptr& formula) { return apply(*formula); },
-      [formula](const logic::vec_ptr& container) {
-        return formula.ctx().make_release(container);
-      });
+  logic::throw_expected_xnf();
 }
 void StripNextVisitor::visit(const logic::LTLfEventually& formula) {
-  result = formula.ctx().make_eventually(apply(*formula.arg));
+  auto not_end = formula.ctx().make_not_end();
+  if (*not_end == formula) {
+    result = formula.ctx().make_tt();
+    return;
+  }
+  logic::throw_expected_xnf();
 }
 void StripNextVisitor::visit(const logic::LTLfAlways& formula) {
-  result = formula.ctx().make_always(apply(*formula.arg));
+  auto end = formula.ctx().make_end();
+  if (*end == formula) {
+    result = formula.ctx().make_ff();
+    return;
+  }
+  logic::throw_expected_xnf();
 }
 
 logic::ltlf_ptr StripNextVisitor::apply(const logic::LTLfFormula& formula) {

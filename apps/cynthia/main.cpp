@@ -81,6 +81,8 @@ int main(int argc, char** argv) {
   auto partition =
       cynthia::core::InputOutputPartition::read_from_file(part_file);
 
+  logger.info("Starting synthesis");
+
   auto t_start = std::chrono::high_resolution_clock::now();
 
   bool result = cynthia::core::is_realizable<cynthia::core::ForwardSynthesis>(

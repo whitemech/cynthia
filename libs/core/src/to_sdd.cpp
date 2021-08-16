@@ -131,9 +131,19 @@ void ToSddVisitor::visit(const logic::LTLfRelease& formula) {
   logic::throw_expected_xnf();
 }
 void ToSddVisitor::visit(const logic::LTLfEventually& formula) {
+  auto not_end = formula.ctx().make_not_end();
+  if (*not_end == formula) {
+    result = get_sdd_node(formula);
+    return;
+  }
   logic::throw_expected_xnf();
 }
 void ToSddVisitor::visit(const logic::LTLfAlways& formula) {
+  auto end = formula.ctx().make_end();
+  if (*end == formula) {
+    result = get_sdd_node(formula);
+    return;
+  }
   logic::throw_expected_xnf();
 }
 

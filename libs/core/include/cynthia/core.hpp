@@ -27,7 +27,7 @@ extern "C" {
 namespace cynthia {
 namespace core {
 
-typedef std::map<logic::ltlf_ptr, SddNode*> strategy_t;
+typedef std::map<SddSize, SddNode*> strategy_t;
 
 class ISynthesis {
 public:
@@ -96,8 +96,9 @@ public:
 private:
   Context context_;
 
-  strategy_t system_move_(const logic::ltlf_ptr& formula, logic::set_ptr& path);
-  strategy_t env_move_(SddNodeWrapper& wrapper, logic::set_ptr& path);
+  strategy_t system_move_(const logic::ltlf_ptr& formula,
+                          std::set<SddSize>& path);
+  strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
 };
 
 } // namespace core

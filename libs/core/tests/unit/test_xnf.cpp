@@ -106,7 +106,9 @@ TEST_CASE("Test XNF of a U b", "[core][SDD]") {
   auto a_until_b = context.make_until({a, b});
 
   auto next_a_until_b = context.make_next(a_until_b);
-  auto expected = context.make_or({b, context.make_and({a, next_a_until_b})});
+  auto expected =
+      context.make_or({context.make_and({b, context.make_not_end()}),
+                       context.make_and({a, next_a_until_b})});
   auto actual = xnf(*a_until_b);
   REQUIRE(actual == expected);
 }
@@ -119,7 +121,8 @@ TEST_CASE("Test XNF of a R b", "[core][SDD]") {
 
   auto weaknext_a_release_b = context.make_weak_next(a_release_b);
   auto expected =
-      context.make_and({b, context.make_or({a, weaknext_a_release_b})});
+      context.make_and({context.make_or({b, context.make_end()}),
+                        context.make_or({a, weaknext_a_release_b})});
   auto actual = xnf(*a_release_b);
   REQUIRE(actual == expected);
 }
