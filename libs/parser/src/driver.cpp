@@ -83,11 +83,9 @@ logic::ltlf_ptr LTLfDriver::add_LTLfPropFalse() const {
   return context->make_prop_false();
 }
 
-logic::ltlf_ptr LTLfDriver::add_LTLfEnd() const {
-  return context->make_always(context->make_ff());
-}
+logic::ltlf_ptr LTLfDriver::add_LTLfEnd() const { return context->make_end(); }
 logic::ltlf_ptr LTLfDriver::add_LTLfLast() const {
-  return context->make_weak_next(context->make_ff());
+  return context->make_last();
 }
 
 logic::ltlf_ptr LTLfDriver::add_LTLfAtom(const std::string& name) const {

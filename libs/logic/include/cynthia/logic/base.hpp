@@ -88,7 +88,7 @@ template <typename T, typename caller, typename True, typename False,
 std::shared_ptr<T>
 and_or(Context& context, const vec_ptr& s, bool op_x_notx,
        std::shared_ptr<T> (Context::*const& fun_ptr)(bool x)) {
-  std::set<std::shared_ptr<T>, utils::Deref::Less> args;
+  set_ptr args;
   for (auto& a : s) {
     // handle the case when a subformula is true
     if (is_a<True>(*a)) {
@@ -114,14 +114,11 @@ and_or(Context& context, const vec_ptr& s, bool op_x_notx,
       args.insert(a);
     }
   }
-  vec_ptr final_args =
-      utils::setify<ltlf_ptr, utils::Deref::Equal, utils::Deref::Less>(
-          vec_ptr(args.begin(), args.end()));
-  if (final_args.size() == 1)
+  if (args.size() == 1)
     return *(args.begin());
-  if (final_args.empty())
+  if (args.empty())
     return (context.*fun_ptr)(not op_x_notx);
-  return std::make_shared<caller>(context, final_args);
+  return std::make_shared<caller>(context, args);
 }
 
 } // namespace logic

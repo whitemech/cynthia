@@ -172,6 +172,7 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
   vtree_ = builder.get_vtree();
   manager = sdd_manager_new(vtree_);
   prop_to_id = compute_prop_to_id_map(closure_, partition);
+  sdd_vtree_save_as_dot("vtree.dot", vtree_);
 }
 } // namespace core
 } // namespace cynthia
