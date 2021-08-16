@@ -75,7 +75,7 @@ jobs:
 #      - name: Build app
 #        run: cd build && VERBOSE=1 make cynthia-app -j
 #      - name: Build benchmarks
-#        run: cd build && VERBOSE=1 make lydiaBench -j
+#        run: cd build && VERBOSE=1 make cynthia-bench -j
 
   # Build and run the tests.
   test:

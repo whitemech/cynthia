@@ -156,7 +156,16 @@ class LTLfBinaryOp : public LTLfFormula {
 public:
   const vec_ptr args;
 
-  LTLfBinaryOp(Context& ctx, vec_ptr args) : LTLfFormula(ctx), args{args} {
+  LTLfBinaryOp(Context& ctx, const vec_ptr& args)
+      : LTLfFormula(ctx), args{args} {
+    if (args.size() < 2) {
+      throw std::invalid_argument(
+          "the number of arguments must not be less than two");
+    }
+  }
+
+  LTLfBinaryOp(Context& ctx, const set_ptr& args)
+      : LTLfFormula(ctx), args{args.begin(), args.end()} {
     if (args.size() < 2) {
       throw std::invalid_argument(
           "the number of arguments must not be less than two");
@@ -175,6 +184,8 @@ public:
             ctx,
             utils::setify<ltlf_ptr, utils::Deref::Equal, utils::Deref::Less>(
                 args)) {}
+  LTLfCommutativeIdempotentBinaryOp(Context& ctx, const set_ptr& args)
+      : LTLfBinaryOp(ctx, args) {}
 };
 
 class LTLfAnd : public LTLfCommutativeIdempotentBinaryOp,
@@ -187,6 +198,8 @@ public:
   LTLfAnd(Context& ctx, vec_ptr args)
       : LTLfCommutativeIdempotentBinaryOp(ctx, std::move(args)),
         BooleanBinaryOp(and_) {}
+  LTLfAnd(Context& ctx, const set_ptr& args)
+      : LTLfCommutativeIdempotentBinaryOp(ctx, args), BooleanBinaryOp(and_) {}
 
   void accept(Visitor& visitor) const override;
   inline TypeID get_type_code() const override;
@@ -202,6 +215,8 @@ public:
   LTLfOr(Context& ctx, vec_ptr args)
       : LTLfCommutativeIdempotentBinaryOp(ctx, std::move(args)),
         BooleanBinaryOp(or_) {}
+  LTLfOr(Context& ctx, const set_ptr& args)
+      : LTLfCommutativeIdempotentBinaryOp(ctx, args), BooleanBinaryOp(or_) {}
 
   void accept(Visitor& visitor) const override;
   inline TypeID get_type_code() const override;
@@ -217,6 +232,8 @@ public:
   const static TypeID type_code_id = TypeID::t_LTLfImplies;
   LTLfImplies(Context& ctx, vec_ptr args)
       : LTLfBinaryOp(ctx, std::move(args)), BooleanBinaryOp(implies_) {}
+  LTLfImplies(Context& ctx, const set_ptr& args)
+      : LTLfBinaryOp(ctx, args), BooleanBinaryOp(implies_) {}
 
   void accept(Visitor& visitor) const override;
   inline TypeID get_type_code() const override;
@@ -233,6 +250,8 @@ public:
   LTLfEquivalent(Context& ctx, vec_ptr args)
       : LTLfBinaryOp(ctx, utils::sort(std::move(args))),
         BooleanBinaryOp(equivalent_) {}
+  LTLfEquivalent(Context& ctx, const set_ptr& args)
+      : LTLfBinaryOp(ctx, args), BooleanBinaryOp(equivalent_) {}
 
   void accept(Visitor& visitor) const override;
   inline TypeID get_type_code() const override;
@@ -247,6 +266,8 @@ public:
   LTLfXor(Context& ctx, vec_ptr args)
       : LTLfBinaryOp(ctx, utils::sort(std::move(args))), BooleanBinaryOp(xor_) {
   }
+  LTLfXor(Context& ctx, const set_ptr& args)
+      : LTLfBinaryOp(ctx, args), BooleanBinaryOp(xor_) {}
 
   void accept(Visitor& visitor) const override;
   inline TypeID get_type_code() const override;

@@ -27,6 +27,8 @@ int main(int argc, char** argv) {
 
   CLI::App app{"A tool for SDD-based forward LTLf synthesis."};
 
+  bool no_empty = false;
+  app.add_flag("-n,--no-empty", no_empty, "Enforce non-empty semantics.");
   bool version = false;
   app.add_flag("-V,--version", version, "Print the version and exit.");
 
@@ -58,11 +60,8 @@ int main(int argc, char** argv) {
 
   auto driver = cynthia::parser::ltlf::LTLfDriver();
   if (!file_opt->empty()) {
-    std::ifstream t(filename.c_str());
-    std::string str((std::istreambuf_iterator<char>(t)),
-                    std::istreambuf_iterator<char>());
     logger.info("Parsing {}", filename);
-    driver.parse(str.c_str());
+    driver.parse(filename.c_str());
   } else {
     std::stringstream formula_stream(formula);
     logger.info("Parsing {}", formula);
@@ -70,6 +69,13 @@ int main(int argc, char** argv) {
   }
 
   auto parsed_formula = driver.get_result();
+  if (no_empty) {
+    logger.info("Apply no-empty semantics.");
+    auto context = driver.context;
+    auto end = context->make_end();
+    auto not_end = context->make_not(end);
+    parsed_formula = context->make_and({parsed_formula, not_end});
+  }
 
   logger.info("Reading partition file {}", part_file);
   auto partition =

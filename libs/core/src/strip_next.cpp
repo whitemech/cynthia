@@ -82,10 +82,10 @@ void StripNextVisitor::visit(const logic::LTLfXor& formula) {
       });
 }
 void StripNextVisitor::visit(const logic::LTLfNext& formula) {
-  result = formula.arg;
+  result = formula.ctx().make_and({formula.arg, formula.ctx().make_not_end()});
 }
 void StripNextVisitor::visit(const logic::LTLfWeakNext& formula) {
-  result = formula.arg;
+  result = formula.ctx().make_or({formula.arg, formula.ctx().make_end()});
 }
 void StripNextVisitor::visit(const logic::LTLfUntil& formula) {
   result = logic::forward_call_to_arguments(

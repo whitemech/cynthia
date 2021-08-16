@@ -31,40 +31,52 @@ void ToSddVisitor::visit(const logic::LTLfFalse& formula) {
 }
 void ToSddVisitor::visit(const logic::LTLfPropTrue& formula) {
   auto true_sdd = sdd_manager_true(context_.manager);
-  auto next_tt = formula.ctx().make_next(formula.ctx().make_tt());
-  auto next_tt_id = context_.closure_.get_id(next_tt);
-  auto next_tt_sdd = sdd_manager_literal(next_tt_id + 1, context_.manager);
-  result = sdd_conjoin(true_sdd, next_tt_sdd, context_.manager);
+  auto tt = formula.ctx().make_tt();
+  auto tt_id = context_.closure_.get_id(tt);
+  auto tt_sdd = sdd_manager_literal(tt_id + 1, context_.manager);
+  result = sdd_conjoin(true_sdd, tt_sdd, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfPropFalse& formula) {
   auto false_sdd = sdd_manager_false(context_.manager);
-  auto next_ff = formula.ctx().make_next(formula.ctx().make_ff());
-  auto next_ff_id = context_.closure_.get_id(next_ff);
-  auto next_ff_sdd = sdd_manager_literal(next_ff_id + 1, context_.manager);
-  result = sdd_conjoin(false_sdd, next_ff_sdd, context_.manager);
+  auto ff = formula.ctx().make_ff();
+  auto ff_id = context_.closure_.get_id(ff);
+  auto ff_sdd = sdd_manager_literal(ff_id + 1, context_.manager);
+  result = sdd_conjoin(false_sdd, ff_sdd, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfAtom& formula) {
   auto formula_id = context_.prop_to_id[formula.name];
   auto atom_sdd = sdd_manager_literal(formula_id + 1, context_.manager);
   auto not_atom_sdd = sdd_negate(atom_sdd, context_.manager);
 
-  auto next_tt = formula.ctx().make_next(formula.ctx().make_tt());
-  auto next_tt_id = context_.closure_.get_id(next_tt);
-  auto next_tt_sdd = sdd_manager_literal(next_tt_id + 1, context_.manager);
-  auto next_ff = formula.ctx().make_next(formula.ctx().make_ff());
-  auto next_ff_id = context_.closure_.get_id(next_ff);
-  auto next_ff_sdd = sdd_manager_literal(next_ff_id + 1, context_.manager);
+  auto tt = formula.ctx().make_tt();
+  auto tt_id = context_.closure_.get_id(tt);
+  auto tt_sdd = sdd_manager_literal(tt_id + 1, context_.manager);
+  auto ff = formula.ctx().make_ff();
+  auto ff_id = context_.closure_.get_id(ff);
+  auto ff_sdd = sdd_manager_literal(ff_id + 1, context_.manager);
 
-  auto left = sdd_conjoin(atom_sdd, next_tt_sdd, context_.manager);
-  auto right = sdd_conjoin(not_atom_sdd, next_ff_sdd, context_.manager);
+  auto left = sdd_conjoin(atom_sdd, tt_sdd, context_.manager);
+  auto right = sdd_conjoin(not_atom_sdd, ff_sdd, context_.manager);
   result = sdd_disjoin(left, right, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();
 }
 void ToSddVisitor::visit(const logic::LTLfPropositionalNot& formula) {
-  auto tmp = apply(*formula.arg);
-  result = sdd_negate(tmp, context_.manager);
+  auto formula_id = context_.prop_to_id[formula.get_atom()->name];
+  auto atom_sdd = sdd_manager_literal(formula_id + 1, context_.manager);
+  auto not_atom_sdd = sdd_negate(atom_sdd, context_.manager);
+
+  auto tt = formula.ctx().make_tt();
+  auto tt_id = context_.closure_.get_id(tt);
+  auto tt_sdd = sdd_manager_literal(tt_id + 1, context_.manager);
+  auto ff = formula.ctx().make_ff();
+  auto ff_id = context_.closure_.get_id(ff);
+  auto ff_sdd = sdd_manager_literal(ff_id + 1, context_.manager);
+
+  auto left = sdd_conjoin(not_atom_sdd, tt_sdd, context_.manager);
+  auto right = sdd_conjoin(atom_sdd, ff_sdd, context_.manager);
+  result = sdd_disjoin(left, right, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfAnd& formula) {
   SddNode* tmp = sdd_manager_true(context_.manager);

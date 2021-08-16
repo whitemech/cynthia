@@ -19,7 +19,7 @@ Build as any CMake project:
 
 ```
 mkdir build && cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j4
 ```
 

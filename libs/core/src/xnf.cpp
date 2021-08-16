@@ -120,15 +120,17 @@ void XnfVisitor::visit(const logic::LTLfRelease& formula) {
 }
 void XnfVisitor::visit(const logic::LTLfEventually& formula) {
   auto& c = formula.ctx();
-  auto temp = c.make_or({formula.arg, c.make_next(formula.shared_from_this())});
-  result = apply(*temp);
+  auto xnf_arg = c.make_and({c.make_prop_true(), apply(*formula.arg)});
+  auto next_part = c.make_next(formula.shared_from_this());
+  auto temp = c.make_or({xnf_arg, next_part});
+  result = temp;
 }
 void XnfVisitor::visit(const logic::LTLfAlways& formula) {
   auto& c = formula.ctx();
-  //  auto temp = c.make_and({c.make_or({formula.arg, c.make_end()}),
-  //                          c.make_weak_next(formula.shared_from_this())});
-  auto temp =
-      c.make_and({formula.arg, c.make_weak_next(formula.shared_from_this())});
+  // TODO: XNF of always should evaluate to true on empty trace
+  auto xnf_arg = c.make_or({c.make_prop_false(), apply(*formula.arg)});
+  auto next_part = c.make_weak_next(formula.shared_from_this());
+  auto temp = c.make_and({xnf_arg, next_part});
   result = apply(*temp);
 }
 

@@ -17,6 +17,8 @@
 
 #include <catch.hpp>
 #include <cynthia/core.hpp>
+#include <cynthia/parser/driver.hpp>
+#include <sstream>
 
 namespace cynthia {
 namespace core {
@@ -65,6 +67,22 @@ TEST_CASE("forward synthesis of atom") {
   SECTION("atom not-controllable") {
     auto partition = InputOutputPartition({"a"}, {"b"});
     bool result = is_realizable<ForwardSynthesis>(a, partition);
+    REQUIRE(!result);
+  }
+}
+TEST_CASE("forward synthesis of not atom") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto not_a = context.make_prop_not(a);
+
+  SECTION("atom controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(not_a, partition);
+    REQUIRE(result);
+  }
+  SECTION("atom not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(not_a, partition);
     REQUIRE(!result);
   }
 }
@@ -141,7 +159,7 @@ TEST_CASE("forward synthesis of 'X[!]a' (controllable)") {
   }
 }
 
-TEST_CASE("forward synthesis of 'X a' (controllable)") {
+TEST_CASE("forward synthesis of 'X a'") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto weak_next_a = context.make_weak_next(a);
@@ -154,6 +172,24 @@ TEST_CASE("forward synthesis of 'X a' (controllable)") {
   SECTION("body not-controllable") {
     auto partition = InputOutputPartition({"a"}, {"b"});
     bool result = is_realizable<ForwardSynthesis>(weak_next_a, partition);
+    REQUIRE(result);
+  }
+}
+TEST_CASE("forward synthesis of 'X a', non-empty trace") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto weak_next_a = context.make_weak_next(a);
+  auto not_end = context.make_eventually(context.make_tt());
+  auto formula = context.make_and({weak_next_a, not_end});
+
+  SECTION("body controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("body not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
     REQUIRE(result);
   }
 }
@@ -248,6 +284,177 @@ TEST_CASE("forward synthesis of 'G a'") {
     REQUIRE(result);
   }
 }
+TEST_CASE("forward synthesis of 'G a', non-empty trace") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto always_a = context.make_always(a);
+  auto not_end = context.make_eventually(context.make_tt());
+  auto formula = context.make_and({always_a, not_end});
+
+  SECTION("tail not-controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(!result);
+  }
+  SECTION("tail controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+}
+TEST_CASE("forward synthesis of 'G(a | !b)', non-empty trace") {
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto b = context.make_atom("b");
+  auto not_b = context.make_prop_not(b);
+  auto a_or_not_b = context.make_or({a, not_b});
+  auto always = context.make_always(a_or_not_b);
+  auto not_end = context.make_eventually(context.make_tt());
+  auto formula = context.make_and({always, not_end});
+
+  SECTION("b controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("a controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'X(F(p0))'") {
+  logic::Context context{};
+  auto p0 = context.make_atom("p0");
+  auto not_end = context.make_not(context.make_end());
+  auto eventually_p0 = context.make_eventually(p0);
+  auto next = context.make_weak_next(eventually_p0);
+  auto formula = context.make_and({next, not_end});
+  SECTION("p0 uncontrollable") {
+    auto partition = InputOutputPartition({"p0"}, {"p1"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("p0 controllable") {
+    auto partition = InputOutputPartition({"p1"}, {"p0"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+}
+TEST_CASE("forward synthesis of '((a) & (X(~(a)))) | ((~(a)) & (X(a)))'") {
+  logic::Context context{};
+  auto a = context.make_atom("a");
+  auto not_a = context.make_prop_not(a);
+  auto next_a = context.make_next(a);
+  auto next_not_a = context.make_next(not_a);
+
+  auto a_next_not_a = context.make_and({a, next_not_a});
+  auto not_a_next_a = context.make_and({not_a, next_a});
+  auto not_end = context.make_not_end();
+  auto formula_or = context.make_or({a_next_not_a, not_a_next_a});
+  auto formula = context.make_and({formula_or, not_end});
+
+  SECTION("a uncontrollable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("a controllable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+}
+
+TEST_CASE("forward synthesis of 'p0 R (F(p1))'") {
+  logic::Context context{};
+  auto p0 = context.make_atom("p0");
+  auto p1 = context.make_atom("p1");
+  auto not_end = context.make_not(context.make_end());
+  auto eventually_p1 = context.make_eventually(p1);
+  auto release = context.make_release({p0, eventually_p1});
+  auto formula = context.make_and({release, not_end});
+
+  SECTION("p0 controllable, p1 controllable") {
+    auto partition = InputOutputPartition({"dummy"}, {"p0", "p1"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("p0 uncontrollable, p1 controllable") {
+    auto partition = InputOutputPartition({"p0"}, {"p1"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("p0 controllable, p1 uncontrollable") {
+    auto partition = InputOutputPartition({"p1"}, {"p0"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(!result);
+  }
+  SECTION("p0 uncontrollable, p1 uncontrollable") {
+    auto partition = InputOutputPartition({"p0", "p1"}, {"dummy"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(!result);
+  }
+}
+TEST_CASE("forward synthesis of '(X(F(~b))) U (G(a))'") {
+  auto context = std::make_shared<logic::Context>();
+  auto a = context->make_atom("a");
+  auto b = context->make_atom("b");
+  auto not_b = context->make_prop_not(b);
+  auto not_end = context->make_not(context->make_end());
+  auto always_a = context->make_eventually(a);
+  auto eventually_not_b = context->make_eventually(not_b);
+  auto next_eventually = context->make_weak_next(eventually_not_b);
+  auto until = context->make_until({next_eventually, always_a});
+  auto formula = context->make_and({until, not_end});
+
+  SECTION("a controllable, b controllable") {
+    auto partition = InputOutputPartition({"dummy"}, {"a", "b"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("a uncontrollable, b controllable") {
+    auto partition = InputOutputPartition({"a"}, {"b"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(!result);
+  }
+  SECTION("a controllable, b uncontrollable") {
+    auto partition = InputOutputPartition({"b"}, {"a"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(result);
+  }
+  SECTION("a uncontrollable, b uncontrollable") {
+    auto partition = InputOutputPartition({"a", "b"}, {"dummy"});
+    bool result = is_realizable<ForwardSynthesis>(formula, partition);
+    REQUIRE(!result);
+  }
+}
+
+/* TODO
+ *
+ *  ((((G(~(p4))) & ((~(p5)) | (G(p5)))) | ((p5) & (F(p4)) & (F(~(p5))))) R
+ * (X(F(~(p4))))) U (G(p1)) inputs={'p1'} outputs={'p5', 'p4'} inputs={'p4'}
+ * outputs={'p1', 'p5'}
+ *
+ *  (((p0) | (G(F(p5)))) & (F(p4))) U (((p3) & ((~(p1)) | (F(~(p4))))) | ((p1) &
+ * (~(p3)) & (G(p4)))) inputs={'p4'} outputs={'p1', 'p5'} inputs={'p1'}
+ * outputs={'p5', 'p4'} inputs={'p3', 'p1'} outputs={'p0', 'p4', 'p5'}
+ *
+ *  ((((G(~(p5))) & ((~(p6)) | (G(p6)))) | ((p6) & (F(p5)) & (F(~(p6))))) R
+ * (X(F(~(p4))))) U (G(p2)) inputs={'p5'} outputs={'p6', 'p4', 'p2'}
+ *  inputs={'p4'} outputs={'p6', 'p5', 'p2'}
+ *  inputs={'p2'} outputs={'p6', 'p5', 'p4'}
+ *  inputs={'p5', 'p4'} outputs={'p6', 'p2'}
+ *  inputs={'p5', 'p2'} outputs={'p6', 'p4'}
+ *  inputs={'p6', 'p4'} outputs={'p5', 'p2'}
+ *  inputs={'p6', 'p2'} outputs={'p5', 'p4'}
+ *  inputs={'p4', 'p2'} outputs={'p6', 'p5'}
+ *
+ *  (((p0) | (G(F(p6)))) & (F(p4))) U (((p4) & ((~(p1)) | (F(~(p5))))) | ((p1) &
+ * (~(p4)) & (G(p5))))
+ *
+ */
 
 } // namespace Test
 } // namespace core

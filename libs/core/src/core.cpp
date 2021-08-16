@@ -18,6 +18,7 @@
 #include <cynthia/core.hpp>
 #include <cynthia/eval.hpp>
 #include <cynthia/logic/nnf.hpp>
+#include <cynthia/logic/print.hpp>
 #include <cynthia/sdd_to_formula.hpp>
 #include <cynthia/sddcpp.hpp>
 #include <cynthia/strip_next.hpp>
@@ -71,6 +72,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   }
 
   auto xnf_formula = xnf(*formula);
+  auto formula_str = logic::to_string(*xnf_formula);
   auto sdd = SddNodeWrapper(to_sdd(*xnf_formula, context_));
   path.insert(formula);
   if (!sdd.is_decision()) {
@@ -81,7 +83,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       return new_strategy;
     }
   } else if (sdd.get_raw()->vtree->parent != NULL) {
-    // not at the vtree root; it means that system has no choice
+    // not at the vtree root; it means that system choice is irrelevant
     auto env_state_node = sdd;
     auto new_strategy = env_move_(env_state_node, path);
     if (!new_strategy.empty()) {
@@ -123,16 +125,23 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 
 strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
                                        logic::set_ptr& path) {
-  logic::ltlf_ptr next_state;
+  logic::ltlf_ptr next_state, sdd_formula;
   if (!wrapper.is_decision()) {
-    next_state = strip_next(*sdd_to_formula(wrapper.get_raw(), context_));
+    sdd_formula = sdd_to_formula(wrapper.get_raw(), context_);
+    auto sdd_formula_str = logic::to_string(*sdd_formula);
+    next_state = strip_next(*sdd_formula);
+    auto next_state_str = logic::to_string(*next_state);
     auto strategy = system_move_(next_state, path);
     if (strategy[next_state] == sdd_manager_false(context_.manager))
       return strategy_t{};
     return strategy;
-  } else if (wrapper.get_raw()->vtree->parent != context_.vtree_) {
-    // parent is not the vtree root; it means that environment has no choice
-    next_state = strip_next(*sdd_to_formula(wrapper.get_raw(), context_));
+  } else if (wrapper.get_raw()->vtree->parent->parent != NULL) {
+    // parent is not the vtree root; it means that environment choice is
+    // irrelevant
+    sdd_formula = sdd_to_formula(wrapper.get_raw(), context_);
+    auto sdd_formula_str = logic::to_string(*sdd_formula);
+    next_state = strip_next(*sdd_formula);
+    auto next_state_str = logic::to_string(*next_state);
     auto strategy = system_move_(next_state, path);
     if (strategy[next_state] == sdd_manager_false(context_.manager))
       return strategy_t{};
@@ -142,7 +151,8 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     auto children_end = wrapper.end();
     strategy_t final_strategy;
     for (; child_it != children_end; ++child_it) {
-      next_state = strip_next(*sdd_to_formula(child_it.get_sub(), context_));
+      sdd_formula = sdd_to_formula(child_it.get_sub(), context_);
+      next_state = strip_next(*sdd_formula);
       auto strategy = system_move_(next_state, path);
       if (strategy[next_state] == sdd_manager_false(context_.manager))
         return strategy_t{};
