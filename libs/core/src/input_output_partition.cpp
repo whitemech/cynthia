@@ -34,8 +34,9 @@ InputOutputPartition::bad_file_format_exception(std::size_t line_number) {
 InputOutputPartition::InputOutputPartition(
     const std::vector<std::string>& input_variables,
     const std::vector<std::string>& output_variables)
-    : input_variables{input_variables}, output_variables{output_variables} {
-  if (input_variables.empty() or output_variables.empty()) {
+    : input_variables{utils::setify(input_variables)},
+      output_variables{utils::setify(output_variables)} {
+  if (this->input_variables.empty() or this->output_variables.empty()) {
     throw std::invalid_argument("inputs/outputs set cannot be empty");
   }
   build_from_var_to_type_map_();

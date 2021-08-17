@@ -18,6 +18,7 @@
 
 #include <cynthia/closure.hpp>
 #include <cynthia/input_output_partition.hpp>
+#include <cynthia/logger.hpp>
 #include <cynthia/logic/types.hpp>
 #include <cynthia/sddcpp.hpp>
 
@@ -57,8 +58,11 @@ public:
     logic::ltlf_ptr xnf_formula;
     Closure closure_;
     std::map<std::string, size_t> prop_to_id;
+    std::map<SddSize, bool> discovered;
     Vtree* vtree_ = nullptr;
     SddManager* manager = nullptr;
+    utils::Logger logger;
+    size_t indentation = 0;
     Context(const logic::ltlf_ptr& formula,
             const InputOutputPartition& partition);
     ~Context() {
@@ -95,7 +99,16 @@ public:
 
 private:
   Context context_;
-
+  template <typename Arg1, typename... Args>
+  inline void print_search_debug(const char* fmt, const Arg1& arg1,
+                                 const Args&... args) {
+    context_.logger.debug(
+        (std::string(context_.indentation, '\t') + fmt).c_str(), arg1, args...);
+  };
+  inline void print_search_debug(const char* fmt) {
+    context_.logger.debug(
+        (std::string(context_.indentation, '\t') + fmt).c_str());
+  };
   strategy_t system_move_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);
   strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);

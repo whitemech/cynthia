@@ -31,6 +31,8 @@ int main(int argc, char** argv) {
   app.add_flag("-n,--no-empty", no_empty, "Enforce non-empty semantics.");
   bool version = false;
   app.add_flag("-V,--version", version, "Print the version and exit.");
+  bool verbose = false;
+  app.add_flag("-v,--verbose", verbose, "Set verbose mode.");
 
   // options & flags
   std::string filename;
@@ -56,6 +58,10 @@ int main(int argc, char** argv) {
   if (version) {
     std::cout << CYNTHIA_VERSION << std::endl;
     return 0;
+  }
+
+  if (verbose) {
+    cynthia::utils::Logger::level(cynthia::utils::LogLevel::debug);
   }
 
   auto driver = cynthia::parser::ltlf::LTLfDriver();
