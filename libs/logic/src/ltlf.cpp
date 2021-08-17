@@ -96,6 +96,33 @@ int LTLfBinaryOp::compare_(const Comparable& o) const {
                                 dynamic_cast<const LTLfBinaryOp&>(o).args);
 }
 
+ltlf_ptr simplify(const LTLfImplies& formula) {
+  auto new_container = vec_ptr(formula.args.size());
+  std::transform(
+      formula.args.begin(), formula.args.end() - 1, new_container.begin(),
+      [](const ltlf_ptr& formula) { return formula->ctx().make_not(formula); });
+  new_container[formula.args.size() - 1] = formula.args.back();
+  return formula.ctx().make_or(new_container);
+}
+ltlf_ptr simplify(const LTLfEquivalent& formula) {
+  vec_ptr args_negative(formula.args.size());
+  std::transform(formula.args.begin(), formula.args.end(),
+                 args_negative.begin(),
+                 [](const ltlf_ptr& arg) { return arg->ctx().make_not(arg); });
+  auto all_positive = formula.ctx().make_and(formula.args);
+  auto all_negative = formula.ctx().make_and(args_negative);
+  return formula.ctx().make_or({all_positive, all_negative});
+}
+ltlf_ptr simplify(const LTLfXor& formula) {
+  vec_ptr args_negative(formula.args.size());
+  std::transform(formula.args.begin(), formula.args.end(),
+                 args_negative.begin(),
+                 [](const ltlf_ptr& arg) { return arg->ctx().make_not(arg); });
+  auto some_positive = formula.ctx().make_or(formula.args);
+  auto some_negative = formula.ctx().make_or(args_negative);
+  return formula.ctx().make_and({some_positive, some_negative});
+}
+
 void Symbol::accept(Visitor& visitor) const {}
 void LTLfTrue::accept(Visitor& visitor) const { visitor.visit(*this); }
 void LTLfFalse::accept(Visitor& visitor) const { visitor.visit(*this); }

@@ -50,8 +50,8 @@ void NegationTransformer::visit(const LTLfNot& formula) {
 void NegationTransformer::visit(const LTLfPropositionalNot& formula) {
   // nnf(~!a) = a | end
   auto& context = formula.ctx();
-  auto prop_negation =
-      std::static_pointer_cast<const LTLfPropositionalNot>(formula.arg);
+  auto prop_negation = std::static_pointer_cast<const LTLfPropositionalNot>(
+      formula.shared_from_this());
   auto atom = prop_negation->arg;
   auto end = context.make_end();
   result = context.make_or(vec_ptr{atom, end});
@@ -60,40 +60,27 @@ void NegationTransformer::visit(const LTLfAnd& formula) {
   result = forward_call_to_arguments(
       formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
       [formula](const vec_ptr& container) {
-        return formula.ctx().make_and(container);
+        return formula.ctx().make_or(container);
       });
 }
 void NegationTransformer::visit(const LTLfOr& formula) {
   result = forward_call_to_arguments(
       formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
       [formula](const vec_ptr& container) {
-        return formula.ctx().make_or(container);
+        return formula.ctx().make_and(container);
       });
 }
 void NegationTransformer::visit(const LTLfImplies& formula) {
-  const auto& container = formula.args;
-  auto& context = formula.ctx();
-  auto new_container = vec_ptr(container.size());
-  std::transform(
-      container.begin(), container.end() - 1, new_container.begin(),
-      [](const ltlf_ptr& formula) { return formula->ctx().make_not(formula); });
-  new_container[container.size() - 1] = container.back();
-  auto tmp = formula.ctx().make_or(new_container);
-  result = apply(*tmp);
+  auto simplified_formula = simplify(formula);
+  result = apply(*simplified_formula);
 }
 void NegationTransformer::visit(const LTLfEquivalent& formula) {
-  result = forward_call_to_arguments(
-      formula, [](const ltlf_ptr& formula) { return to_nnf(*formula); },
-      [formula](const vec_ptr& container) {
-        return formula.ctx().make_xor(container);
-      });
+  auto simplified_formula = simplify(formula);
+  result = apply(*simplified_formula);
 }
 void NegationTransformer::visit(const LTLfXor& formula) {
-  result = forward_call_to_arguments(
-      formula, [](const ltlf_ptr& formula) { return to_nnf(*formula); },
-      [formula](const vec_ptr& container) {
-        return formula.ctx().make_equivalent(container);
-      });
+  auto simplified_formula = simplify(formula);
+  result = apply(*simplified_formula);
 }
 void NegationTransformer::visit(const LTLfNext& formula) {
   result = formula.ctx().make_weak_next(apply(*formula.arg));

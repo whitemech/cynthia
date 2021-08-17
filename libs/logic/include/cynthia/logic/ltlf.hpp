@@ -401,5 +401,9 @@ inline TypeID LTLfEventually::get_type_code() const {
 }
 inline TypeID LTLfAlways::get_type_code() const { return TypeID::t_LTLfAlways; }
 
+ltlf_ptr simplify(const LTLfImplies&);
+ltlf_ptr simplify(const LTLfEquivalent&);
+ltlf_ptr simplify(const LTLfXor&);
+
 } // namespace logic
 } // namespace cynthia

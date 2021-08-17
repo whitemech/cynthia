@@ -67,27 +67,18 @@ void NNFTransformer::visit(const LTLfOr& formula) {
 }
 
 void NNFTransformer::visit(const LTLfImplies& formula) {
-  result = forward_call_to_arguments(
-      formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
-      [formula](const vec_ptr& container) {
-        return formula.ctx().make_implies(container);
-      });
+  auto simplified_formula = simplify(formula);
+  result = apply(*simplified_formula);
 }
 
 void NNFTransformer::visit(const LTLfEquivalent& formula) {
-  result = forward_call_to_arguments(
-      formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
-      [formula](const vec_ptr& container) {
-        return formula.ctx().make_equivalent(container);
-      });
+  auto simplified_formula = simplify(formula);
+  result = apply(*simplified_formula);
 }
 
 void NNFTransformer::visit(const LTLfXor& formula) {
-  result = forward_call_to_arguments(
-      formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
-      [formula](const vec_ptr& container) {
-        return formula.ctx().make_xor(container);
-      });
+  auto simplified_formula = simplify(formula);
+  result = apply(*simplified_formula);
 }
 
 void NNFTransformer::visit(const LTLfNext& formula) {
