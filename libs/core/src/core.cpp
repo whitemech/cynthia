@@ -205,6 +205,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       auto env_action_str = logic::to_string(*env_action);
       sdd_formula = sdd_to_formula(child_it.get_sub(), context_);
       next_state = xnf(*strip_next(*sdd_formula));
+      auto next_state_str = logic::to_string(*next_state);
       auto sdd_next_state = SddNodeWrapper(to_sdd(*next_state, context_));
       auto sdd_next_state_id = sdd_id(sdd_next_state.get_raw());
       this->print_search_debug("env move: {}", env_action_str);
@@ -225,6 +226,7 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
     : logger{"cynthia"}, formula{formula}, partition{partition},
       ast_manager{&formula->ctx()} {
   nnf_formula = logic::to_nnf(*formula);
+  auto formula_str = logic::to_string(*nnf_formula);
   xnf_formula = xnf(*nnf_formula);
   Closure closure_object = closure(*xnf_formula);
   closure_ = closure_object;

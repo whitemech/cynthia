@@ -29,15 +29,15 @@ void NegationTransformer::visit(const LTLfFalse& formula) {
   result = formula.ctx().make_tt();
 }
 void NegationTransformer::visit(const LTLfPropTrue& formula) {
-  // nnf(~true) = end
+  //  nnf(~true) = end
   result = formula.ctx().make_end();
 }
 void NegationTransformer::visit(const LTLfPropFalse& formula) {
-  // nnf(~false) = tt
+  //  nnf(~false) = tt
   result = formula.ctx().make_tt();
 }
 void NegationTransformer::visit(const LTLfAtom& formula) {
-  // nnf(~a) = !a | end
+  //  nnf(~a) = !a | end
   auto& context = formula.ctx();
   auto prop_not_atom = context.make_prop_not(formula.shared_from_this());
   auto end = context.make_end();
@@ -45,10 +45,10 @@ void NegationTransformer::visit(const LTLfAtom& formula) {
 }
 void NegationTransformer::visit(const LTLfNot& formula) {
   // nnf(~~f) = nnf(f)
-  result = to_nnf(formula);
+  result = to_nnf(*formula.arg);
 }
 void NegationTransformer::visit(const LTLfPropositionalNot& formula) {
-  // nnf(~!a) = a | end
+  //  nnf(~!a) = a | end
   auto& context = formula.ctx();
   auto prop_negation = std::static_pointer_cast<const LTLfPropositionalNot>(
       formula.shared_from_this());
