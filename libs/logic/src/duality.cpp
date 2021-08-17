@@ -29,46 +29,32 @@ void NegationTransformer::visit(const LTLfFalse& formula) {
   result = formula.ctx().make_tt();
 }
 void NegationTransformer::visit(const LTLfPropTrue& formula) {
-  // TODO it should be:
   //  nnf(~true) = end
-  //  result = formula.ctx().make_end();
-  result = formula.ctx().make_prop_false();
+  result = formula.ctx().make_end();
 }
 void NegationTransformer::visit(const LTLfPropFalse& formula) {
-  // TODO it should be:
   //  nnf(~false) = tt
-  //  result = formula.ctx().make_tt();
-  result = formula.ctx().make_prop_true();
+  result = formula.ctx().make_tt();
 }
 void NegationTransformer::visit(const LTLfAtom& formula) {
-  // TODO it should be:
   //  nnf(~a) = !a | end
-  //  auto& context = formula.ctx();
-  //  auto prop_not_atom = context.make_prop_not(formula.shared_from_this());
-  //  auto end = context.make_end();
-  //  result = context.make_or(vec_ptr{prop_not_atom, end});
   auto& context = formula.ctx();
   auto prop_not_atom = context.make_prop_not(formula.shared_from_this());
-  result = prop_not_atom;
+  auto end = context.make_end();
+  result = context.make_or(vec_ptr{prop_not_atom, end});
 }
 void NegationTransformer::visit(const LTLfNot& formula) {
   // nnf(~~f) = nnf(f)
-  result = to_nnf(formula);
+  result = to_nnf(*formula.arg);
 }
 void NegationTransformer::visit(const LTLfPropositionalNot& formula) {
-  // TODO it should be:
   //  nnf(~!a) = a | end
-  //  auto& context = formula.ctx();
-  //  auto prop_negation = std::static_pointer_cast<const LTLfPropositionalNot>(
-  //      formula.shared_from_this());
-  //  auto atom = prop_negation->arg;
-  //  auto end = context.make_end();
-  //  result = context.make_or(vec_ptr{atom, end});
   auto& context = formula.ctx();
   auto prop_negation = std::static_pointer_cast<const LTLfPropositionalNot>(
       formula.shared_from_this());
   auto atom = prop_negation->arg;
-  result = atom;
+  auto end = context.make_end();
+  result = context.make_or(vec_ptr{atom, end});
 }
 void NegationTransformer::visit(const LTLfAnd& formula) {
   result = forward_call_to_arguments(

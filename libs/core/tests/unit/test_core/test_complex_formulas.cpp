@@ -75,6 +75,18 @@ TEST_CASE("forward synthesis of random formula 4") {
   bool result = is_realizable<ForwardSynthesis>(formula, partition);
   REQUIRE(result);
 }
+TEST_CASE("forward synthesis of random formula 5") {
+  utils::Logger::level(utils::LogLevel::debug);
+  auto driver = parser::ltlf::LTLfDriver();
+  std::istringstream fstring("(~(X[!](ff))) -> (F(p0))");
+  driver.parse(fstring);
+  auto temp = driver.result;
+  auto not_end = temp->ctx().make_not_end();
+  auto formula = temp->ctx().make_and({temp, not_end});
+  auto partition = InputOutputPartition({"p0"}, {"dummy"});
+  bool result = is_realizable<ForwardSynthesis>(formula, partition);
+  REQUIRE(!result);
+}
 
 } // namespace Test
 } // namespace core

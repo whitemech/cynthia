@@ -226,6 +226,7 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
     : logger{"cynthia"}, formula{formula}, partition{partition},
       ast_manager{&formula->ctx()} {
   nnf_formula = logic::to_nnf(*formula);
+  auto formula_str = logic::to_string(*nnf_formula);
   xnf_formula = xnf(*nnf_formula);
   Closure closure_object = closure(*xnf_formula);
   closure_ = closure_object;
