@@ -61,11 +61,10 @@ std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
   return result;
 }
 
-strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula_,
+strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                           std::set<SddSize>& path) {
   strategy_t success_strategy, failure_strategy;
   context_.indentation += 1;
-  auto formula = xnf(*formula_);
   auto formula_str = logic::to_string(*formula);
   auto sdd = SddNodeWrapper(to_sdd(*formula, context_));
   auto sdd_formula_id = sdd_id(sdd.get_raw());
