@@ -17,6 +17,7 @@
 
 #include <cynthia/logic/base.hpp>
 #include <cynthia/logic/ltlf.hpp>
+#include <stdexcept>
 
 // TODO instead of make_shared, use "signature" of object to instantiate
 //        so to avoid heap allocation.
