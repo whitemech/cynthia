@@ -60,14 +60,14 @@ void NegationTransformer::visit(const LTLfAnd& formula) {
   result = forward_call_to_arguments(
       formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
       [formula](const vec_ptr& container) {
-        return formula.ctx().make_and(container);
+        return formula.ctx().make_or(container);
       });
 }
 void NegationTransformer::visit(const LTLfOr& formula) {
   result = forward_call_to_arguments(
       formula, [this](const ltlf_ptr& formula) { return apply(*formula); },
       [formula](const vec_ptr& container) {
-        return formula.ctx().make_or(container);
+        return formula.ctx().make_and(container);
       });
 }
 void NegationTransformer::visit(const LTLfImplies& formula) {
