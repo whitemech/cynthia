@@ -65,6 +65,14 @@ ltlf_ptr Context::make_atom(const std::string& name) {
   return actual_atom;
 }
 
+ltlf_ptr Context::make_not_unified(const ltlf_ptr& arg) {
+  // if argument is literal, use propositional not
+  // othwerwise, return logical not
+  if (is_a<LTLfAtom>(*arg) or is_a<LTLfPropositionalNot>(*arg)) {
+    return make_prop_not(arg);
+  }
+  return make_not(arg);
+}
 ltlf_ptr Context::make_not(const ltlf_ptr& arg) {
   auto negation = std::make_shared<const LTLfNot>(*this, arg);
   auto actual = table_->insert_if_not_available(negation);

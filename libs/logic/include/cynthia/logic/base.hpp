@@ -70,6 +70,7 @@ public:
   ltlf_ptr make_atom(const std::string& name);
   ltlf_ptr make_not(const ltlf_ptr& arg);
   ltlf_ptr make_prop_not(const ltlf_ptr& arg);
+  ltlf_ptr make_not_unified(const ltlf_ptr& arg);
   ltlf_ptr make_and(const vec_ptr& args);
   ltlf_ptr make_or(const vec_ptr& arg);
   ltlf_ptr make_implies(const vec_ptr& arg);
