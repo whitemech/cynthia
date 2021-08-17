@@ -44,25 +44,13 @@ void EvalVisitor::visit(const logic::LTLfOr& formula) {
                   [this](const logic::ltlf_ptr& arg) { return apply(*arg); });
 }
 void EvalVisitor::visit(const logic::LTLfImplies& formula) {
-  bool temp_result = std::any_of(
-      formula.args.begin(), formula.args.end() - 1,
-      [this](const logic::ltlf_ptr& arg) { return not apply(*arg); });
-  result = temp_result or apply(*formula.args.back());
+  result = apply(*simplify(formula));
 }
 void EvalVisitor::visit(const logic::LTLfEquivalent& formula) {
-  std::vector<bool> evals(formula.args.size());
-  std::transform(
-      formula.args.begin(), formula.args.end(), evals.begin(),
-      [this](const logic::ltlf_ptr& subformula) { return apply(*subformula); });
-  result =
-      std::accumulate(evals.begin(), evals.end(), true, utils::equivalent_);
+  result = apply(*simplify(formula));
 }
 void EvalVisitor::visit(const logic::LTLfXor& formula) {
-  std::vector<bool> evals(formula.args.size());
-  std::transform(
-      formula.args.begin(), formula.args.end(), evals.begin(),
-      [this](const logic::ltlf_ptr& subformula) { return apply(*subformula); });
-  result = std::accumulate(evals.begin(), evals.end(), false, utils::xor_);
+  result = apply(*simplify(formula));
 }
 void EvalVisitor::visit(const logic::LTLfNext& formula) { result = false; }
 void EvalVisitor::visit(const logic::LTLfWeakNext& formula) { result = true; }
