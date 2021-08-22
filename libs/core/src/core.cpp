@@ -44,6 +44,8 @@ bool ForwardSynthesis::forward_synthesis_() {
   auto sdd_formula_id = sdd_id(root_sdd_node);
   auto strategy = system_move_(context_.xnf_formula, path);
   bool result = strategy[sdd_formula_id] != sdd_manager_false(context_.manager);
+  context_.logger.info("Explored states: {}",
+                       context_.statistics_.nb_visited_nodes());
   return result;
 }
 
@@ -68,6 +70,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   auto formula_str = logic::to_string(*formula);
   auto sdd = SddNodeWrapper(to_sdd(*formula, context_));
   auto sdd_formula_id = sdd_id(sdd.get_raw());
+  context_.statistics_.visit_node(sdd_formula_id);
   success_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
   failure_strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
   this->print_search_debug("State {}", sdd_formula_id);
@@ -234,6 +237,7 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
   vtree_ = builder.get_vtree();
   manager = sdd_manager_new(vtree_);
   prop_to_id = compute_prop_to_id_map(closure_, partition);
+  statistics_ = Statistics();
 }
 } // namespace core
 } // namespace cynthia

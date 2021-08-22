@@ -21,6 +21,7 @@
 #include <cynthia/logger.hpp>
 #include <cynthia/logic/types.hpp>
 #include <cynthia/sddcpp.hpp>
+#include <cynthia/statistics.hpp>
 
 extern "C" {
 #include "sddapi.h"
@@ -57,6 +58,7 @@ public:
     logic::ltlf_ptr nnf_formula;
     logic::ltlf_ptr xnf_formula;
     Closure closure_;
+    Statistics statistics_;
     std::map<std::string, size_t> prop_to_id;
     std::map<SddSize, bool> discovered;
     Vtree* vtree_ = nullptr;
