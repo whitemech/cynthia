@@ -152,8 +152,7 @@ SddNode* ToSddVisitor::apply(const logic::LTLfFormula& formula) {
   return result;
 }
 
-SddNode* to_sdd(const logic::LTLfFormula& formula,
-                ForwardSynthesis::Context& context) {
+SddNode* to_sdd(const logic::LTLfFormula& formula, Context& context) {
   ToSddVisitor visitor{context};
   return visitor.apply(formula);
 }
