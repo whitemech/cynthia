@@ -21,7 +21,24 @@
 namespace cynthia {
 namespace core {
 
-logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node, Context& context_);
+class ForwardDfsSynthesis : public ISynthesis {
+public:
+  ForwardDfsSynthesis(const logic::ltlf_ptr& formula,
+                      const InputOutputPartition& partition)
+      : context_{formula, partition}, ISynthesis(formula, partition){};
+
+  bool is_realizable() override;
+
+  bool forward_synthesis_();
+
+private:
+  Context context_;
+
+  strategy_t system_move_(const logic::ltlf_ptr& formula,
+                          std::set<SddSize>& path);
+
+  strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
+};
 
 } // namespace core
 } // namespace cynthia

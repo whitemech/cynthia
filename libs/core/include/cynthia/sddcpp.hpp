@@ -28,13 +28,13 @@ namespace cynthia {
 namespace core {
 
 class SddNodeChildrenIterator;
-class SddTransitionIterator;
 
 class SddNodeWrapper {
 private:
   SddNode* raw_{};
   SddNodeSize nb_children_ = 0;
   SddNode** children_ = nullptr;
+  SddNodeSize id;
 
 public:
   SddNodeWrapper() = default;
@@ -46,10 +46,12 @@ public:
   bool is_decision() const;
   long node_literal() const;
   long nb_children() const;
+  bool at_vtree_root() const;
+  bool parent_at_vtree_root() const;
+  SddNodeSize get_id() const;
   SddNodeChildrenIterator begin() const;
+
   SddNodeChildrenIterator end() const;
-  SddTransitionIterator transitions_begin() const;
-  SddTransitionIterator transitions_end() const;
 };
 
 struct SddNodeChildrenIterator {

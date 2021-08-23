@@ -29,6 +29,7 @@ SddNodeWrapper::SddNodeWrapper(SddNode* raw) : raw_{raw} {
     children_ = sdd_node_elements(raw);
     nb_children_ = sdd_node_size(raw);
   }
+  id = sdd_id(raw);
 }
 
 bool SddNodeWrapper::is_true() const { return sdd_node_is_true(raw_); }
@@ -58,6 +59,15 @@ SddNodeChildrenIterator SddNodeWrapper::end() const {
 }
 
 long SddNodeWrapper::nb_children() const { return nb_children_; }
+
+bool SddNodeWrapper::at_vtree_root() const {
+  return raw_->vtree->parent == nullptr;
+}
+bool SddNodeWrapper::parent_at_vtree_root() const {
+  return raw_->vtree->parent->parent == nullptr;
+}
+
+SddNodeSize SddNodeWrapper::get_id() const { return id; }
 
 } // namespace core
 } // namespace cynthia

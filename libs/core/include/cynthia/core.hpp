@@ -48,72 +48,39 @@ bool is_realizable(const logic::ltlf_ptr& formula,
   return synthesis.is_realizable();
 }
 
-class ForwardSynthesis : public ISynthesis {
+class Context {
 public:
-  class Context {
-  public:
-    logic::ltlf_ptr formula;
-    logic::Context* ast_manager;
-    InputOutputPartition partition;
-    logic::ltlf_ptr nnf_formula;
-    logic::ltlf_ptr xnf_formula;
-    Closure closure_;
-    Statistics statistics_;
-    std::map<std::string, size_t> prop_to_id;
-    std::map<SddSize, bool> discovered;
-    Vtree* vtree_ = nullptr;
-    SddManager* manager = nullptr;
-    utils::Logger logger;
-    size_t indentation = 0;
-    Context(const logic::ltlf_ptr& formula,
-            const InputOutputPartition& partition);
-    ~Context() {
-      if (vtree_) {
-        sdd_vtree_free(vtree_);
-      }
-      if (manager) {
-        sdd_manager_free(manager);
-      }
-    }
+  logic::ltlf_ptr formula;
+  logic::Context* ast_manager;
+  InputOutputPartition partition;
+  logic::ltlf_ptr nnf_formula;
+  logic::ltlf_ptr xnf_formula;
+  Closure closure_;
+  Statistics statistics_;
+  std::map<std::string, size_t> prop_to_id;
+  std::map<SddSize, bool> discovered;
+  Vtree* vtree_ = nullptr;
+  SddManager* manager = nullptr;
+  utils::Logger logger;
+  size_t indentation = 0;
+  Context(const logic::ltlf_ptr& formula,
+          const InputOutputPartition& partition);
+  ~Context();
 
-    logic::ltlf_ptr get_formula(size_t index) const {
-      if (index < closure_.nb_formulas()) {
-        return closure_.get_formula(index);
-      }
-      index -= closure_.nb_formulas();
-      if (index < partition.input_variables.size()) {
-        return ast_manager->make_atom(partition.input_variables[index]);
-      }
-      index -= partition.input_variables.size();
-      return ast_manager->make_atom(partition.output_variables[index]);
-    }
-  };
-  ForwardSynthesis(const logic::ltlf_ptr& formula,
-                   const InputOutputPartition& partition)
-      : context_{formula, partition}, ISynthesis(formula, partition){};
-
+  logic::ltlf_ptr get_formula(size_t index) const;
   static std::map<std::string, size_t>
   compute_prop_to_id_map(const Closure& closure,
                          const InputOutputPartition& partition);
-  bool is_realizable() override;
 
-  bool forward_synthesis_();
-
-private:
-  Context context_;
   template <typename Arg1, typename... Args>
   inline void print_search_debug(const char* fmt, const Arg1& arg1,
                                  const Args&... args) {
-    context_.logger.debug(
-        (std::string(context_.indentation, '\t') + fmt).c_str(), arg1, args...);
+    logger.debug((std::string(indentation, '\t') + fmt).c_str(), arg1, args...);
   };
+
   inline void print_search_debug(const char* fmt) {
-    context_.logger.debug(
-        (std::string(context_.indentation, '\t') + fmt).c_str());
+    logger.debug((std::string(indentation, '\t') + fmt).c_str());
   };
-  strategy_t system_move_(const logic::ltlf_ptr& formula,
-                          std::set<SddSize>& path);
-  strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
 };
 
 } // namespace core

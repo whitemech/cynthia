@@ -24,12 +24,11 @@ namespace core {
 
 class ToSddVisitor : public logic::Visitor {
 private:
-  ForwardSynthesis::Context& context_;
+  Context& context_;
   SddNode* result{};
 
 public:
-  explicit ToSddVisitor(ForwardSynthesis::Context& context)
-      : context_{context} {}
+  explicit ToSddVisitor(Context& context) : context_{context} {}
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
   void visit(const logic::LTLfPropTrue&) override;
@@ -57,8 +56,7 @@ public:
   }
 };
 
-SddNode* to_sdd(const logic::LTLfFormula& formula,
-                ForwardSynthesis::Context& context);
+SddNode* to_sdd(const logic::LTLfFormula& formula, Context& context);
 
 // returns an SDD node representing ( node1 => node2 )
 SddNode* sdd_imply(SddNode* node1, SddNode* node2, SddManager* manager);

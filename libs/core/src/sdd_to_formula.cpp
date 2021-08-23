@@ -21,8 +21,7 @@
 namespace cynthia {
 namespace core {
 
-logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
-                               ForwardSynthesis::Context& context_) {
+logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node, Context& context_) {
   if (sdd_node_is_false(sdd_node)) {
     return context_.ast_manager->make_ff();
   }
