@@ -18,7 +18,7 @@
 #include <catch.hpp>
 #include <cynthia/core.hpp>
 #include <cynthia/parser/driver.hpp>
-#include <cynthia/strategies/dfs.hpp>
+#include <cynthia/strategies/depth_first.hpp>
 #include <sstream>
 
 namespace cynthia {

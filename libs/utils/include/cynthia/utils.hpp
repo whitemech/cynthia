@@ -177,5 +177,36 @@ template <class T> inline int ordered_compare(const T& A, const T& B) {
   return 0;
 }
 
+template <class InputIterator1, class InputIterator2>
+bool empty_intersection(InputIterator1 first1, InputIterator1 last1,
+                        InputIterator2 first2, InputIterator2 last2) {
+  auto i = first1;
+  auto j = first2;
+  while (i != last1 && j != last2) {
+    if (*i < *j)
+      ++i;
+    else if (*j < *i)
+      ++j;
+    else
+      return false;
+  }
+  return true;
+}
+template <class InputIterator1, class InputIterator2>
+bool empty_difference(InputIterator1 first1, InputIterator1 last1,
+                      InputIterator2 first2, InputIterator2 last2) {
+  auto i = first1;
+  auto j = first2;
+  while (i != last1 && j != last2) {
+    if (*i < *j)
+      ++i;
+    else if (*j < *i)
+      return false;
+    else
+      ++j;
+  }
+  return true;
+}
+
 } // namespace utils
 } // namespace cynthia

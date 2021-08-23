@@ -17,7 +17,8 @@
 
 #include <catch.hpp>
 #include <cynthia/core.hpp>
-#include <cynthia/strategies/dfs.hpp>
+#include <cynthia/strategies/breadth_first.hpp>
+#include <cynthia/strategies/depth_first.hpp>
 
 namespace cynthia {
 namespace core {
@@ -27,7 +28,7 @@ TEST_CASE("forward synthesis of 'tt'") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto tt = context.make_tt();
-  bool result = is_realizable<ForwardDfsSynthesis>(tt, partition);
+  bool result = is_realizable<ForwardBfsSynthesis>(tt, partition);
   REQUIRE(result);
 }
 
@@ -35,7 +36,7 @@ TEST_CASE("forward synthesis of 'ff'") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto ff = context.make_ff();
-  bool result = is_realizable<ForwardDfsSynthesis>(ff, partition);
+  bool result = is_realizable<ForwardBfsSynthesis>(ff, partition);
   REQUIRE(!result);
 }
 
@@ -43,7 +44,7 @@ TEST_CASE("forward synthesis of 'true'") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto true_ = context.make_prop_true();
-  bool result = is_realizable<ForwardDfsSynthesis>(true_, partition);
+  bool result = is_realizable<ForwardBfsSynthesis>(true_, partition);
   REQUIRE(result);
 }
 
@@ -51,7 +52,7 @@ TEST_CASE("forward synthesis of 'false'") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto false_ = context.make_prop_false();
-  bool result = is_realizable<ForwardDfsSynthesis>(false_, partition);
+  bool result = is_realizable<ForwardBfsSynthesis>(false_, partition);
   REQUIRE(!result);
 }
 TEST_CASE("forward synthesis of atom") {
@@ -60,12 +61,12 @@ TEST_CASE("forward synthesis of atom") {
 
   SECTION("atom controllable") {
     auto partition = InputOutputPartition({"b"}, {"a"});
-    bool result = is_realizable<ForwardDfsSynthesis>(a, partition);
+    bool result = is_realizable<ForwardBfsSynthesis>(a, partition);
     REQUIRE(result);
   }
   SECTION("atom not-controllable") {
     auto partition = InputOutputPartition({"a"}, {"b"});
-    bool result = is_realizable<ForwardDfsSynthesis>(a, partition);
+    bool result = is_realizable<ForwardBfsSynthesis>(a, partition);
     REQUIRE(!result);
   }
 }

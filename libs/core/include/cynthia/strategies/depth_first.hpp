@@ -16,6 +16,8 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cynthia/core.hpp>
+
 namespace cynthia {
 namespace core {
 
@@ -31,18 +33,6 @@ public:
 
 private:
   Context context_;
-
-  template <typename Arg1, typename... Args>
-  inline void print_search_debug(const char* fmt, const Arg1& arg1,
-                                 const Args&... args) {
-    context_.logger.debug(
-        (std::string(context_.indentation, '\t') + fmt).c_str(), arg1, args...);
-  };
-
-  inline void print_search_debug(const char* fmt) {
-    context_.logger.debug(
-        (std::string(context_.indentation, '\t') + fmt).c_str());
-  };
 
   strategy_t system_move_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);

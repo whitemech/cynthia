@@ -71,6 +71,16 @@ public:
   static std::map<std::string, size_t>
   compute_prop_to_id_map(const Closure& closure,
                          const InputOutputPartition& partition);
+
+  template <typename Arg1, typename... Args>
+  inline void print_search_debug(const char* fmt, const Arg1& arg1,
+                                 const Args&... args) {
+    logger.debug((std::string(indentation, '\t') + fmt).c_str(), arg1, args...);
+  };
+
+  inline void print_search_debug(const char* fmt) {
+    logger.debug((std::string(indentation, '\t') + fmt).c_str());
+  };
 };
 
 } // namespace core
