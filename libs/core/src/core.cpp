@@ -69,17 +69,11 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   context_.indentation += 1;
   auto formula_str = logic::to_string(*formula);
   auto sdd = SddNodeWrapper(to_sdd(*formula, context_));
-  auto sdd_formula_id = sdd_id(sdd.get_raw());
+  auto sdd_formula_id = sdd.get_id();
   context_.statistics_.visit_node(sdd_formula_id);
   success_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
   failure_strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
   this->print_search_debug("State {}", sdd_formula_id);
-  if (eval(*formula)) {
-    this->print_search_debug("{} accepting!", sdd_formula_id);
-    context_.discovered[sdd_formula_id] = true;
-    context_.indentation -= 1;
-    return success_strategy;
-  }
 
   if (context_.discovered.find(sdd_formula_id) != context_.discovered.end()) {
     context_.indentation -= 1;
@@ -93,7 +87,9 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                sdd_formula_id);
       return failure_strategy;
     }
-  } else if (path.find(sdd_formula_id) != path.end()) {
+  }
+
+  if (path.find(sdd_formula_id) != path.end()) {
     this->print_search_debug("Already visited state {}, failure",
                              sdd_formula_id);
     context_.discovered[sdd_formula_id] = false;
@@ -101,15 +97,14 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     return failure_strategy;
   }
 
+  if (eval(*formula)) {
+    this->print_search_debug("{} accepting!", sdd_formula_id);
+    context_.discovered[sdd_formula_id] = true;
+    context_.indentation -= 1;
+    return success_strategy;
+  }
+
   path.insert(sdd_formula_id);
-  //  switch (sdd.get_type()){
-  //    case SddNodeType::STATE:
-  //      break;
-  //    case SddNodeType::ENV_STATE:
-  //      break;
-  //    default:
-  //      break;
-  //  }
   if (sdd.get_type() == SddNodeType::STATE) {
     auto system_move_str =
         logic::to_string(*sdd_to_formula(sdd.get_raw(), context_));
@@ -121,7 +116,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       context_.indentation -= 1;
       return success_strategy;
     }
-  } else if (sdd.get_raw()->vtree->parent != NULL) {
+  } else if (sdd.get_type() == SddNodeType::ENV_STATE) {
     // not at the vtree root; it means that system choice is irrelevant
     this->print_search_debug("system choice is irrelevant");
     auto env_state_node = sdd;
@@ -133,7 +128,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       // all system moves are OK, since it does not have control
       context_.discovered[sdd_formula_id] = true;
       context_.indentation -= 1;
-      return success_strategy;
+      new_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
+      return new_strategy;
     }
   } else {
     // is a decision node
@@ -147,21 +143,55 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       return failure_strategy;
     }
 
-    while (child_it != children_end) {
-      auto system_move = child_it.get_prime();
-      auto system_move_str =
-          logic::to_string(*sdd_to_formula(system_move, context_));
-      this->print_search_debug("checking system move: {}", system_move_str);
+    std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
+    new_children.reserve(sdd.nb_children());
+    for (; child_it != children_end; ++child_it) {
+      bool ignore = false;
+      auto system_move = SddNodeWrapper(child_it.get_prime());
       auto env_state_node = SddNodeWrapper(child_it.get_sub());
+      if (env_state_node.get_type() == STATE) {
+        auto next_state = next_state_(env_state_node);
+        auto next_state_result_it =
+            context_.discovered.find(next_state.get_id());
+        if (next_state_result_it != context_.discovered.end()) {
+          auto next_state_is_success = next_state_result_it->second;
+          if (next_state_is_success) {
+            this->print_search_debug(
+                "next state {} already discovered, success", sdd_formula_id);
+            path.erase(sdd_formula_id);
+            context_.indentation -= 1;
+            strategy_t strategy;
+            strategy[sdd_formula_id] = system_move.get_raw();
+            return strategy;
+          } else {
+            this->print_search_debug(
+                "next state {} already discovered, failure, ignoring",
+                sdd_formula_id);
+            ignore = true;
+          }
+        }
+      }
+      if (!ignore) {
+        // we don't know, need to take env action
+        new_children.emplace_back(system_move, env_state_node);
+      }
+    }
+
+    for (const auto& pair : new_children) {
+      auto system_move = pair.first;
+      auto env_state_node = pair.second;
+      auto system_move_str =
+          logic::to_string(*sdd_to_formula(system_move.get_raw(), context_));
+      this->print_search_debug("checking system move: {}", system_move_str);
       ++child_it;
-      if (sdd_node_is_false(system_move))
+      if (system_move.is_false())
         continue;
       auto new_strategy = env_move_(env_state_node, path);
       if (!new_strategy.empty()) {
         this->print_search_debug("System move {} from state {} is successful",
                                  sdd_formula_id, system_move_str);
         path.erase(sdd_formula_id);
-        new_strategy[sdd_formula_id] = system_move;
+        new_strategy[sdd_formula_id] = system_move.get_raw();
         context_.discovered[sdd_formula_id] = true;
         context_.indentation -= 1;
         return new_strategy;
@@ -179,7 +209,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
                                        std::set<SddSize>& path) {
   context_.indentation += 1;
-  if (!wrapper.is_decision()) {
+  if (wrapper.get_type() == SddNodeType::STATE) {
     auto formula_next_state = next_state_formula_(wrapper.get_raw());
     auto sdd_next_state = formula_to_sdd_(formula_next_state);
     auto sdd_next_state_id = sdd_next_state.get_id();
@@ -190,7 +220,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     if (strategy[sdd_next_state_id] == sdd_manager_false(context_.manager))
       return strategy_t{};
     return strategy;
-  } else if (wrapper.get_raw()->vtree->parent->parent != NULL) {
+  } else if (wrapper.get_type() == SddNodeType::SYSTEM_STATE) {
     // parent is not the vtree root; it means that environment choice is
     // irrelevant
     this->print_search_debug("env choice is irrelevant");

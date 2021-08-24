@@ -30,18 +30,12 @@ void ToSddVisitor::visit(const logic::LTLfFalse& formula) {
   result = get_sdd_node(formula);
 }
 void ToSddVisitor::visit(const logic::LTLfPropTrue& formula) {
-  auto true_sdd = sdd_manager_true(context_.manager);
-  auto tt = formula.ctx().make_tt();
-  auto tt_id = context_.closure_.get_id(tt);
-  auto tt_sdd = sdd_manager_literal(tt_id + 1, context_.manager);
-  result = sdd_conjoin(true_sdd, tt_sdd, context_.manager);
+  auto not_end = formula.ctx().make_not_end();
+  result = get_sdd_node(*not_end);
 }
 void ToSddVisitor::visit(const logic::LTLfPropFalse& formula) {
-  auto false_sdd = sdd_manager_false(context_.manager);
-  auto ff = formula.ctx().make_ff();
-  auto ff_id = context_.closure_.get_id(ff);
-  auto ff_sdd = sdd_manager_literal(ff_id + 1, context_.manager);
-  result = sdd_conjoin(false_sdd, ff_sdd, context_.manager);
+  result = sdd_manager_false(context_.manager);
+  ;
 }
 void ToSddVisitor::visit(const logic::LTLfAtom& formula) {
   auto formula_id = context_.prop_to_id[formula.name];
