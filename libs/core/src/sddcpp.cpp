@@ -29,6 +29,7 @@ SddNodeWrapper::SddNodeWrapper(SddNode* raw) : raw_{raw} {
     children_ = sdd_node_elements(raw);
     nb_children_ = sdd_node_size(raw);
   }
+  id_ = sdd_id(raw);
   type_ = get_sdd_node_type_();
 }
 

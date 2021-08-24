@@ -63,6 +63,8 @@ public:
     std::map<SddSize, bool> discovered;
     Vtree* vtree_ = nullptr;
     SddManager* manager = nullptr;
+    std::map<SddSize, logic::ltlf_ptr> sdd_node_id_to_formula;
+    std::map<logic::ltlf_ptr, SddNode*> formula_to_sdd_node;
     utils::Logger logger;
     size_t indentation = 0;
     Context(const logic::ltlf_ptr& formula,
@@ -114,6 +116,9 @@ private:
   strategy_t system_move_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);
   strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
+  SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
+  logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
+  SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
 };
 
 } // namespace core

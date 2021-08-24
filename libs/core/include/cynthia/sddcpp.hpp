@@ -77,6 +77,7 @@ private:
 
 class SddNodeWrapper {
 private:
+  SddSize id_;
   SddNode* raw_{};
   SddNodeSize nb_children_ = 0;
   SddNode** children_ = nullptr;
@@ -87,6 +88,8 @@ public:
   SddNodeWrapper() = default;
   explicit SddNodeWrapper(SddNode* raw);
   inline SddNode* get_raw() const { return raw_; }
+  inline SddNodeType get_type() const { return type_; }
+  inline SddSize get_id() const { return id_; }
   bool is_true() const;
   bool is_false() const;
   bool is_literal() const;

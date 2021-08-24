@@ -102,7 +102,15 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   }
 
   path.insert(sdd_formula_id);
-  if (!sdd.is_decision()) {
+  //  switch (sdd.get_type()){
+  //    case SddNodeType::STATE:
+  //      break;
+  //    case SddNodeType::ENV_STATE:
+  //      break;
+  //    default:
+  //      break;
+  //  }
+  if (sdd.get_type() == SddNodeType::STATE) {
     auto system_move_str =
         logic::to_string(*sdd_to_formula(sdd.get_raw(), context_));
     this->print_search_debug("system move (unique): {}", system_move_str);
@@ -170,18 +178,14 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 
 strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
                                        std::set<SddSize>& path) {
-  logic::ltlf_ptr next_state, sdd_formula;
   context_.indentation += 1;
   if (!wrapper.is_decision()) {
-    sdd_formula = sdd_to_formula(wrapper.get_raw(), context_);
-    auto sdd_formula_str = logic::to_string(*sdd_formula);
-    next_state = xnf(*strip_next(*sdd_formula));
-    auto next_state_str = logic::to_string(*next_state);
-    auto sdd_next_state = SddNodeWrapper(to_sdd(*next_state, context_));
-    auto sdd_next_state_id = sdd_id(sdd_next_state.get_raw());
+    auto formula_next_state = next_state_formula_(wrapper.get_raw());
+    auto sdd_next_state = formula_to_sdd_(formula_next_state);
+    auto sdd_next_state_id = sdd_next_state.get_id();
     this->print_search_debug("env move forced to next state {}",
                              sdd_next_state_id);
-    auto strategy = system_move_(next_state, path);
+    auto strategy = system_move_(formula_next_state, path);
     context_.indentation -= 1;
     if (strategy[sdd_next_state_id] == sdd_manager_false(context_.manager))
       return strategy_t{};
@@ -190,11 +194,10 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     // parent is not the vtree root; it means that environment choice is
     // irrelevant
     this->print_search_debug("env choice is irrelevant");
-    sdd_formula = sdd_to_formula(wrapper.get_raw(), context_);
-    next_state = xnf(*strip_next(*sdd_formula));
-    auto sdd_next_state = SddNodeWrapper(to_sdd(*next_state, context_));
-    auto sdd_next_state_id = sdd_id(sdd_next_state.get_raw());
-    auto strategy = system_move_(next_state, path);
+    auto formula_next_state = next_state_formula_(wrapper.get_raw());
+    auto sdd_next_state = formula_to_sdd_(formula_next_state);
+    auto sdd_next_state_id = sdd_next_state.get_id();
+    auto strategy = system_move_(formula_next_state, path);
     context_.indentation -= 1;
     if (strategy[sdd_next_state_id] == sdd_manager_false(context_.manager))
       return strategy_t{};
@@ -206,13 +209,11 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     for (; child_it != children_end; ++child_it) {
       auto env_action = sdd_to_formula(child_it.get_prime(), context_);
       auto env_action_str = logic::to_string(*env_action);
-      sdd_formula = sdd_to_formula(child_it.get_sub(), context_);
-      next_state = xnf(*strip_next(*sdd_formula));
-      auto next_state_str = logic::to_string(*next_state);
-      auto sdd_next_state = SddNodeWrapper(to_sdd(*next_state, context_));
-      auto sdd_next_state_id = sdd_id(sdd_next_state.get_raw());
+      auto formula_next_state = next_state_formula_(child_it.get_sub());
+      auto sdd_next_state = formula_to_sdd_(formula_next_state);
+      auto sdd_next_state_id = sdd_next_state.get_id();
       this->print_search_debug("env move: {}", env_action_str);
-      auto strategy = system_move_(next_state, path);
+      auto strategy = system_move_(formula_next_state, path);
       if (strategy[sdd_next_state_id] == sdd_manager_false(context_.manager)) {
         context_.indentation -= 1;
         return strategy_t{};
@@ -222,6 +223,22 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     context_.indentation -= 1;
     return final_strategy;
   }
+}
+
+logic::ltlf_ptr ForwardSynthesis::next_state_formula_(SddNode* sdd_ptr) {
+  auto sdd_formula = sdd_to_formula(sdd_ptr, context_);
+  auto next_state_formula = xnf(*strip_next(*sdd_formula));
+  return next_state_formula;
+}
+SddNodeWrapper
+ForwardSynthesis::formula_to_sdd_(const logic::ltlf_ptr& formula) {
+  auto wrapper = SddNodeWrapper(to_sdd(*formula, context_));
+  return wrapper;
+}
+SddNodeWrapper ForwardSynthesis::next_state_(const SddNodeWrapper& wrapper) {
+  auto next_state_formula = next_state_formula_(wrapper.get_raw());
+  auto sdd_next_state = formula_to_sdd_(next_state_formula);
+  return sdd_next_state;
 }
 
 ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
