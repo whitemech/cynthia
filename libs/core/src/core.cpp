@@ -40,8 +40,10 @@ bool ForwardSynthesis::is_realizable() {
 
 bool ForwardSynthesis::forward_synthesis_() {
   auto path = std::set<SddSize>{};
+  context_.logger.info("Building the root SDD node...");
   auto root_sdd_node = to_sdd(*context_.xnf_formula, context_);
   auto sdd_formula_id = sdd_id(root_sdd_node);
+  context_.logger.info("Starting first system move...");
   auto strategy = system_move_(context_.xnf_formula, path);
   bool result = strategy[sdd_formula_id] != sdd_manager_false(context_.manager);
   context_.logger.info("Explored states: {}",
