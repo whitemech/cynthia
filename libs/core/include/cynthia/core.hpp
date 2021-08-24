@@ -40,11 +40,13 @@ public:
   virtual bool is_realizable() = 0;
 };
 
-template <class Synthesis, typename = typename std::enable_if<std::is_base_of<
-                               ISynthesis, Synthesis>::value>::type>
+template <class Synthesis,
+          typename = typename std::enable_if<
+              std::is_base_of<ISynthesis, Synthesis>::value>::type,
+          typename... Args>
 bool is_realizable(const logic::ltlf_ptr& formula,
-                   const InputOutputPartition& partition) {
-  auto synthesis = Synthesis(formula, partition);
+                   const InputOutputPartition& partition, const Args&... args) {
+  auto synthesis = Synthesis(formula, partition, args...);
   return synthesis.is_realizable();
 }
 
@@ -67,8 +69,11 @@ public:
     std::map<logic::ltlf_ptr, SddNode*> formula_to_sdd_node;
     utils::Logger logger;
     size_t indentation = 0;
+    const bool use_gc;
+    const float gc_threshold;
     Context(const logic::ltlf_ptr& formula,
-            const InputOutputPartition& partition);
+            const InputOutputPartition& partition, bool use_gc = false,
+            float gc_threshold = 0.95);
     ~Context() {
       if (vtree_) {
         sdd_vtree_free(vtree_);
@@ -78,21 +83,22 @@ public:
       }
     }
 
-    logic::ltlf_ptr get_formula(size_t index) const {
-      if (index < closure_.nb_formulas()) {
-        return closure_.get_formula(index);
-      }
-      index -= closure_.nb_formulas();
-      if (index < partition.input_variables.size()) {
-        return ast_manager->make_atom(partition.input_variables[index]);
-      }
-      index -= partition.input_variables.size();
-      return ast_manager->make_atom(partition.output_variables[index]);
-    }
+    logic::ltlf_ptr get_formula(size_t index) const;
+    void call_gc_vtree() const;
+    template <typename Arg1, typename... Args>
+    inline void print_search_debug(const char* fmt, const Arg1& arg1,
+                                   const Args&... args) const {
+      logger.debug((std::string(indentation, '\t') + fmt).c_str(), arg1,
+                   args...);
+    };
+    inline void print_search_debug(const char* fmt) const {
+      logger.debug((std::string(indentation, '\t') + fmt).c_str());
+    };
   };
   ForwardSynthesis(const logic::ltlf_ptr& formula,
-                   const InputOutputPartition& partition)
-      : context_{formula, partition}, ISynthesis(formula, partition){};
+                   const InputOutputPartition& partition, bool enable_gc)
+      : context_{formula, partition, enable_gc},
+        ISynthesis(formula, partition){};
 
   static std::map<std::string, size_t>
   compute_prop_to_id_map(const Closure& closure,
@@ -103,16 +109,6 @@ public:
 
 private:
   Context context_;
-  template <typename Arg1, typename... Args>
-  inline void print_search_debug(const char* fmt, const Arg1& arg1,
-                                 const Args&... args) {
-    context_.logger.debug(
-        (std::string(context_.indentation, '\t') + fmt).c_str(), arg1, args...);
-  };
-  inline void print_search_debug(const char* fmt) {
-    context_.logger.debug(
-        (std::string(context_.indentation, '\t') + fmt).c_str());
-  };
   strategy_t system_move_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);
   strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);

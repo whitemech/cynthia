@@ -42,7 +42,7 @@ public:
 
   template <typename Arg1, typename... Args>
   void log(const LogLevel level, const char* fmt, const Arg1& arg1,
-           const Args&... args) {
+           const Args&... args) const {
     auto new_fmt = "[{}] " + std::string(fmt);
 
     internal_logger_->log(static_cast<spdlog::level::level_enum>(level),
@@ -50,32 +50,40 @@ public:
   }
 
   template <typename Arg1, typename... Args>
-  void info(const char* fmt, const Arg1& arg1, const Args&... args) {
+  void info(const char* fmt, const Arg1& arg1, const Args&... args) const {
     log(LogLevel::info, fmt, arg1, args...);
   }
 
-  template <typename Arg1> void info(const Arg1& arg1) { info("{}", arg1); }
+  template <typename Arg1> void info(const Arg1& arg1) const {
+    info("{}", arg1);
+  }
 
   template <typename Arg1, typename... Args>
-  void debug(const char* fmt, const Arg1& arg1, const Args&... args) {
+  void debug(const char* fmt, const Arg1& arg1, const Args&... args) const {
     log(LogLevel::debug, fmt, arg1, args...);
   }
 
-  template <typename Arg1> void debug(const Arg1& arg1) { debug("{}", arg1); }
+  template <typename Arg1> void debug(const Arg1& arg1) const {
+    debug("{}", arg1);
+  }
 
   template <typename Arg1, typename... Args>
-  void trace(const char* fmt, const Arg1& arg1, const Args&... args) {
+  void trace(const char* fmt, const Arg1& arg1, const Args&... args) const {
     log(LogLevel::trace, fmt, arg1, args...);
   }
 
-  template <typename Arg1> void trace(const Arg1& arg1) { trace("{}", arg1); }
+  template <typename Arg1> void trace(const Arg1& arg1) const {
+    trace("{}", arg1);
+  }
 
   template <typename Arg1, typename... Args>
-  void error(const char* fmt, const Arg1& arg1, const Args&... args) {
+  void error(const char* fmt, const Arg1& arg1, const Args&... args) const {
     log(LogLevel::error, fmt, arg1, args...);
   }
 
-  template <typename Arg1> void error(const Arg1& arg1) { error("{}", arg1); }
+  template <typename Arg1> void error(const Arg1& arg1) const {
+    error("{}", arg1);
+  }
 
   static void level(const LogLevel level) noexcept {
     spdlog::set_level(static_cast<spdlog::level::level_enum>(level));

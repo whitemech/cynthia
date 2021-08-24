@@ -33,6 +33,9 @@ int main(int argc, char** argv) {
   app.add_flag("-V,--version", version, "Print the version and exit.");
   bool verbose = false;
   app.add_flag("-v,--verbose", verbose, "Set verbose mode.");
+  bool enable_gc = false;
+  app.add_flag("-g,--garbage-collection", enable_gc,
+               "Enable garbage collection.");
 
   // options & flags
   std::string filename;
@@ -92,7 +95,7 @@ int main(int argc, char** argv) {
   auto t_start = std::chrono::high_resolution_clock::now();
 
   bool result = cynthia::core::is_realizable<cynthia::core::ForwardSynthesis>(
-      parsed_formula, partition);
+      parsed_formula, partition, enable_gc);
   if (result)
     logger.info("realizable.");
   else
