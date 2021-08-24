@@ -137,12 +137,15 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     auto children_end = sdd.end();
 
     if (child_it == children_end) {
+      this->print_search_debug("No children, {} is failure", sdd_formula_id);
       path.erase(sdd_formula_id);
       context_.discovered[sdd_formula_id] = false;
       context_.indentation -= 1;
       return failure_strategy;
     }
 
+    this->print_search_debug("Processing {} system node's children nodes",
+                             sdd.nb_children());
     std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
     new_children.reserve(sdd.nb_children());
     for (; child_it != children_end; ++child_it) {
@@ -157,16 +160,17 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
           auto next_state_is_success = next_state_result_it->second;
           if (next_state_is_success) {
             this->print_search_debug(
-                "next state {} already discovered, success", sdd_formula_id);
+                "system look-ahead: next state {} already discovered, success",
+                next_state.get_id());
             path.erase(sdd_formula_id);
             context_.indentation -= 1;
             strategy_t strategy;
             strategy[sdd_formula_id] = system_move.get_raw();
             return strategy;
           } else {
-            this->print_search_debug(
-                "next state {} already discovered, failure, ignoring",
-                sdd_formula_id);
+            this->print_search_debug("system look-ahead: next state {} already "
+                                     "discovered, failure, ignoring",
+                                     next_state.get_id());
             ignore = true;
           }
         }
@@ -209,6 +213,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
                                        std::set<SddSize>& path) {
   context_.indentation += 1;
+  auto sdd_formula_id = wrapper.get_id();
   if (wrapper.get_type() == SddNodeType::STATE) {
     auto formula_next_state = next_state_formula_(wrapper.get_raw());
     auto sdd_next_state = formula_to_sdd_(formula_next_state);
@@ -233,13 +238,57 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       return strategy_t{};
     return strategy;
   } else {
+    assert(wrapper.get_type() == ENV_STATE);
     auto child_it = wrapper.begin();
     auto children_end = wrapper.end();
-    strategy_t final_strategy;
+    this->print_search_debug("Processing {} env node's children nodes",
+                             wrapper.nb_children());
+    std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
+    new_children.reserve(wrapper.nb_children());
     for (; child_it != children_end; ++child_it) {
-      auto env_action = sdd_to_formula(child_it.get_prime(), context_);
+      bool ignore = false;
+      auto env_node = SddNodeWrapper(child_it.get_prime());
+      auto state_node = SddNodeWrapper(child_it.get_sub());
+      assert(state_node.get_type() == STATE);
+      auto next_state = next_state_(state_node);
+      auto next_state_result_it = context_.discovered.find(next_state.get_id());
+      if (next_state_result_it != context_.discovered.end()) {
+        auto next_state_is_success = next_state_result_it->second;
+        if (next_state_is_success) {
+          this->print_search_debug("env look-ahead: next state {} already "
+                                   "discovered, success, ignoring",
+                                   next_state.get_id());
+          ignore = true;
+        }
+        if (!next_state_is_success) {
+          this->print_search_debug(
+              "env look-ahead: next state {} already discovered, failure",
+              next_state.get_id());
+          path.erase(sdd_formula_id);
+          context_.indentation -= 1;
+          return strategy_t{};
+        }
+      }
+      if (!ignore) {
+        // we don't know, need to take env action
+        new_children.emplace_back(env_node, state_node);
+      }
+    }
+
+    if (new_children.empty()) {
+      // take any successor, it will be a win
+      context_.indentation -= 1;
+      auto formula_next_state = next_state_formula_(wrapper.begin().get_sub());
+      return system_move_(formula_next_state, path);
+    }
+    strategy_t final_strategy;
+
+    for (const auto& pair : new_children) {
+      auto env_move = pair.first;
+      auto state_node = pair.second;
+      auto env_action = sdd_to_formula(env_move.get_raw(), context_);
       auto env_action_str = logic::to_string(*env_action);
-      auto formula_next_state = next_state_formula_(child_it.get_sub());
+      auto formula_next_state = next_state_formula_(state_node.get_raw());
       auto sdd_next_state = formula_to_sdd_(formula_next_state);
       auto sdd_next_state_id = sdd_next_state.get_id();
       this->print_search_debug("env move: {}", env_action_str);
