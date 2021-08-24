@@ -173,12 +173,17 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
             this->print_search_debug("system look-ahead: next state {} already "
                                      "discovered, failure, ignoring",
                                      next_state.get_id());
-            ignore = true;
+            continue;
           }
         }
-      }
-      if (!ignore) {
+        this->print_search_debug(
+            "system look-ahead: next state {} not discovered yet ",
+            next_state.get_id());
+        new_children.emplace_back(system_move, env_state_node);
+      } else {
         // we don't know, need to take env action
+        this->print_search_debug("system look-ahead: {} is not a state node",
+                                 env_state_node.get_id());
         new_children.emplace_back(system_move, env_state_node);
       }
     }
@@ -273,14 +278,19 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       }
       if (!ignore) {
         // we don't know, need to take env action
+        this->print_search_debug(
+            "env look-ahead: next state {} not discovered yet",
+            state_node.get_id());
         new_children.emplace_back(env_node, state_node);
       }
     }
 
     if (new_children.empty()) {
       // take any successor, it will be a win
-      context_.indentation -= 1;
+      this->print_search_debug(
+          "env look-ahead: taking any env action, system wins");
       auto formula_next_state = next_state_formula_(wrapper.begin().get_sub());
+      context_.indentation -= 1;
       return system_move_(formula_next_state, path);
     }
     strategy_t final_strategy;
