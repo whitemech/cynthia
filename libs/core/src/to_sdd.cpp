@@ -148,7 +148,15 @@ void ToSddVisitor::visit(const logic::LTLfAlways& formula) {
 }
 
 SddNode* ToSddVisitor::apply(const logic::LTLfFormula& formula) {
+  auto formula_ptr = formula.shared_from_this();
+  auto cached_result = context_.formula_to_sdd_node.find(formula_ptr);
+  if (cached_result != context_.formula_to_sdd_node.end()) {
+    return cached_result->second;
+  }
   formula.accept(*this);
+
+  // cache result
+  context_.formula_to_sdd_node[formula_ptr] = result;
   return result;
 }
 
