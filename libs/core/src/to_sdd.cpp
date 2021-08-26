@@ -86,62 +86,22 @@ void ToSddVisitor::visit(const logic::LTLfPropositionalNot& formula) {
   sdd_deref(right, context_.manager);
 }
 void ToSddVisitor::visit(const logic::LTLfAnd& formula) {
-  SddNode *tmp1, *tmp2;
-  tmp1 = sdd_manager_true(context_.manager);
-  for (const auto& arg : formula.args) {
-    auto sdd_arg = apply(*arg);
-    tmp2 = sdd_conjoin(tmp1, sdd_arg, context_.manager);
-    sdd_ref(tmp2, context_.manager);
-    sdd_deref(sdd_arg, context_.manager);
-    sdd_deref(tmp1, context_.manager);
-    tmp1 = tmp2;
-    context_.call_gc_vtree();
-  }
-  result = tmp1;
+  result = sdd_boolean_op<ToSddVisitor>(*this, formula, sdd_manager_true,
+                                        sdd_conjoin);
 }
 void ToSddVisitor::visit(const logic::LTLfOr& formula) {
-  SddNode *tmp1, *tmp2;
-  tmp1 = sdd_manager_false(context_.manager);
-  for (const auto& arg : formula.args) {
-    auto sdd_arg = apply(*arg);
-    tmp2 = sdd_disjoin(tmp1, sdd_arg, context_.manager);
-    sdd_ref(tmp2, context_.manager);
-    sdd_deref(sdd_arg, context_.manager);
-    sdd_deref(tmp1, context_.manager);
-    tmp1 = tmp2;
-    context_.call_gc_vtree();
-  }
-  result = tmp1;
+  result = sdd_boolean_op<ToSddVisitor>(*this, formula, sdd_manager_false,
+                                        sdd_disjoin);
 }
 void ToSddVisitor::visit(const logic::LTLfImplies& formula) {
-  SddNode *tmp1, *tmp2;
-  tmp1 = sdd_manager_true(context_.manager);
-  for (const auto& arg : formula.args) {
-    auto sdd_arg = apply(*arg);
-    tmp2 = sdd_imply(tmp1, sdd_arg, context_.manager);
-    sdd_ref(tmp2, context_.manager);
-    sdd_deref(sdd_arg, context_.manager);
-    sdd_deref(tmp1, context_.manager);
-    tmp1 = tmp2;
-    context_.call_gc_vtree();
-  }
-  result = tmp1;
+  result =
+      sdd_boolean_op<ToSddVisitor>(*this, formula, sdd_manager_true, sdd_imply);
 }
 void ToSddVisitor::visit(const logic::LTLfEquivalent& formula) {
-  SddNode* tmp = apply(**formula.args.begin());
-  for (auto it = formula.args.begin() + 1; it != formula.args.end(); ++it) {
-    auto sdd_arg = apply(**it);
-    tmp = sdd_equiv(tmp, sdd_arg, context_.manager);
-  }
-  result = tmp;
+  result = apply(*simplify(formula));
 }
 void ToSddVisitor::visit(const logic::LTLfXor& formula) {
-  SddNode* tmp = apply(**formula.args.begin());
-  for (auto it = formula.args.begin() + 1; it != formula.args.end(); ++it) {
-    auto sdd_arg = apply(**it);
-    tmp = sdd_xor(tmp, sdd_arg, context_.manager);
-  }
-  result = tmp;
+  result = apply(*simplify(formula));
 }
 void ToSddVisitor::visit(const logic::LTLfNext& formula) {
   result = get_sdd_node(formula);
