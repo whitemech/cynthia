@@ -20,13 +20,13 @@
 #include <cynthia/logic/nnf.hpp>
 #include <cynthia/logic/print.hpp>
 #include <cynthia/one_step_realizability.hpp>
+#include <cynthia/one_step_unrealizability.hpp>
 #include <cynthia/sdd_to_formula.hpp>
 #include <cynthia/sddcpp.hpp>
 #include <cynthia/strip_next.hpp>
 #include <cynthia/to_sdd.hpp>
 #include <cynthia/vtree.hpp>
 #include <cynthia/xnf.hpp>
-#include <numeric>
 
 namespace cynthia {
 namespace core {
@@ -42,11 +42,26 @@ bool ForwardSynthesis::is_realizable() {
 
 bool ForwardSynthesis::forward_synthesis_() {
   auto path = std::set<SddSize>{};
+
+  context_.logger.info("Check zero-step realizability");
+  if (eval(*context_.nnf_formula)) {
+    context_.logger.info("Zero-step realizability check successful");
+    return true;
+  }
+
   context_.logger.info("Check one-step realizability");
-  auto pair_result = one_step_realizability(*context_.nnf_formula, context_);
-  if (pair_result.second) {
+  auto pair_rel_result =
+      one_step_realizability(*context_.nnf_formula, context_);
+  if (pair_rel_result.second) {
     context_.logger.info("One-step realizability check successful");
     return true;
+  }
+  context_.logger.info("Check one-step unrealizability");
+  auto pair_unrel_result =
+      one_step_unrealizability(*context_.nnf_formula, context_);
+  if (!pair_unrel_result.second) {
+    context_.logger.info("One-step unrealizability check successful");
+    return false;
   }
 
   context_.logger.info("Building the root SDD node...");
