@@ -219,6 +219,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
           strategy_t strategy;
           strategy[sdd_formula_id] = system_move.get_raw();
           strategy[next_state_id] = one_step_realizability_result.first;
+          context_.indentation -= 1;
           return strategy;
         }
         context_.print_search_debug(
@@ -305,7 +306,6 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       assert(state_node.get_type() == STATE);
       auto formula_next_state = next_state_formula_(state_node.get_raw());
       auto next_state = formula_to_sdd_(formula_next_state);
-      auto next_state_id = next_state.get_id();
       auto next_state_result_it = context_.discovered.find(next_state.get_id());
       if (next_state_result_it != context_.discovered.end()) {
         auto next_state_is_success = next_state_result_it->second;
@@ -329,6 +329,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       if (!one_step_unrealizability_result.second) {
         context_.print_search_debug("env look-ahead: one-step "
                                     "unrealizability check was successful");
+        context_.indentation -= 1;
         return strategy_t{};
       }
       if (!ignore) {
