@@ -71,6 +71,8 @@ public:
     size_t indentation = 0;
     const bool use_gc;
     const float gc_threshold;
+    std::vector<int> controllable_map;
+    std::vector<int> uncontrollable_map;
     Context(const logic::ltlf_ptr& formula,
             const InputOutputPartition& partition, bool use_gc = false,
             float gc_threshold = 0.95);
@@ -94,6 +96,8 @@ public:
     inline void print_search_debug(const char* fmt) const {
       logger.debug((std::string(indentation, '\t') + fmt).c_str());
     };
+
+    void initialie_maps_();
   };
   ForwardSynthesis(const logic::ltlf_ptr& formula,
                    const InputOutputPartition& partition,

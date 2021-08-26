@@ -23,11 +23,9 @@ namespace cynthia {
 namespace core {
 
 class ToSddVisitor : public logic::Visitor {
-private:
+public:
   ForwardSynthesis::Context& context_;
   SddNode* result{};
-
-public:
   explicit ToSddVisitor(ForwardSynthesis::Context& context)
       : context_{context} {}
   void visit(const logic::LTLfTrue&) override;
@@ -70,10 +68,10 @@ SddNode* sdd_equiv(SddNode* node1, SddNode* node2, SddManager* manager);
 SddNode* sdd_xor(SddNode* node1, SddNode* node2, SddManager* manager);
 
 template <typename T>
-inline SddNode*
-sdd_boolean_op(const T& visitor, const logic::LTLfBinaryOp& formula,
-               SddNode* (*const initializer)(const SddManager*),
-               SddNode* (*const& reduce)(SddNode*, SddNode*, SddManager*)) {
+inline SddNode* sdd_boolean_op(T& visitor, const logic::LTLfBinaryOp& formula,
+                               SddNode* (*const initializer)(const SddManager*),
+                               SddNode* (*const& reduce)(SddNode*, SddNode*,
+                                                         SddManager*)) {
   SddNode *tmp1, *tmp2;
   tmp1 = initializer(visitor.context_.manager);
   for (const auto& arg : formula.args) {

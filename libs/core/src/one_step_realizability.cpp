@@ -15,6 +15,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <cynthia/one_step_realizability.hpp>
 #include <cynthia/to_sdd.hpp>
 
@@ -90,19 +91,25 @@ SddNode* OneStepRealizabilityVisitor::apply(const logic::LTLfFormula& f) {
   return result;
 }
 
-bool one_step_realizability(const logic::LTLfFormula& f,
-                            ForwardSynthesis::Context& context) {
+std::pair<SddNode*, bool>
+one_step_realizability(const logic::LTLfFormula& f,
+                       ForwardSynthesis::Context& context) {
   auto visitor = OneStepRealizabilityVisitor{context};
   auto result = visitor.apply(f);
-  auto wrapper = SddNodeWrapper(result);
+  auto wrapper = SddNodeWrapper(result, context.manager);
   if (wrapper.is_false()) {
-    return false;
+    return {nullptr, false};
   }
   if (wrapper.is_true()) {
-    return true;
+    return {sdd_manager_true(context.manager), true};
   }
-  //    TODO
-  return false;
+
+  if (wrapper.get_type() == SddNodeType::SYSTEM) {
+    return {wrapper.get_raw(), true};
+  }
+  assert(wrapper.get_type() != SddNodeType::SYSTEM_STATE);
+  assert(wrapper.get_type() != SddNodeType::STATE);
+  return {nullptr, false};
 }
 
 } // namespace core

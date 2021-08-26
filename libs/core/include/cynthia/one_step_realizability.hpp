@@ -18,16 +18,15 @@
 
 #include <cynthia/core.hpp>
 #include <cynthia/logic/visitor.hpp>
+#include <optional>
 
 namespace cynthia {
 namespace core {
 
 class OneStepRealizabilityVisitor : public logic::Visitor {
-private:
+public:
   ForwardSynthesis::Context& context_;
   SddNode* result{};
-
-public:
   explicit OneStepRealizabilityVisitor(ForwardSynthesis::Context& context)
       : context_{context} {}
   void visit(const logic::LTLfTrue&) override;
@@ -56,8 +55,9 @@ public:
   }
 };
 
-bool one_step_realizability(const logic::LTLfFormula& f,
-                            ForwardSynthesis::Context& context);
+std::pair<SddNode*, bool>
+one_step_realizability(const logic::LTLfFormula& f,
+                       ForwardSynthesis::Context& context);
 
 } // namespace core
 } // namespace cynthia

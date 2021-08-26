@@ -46,7 +46,7 @@ logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
       result = formula;
     }
   } else if (sdd_node_is_decision(sdd_node)) {
-    auto wrapper = SddNodeWrapper(sdd_node);
+    auto wrapper = SddNodeWrapper(sdd_node, context_.manager);
     std::vector<logic::ltlf_ptr> args;
     args.reserve(wrapper.nb_children());
     for (auto it = wrapper.begin(); it != wrapper.end(); ++it) {
