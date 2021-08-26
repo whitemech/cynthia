@@ -107,6 +107,9 @@ one_step_realizability(const logic::LTLfFormula& f,
   if (wrapper.get_type() == SddNodeType::SYSTEM) {
     return {wrapper.get_raw(), true};
   }
+  if (wrapper.get_type() == SddNodeType::SYSTEM_ENV_STATE) {
+    return {wrapper.begin().get_prime(), true};
+  }
   assert(wrapper.get_type() != SddNodeType::SYSTEM_STATE);
   assert(wrapper.get_type() != SddNodeType::STATE);
   return {nullptr, false};
