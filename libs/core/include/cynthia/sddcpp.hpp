@@ -30,26 +30,11 @@ namespace core {
 class SddNodeChildrenIterator;
 class SddTransitionIterator;
 
-class SddNodeWrapper {
-private:
-  SddNode* raw_{};
-  SddNodeSize nb_children_ = 0;
-  SddNode** children_ = nullptr;
-
-public:
-  SddNodeWrapper() = default;
-  explicit SddNodeWrapper(SddNode* raw);
-  inline SddNode* get_raw() const { return raw_; }
-  bool is_true() const;
-  bool is_false() const;
-  bool is_literal() const;
-  bool is_decision() const;
-  long node_literal() const;
-  long nb_children() const;
-  SddNodeChildrenIterator begin() const;
-  SddNodeChildrenIterator end() const;
-  SddTransitionIterator transitions_begin() const;
-  SddTransitionIterator transitions_end() const;
+enum SddNodeType {
+  STATE = 0,
+  ENV_STATE = 1,
+  SYSTEM_STATE = 2,
+  SYSTEM_ENV_STATE = 3,
 };
 
 struct SddNodeChildrenIterator {
@@ -88,6 +73,33 @@ public:
 
 private:
   SddNode** m_ptr_;
+};
+
+class SddNodeWrapper {
+private:
+  SddSize id_;
+  SddNode* raw_{};
+  SddNodeSize nb_children_ = 0;
+  SddNode** children_ = nullptr;
+  SddNodeType type_;
+  SddNodeType get_sdd_node_type_() const;
+
+public:
+  SddNodeWrapper() = default;
+  explicit SddNodeWrapper(SddNode* raw);
+  inline SddNode* get_raw() const { return raw_; }
+  inline SddNodeType get_type() const { return type_; }
+  inline SddSize get_id() const { return id_; }
+  bool is_true() const;
+  bool is_false() const;
+  bool is_literal() const;
+  bool is_decision() const;
+  long node_literal() const;
+  long nb_children() const;
+  bool at_vtree_root() const;
+  bool parent_at_vtree_root() const;
+  SddNodeChildrenIterator begin() const;
+  SddNodeChildrenIterator end() const;
 };
 
 } // namespace core

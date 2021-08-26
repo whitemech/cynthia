@@ -39,6 +39,7 @@ TEST_CASE("forward synthesis of random formula 1") {
 }
 
 TEST_CASE("forward synthesis of random formula 2") {
+  utils::Logger::level(utils::LogLevel::debug);
   auto driver = parser::ltlf::LTLfDriver();
   std::istringstream fstring(
       "(((p0) | (G(F(p4)))) & (F(p3))) U ((p3) & ((~(p1)) | (F(~(p3)))))");

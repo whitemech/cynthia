@@ -29,6 +29,8 @@ SddNodeWrapper::SddNodeWrapper(SddNode* raw) : raw_{raw} {
     children_ = sdd_node_elements(raw);
     nb_children_ = sdd_node_size(raw);
   }
+  id_ = sdd_id(raw);
+  type_ = get_sdd_node_type_();
 }
 
 bool SddNodeWrapper::is_true() const { return sdd_node_is_true(raw_); }
@@ -45,6 +47,12 @@ long SddNodeWrapper::node_literal() const {
   }
   return sdd_node_literal(raw_);
 }
+bool SddNodeWrapper::at_vtree_root() const {
+  return raw_->vtree->parent == nullptr;
+}
+bool SddNodeWrapper::parent_at_vtree_root() const {
+  return raw_->vtree->parent->parent == nullptr;
+}
 
 SddNodeChildrenIterator SddNodeWrapper::begin() const {
   return SddNodeChildrenIterator(children_);
@@ -58,6 +66,23 @@ SddNodeChildrenIterator SddNodeWrapper::end() const {
 }
 
 long SddNodeWrapper::nb_children() const { return nb_children_; }
+
+SddNodeType SddNodeWrapper::get_sdd_node_type_() const {
+  if (!is_decision()) {
+    return STATE;
+  } else if (!at_vtree_root()) {
+    if (!parent_at_vtree_root()) {
+      return STATE;
+    }
+    return ENV_STATE;
+  } else {
+    // check parent not at vtree root
+    if (begin().get_sub()->vtree->parent->parent != nullptr) {
+      return SYSTEM_STATE;
+    }
+    return SYSTEM_ENV_STATE;
+  }
+}
 
 } // namespace core
 } // namespace cynthia
