@@ -212,7 +212,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
           }
         }
         auto one_step_realizability_result =
-            one_step_realizability(*formula, context_);
+            one_step_realizability(*formula_next_state, context_);
         if (one_step_realizability_result.second) {
           context_.print_search_debug("system look-ahead: one-step "
                                       "realizability check was successful");
@@ -303,7 +303,9 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       auto env_node = SddNodeWrapper(child_it.get_prime(), context_.manager);
       auto state_node = SddNodeWrapper(child_it.get_sub(), context_.manager);
       assert(state_node.get_type() == STATE);
-      auto next_state = next_state_(state_node);
+      auto formula_next_state = next_state_formula_(state_node.get_raw());
+      auto next_state = formula_to_sdd_(formula_next_state);
+      auto next_state_id = next_state.get_id();
       auto next_state_result_it = context_.discovered.find(next_state.get_id());
       if (next_state_result_it != context_.discovered.end()) {
         auto next_state_is_success = next_state_result_it->second;
@@ -321,6 +323,13 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
           context_.indentation -= 1;
           return strategy_t{};
         }
+      }
+      auto one_step_unrealizability_result =
+          one_step_unrealizability(*formula_next_state, context_);
+      if (!one_step_unrealizability_result.second) {
+        context_.print_search_debug("env look-ahead: one-step "
+                                    "unrealizability check was successful");
+        return strategy_t{};
       }
       if (!ignore) {
         // we don't know, need to take env action
