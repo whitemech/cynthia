@@ -96,7 +96,8 @@ public:
     };
   };
   ForwardSynthesis(const logic::ltlf_ptr& formula,
-                   const InputOutputPartition& partition, bool enable_gc)
+                   const InputOutputPartition& partition,
+                   bool enable_gc = false)
       : context_{formula, partition, enable_gc},
         ISynthesis(formula, partition){};
 
