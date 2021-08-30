@@ -58,15 +58,14 @@ void OneStepUnrealizabilityVisitor::visit(const logic::LTLfOr& formula) {
       *this, formula, sdd_manager_false, sdd_disjoin);
 }
 void OneStepUnrealizabilityVisitor::visit(const logic::LTLfImplies& formula) {
-  result = sdd_boolean_op<OneStepUnrealizabilityVisitor>(
-      *this, formula, sdd_manager_true, sdd_imply);
+  logic::throw_expected_nnf();
 }
 void OneStepUnrealizabilityVisitor::visit(
     const logic::LTLfEquivalent& formula) {
-  result = apply(*simplify(formula));
+  logic::throw_expected_nnf();
 }
 void OneStepUnrealizabilityVisitor::visit(const logic::LTLfXor& formula) {
-  result = apply(*simplify(formula));
+  logic::throw_expected_nnf();
 }
 void OneStepUnrealizabilityVisitor::visit(const logic::LTLfNext& formula) {
   result = sdd_manager_true(context_.manager);
@@ -93,28 +92,32 @@ SddNode* OneStepUnrealizabilityVisitor::apply(const logic::LTLfFormula& f) {
   return result;
 }
 
-std::pair<SddNode*, bool>
-one_step_unrealizability(const logic::LTLfFormula& f,
-                         ForwardSynthesis::Context& context) {
+bool one_step_unrealizability(const logic::LTLfFormula& f,
+                              ForwardSynthesis::Context& context) {
   auto visitor = OneStepUnrealizabilityVisitor{context};
   auto result = visitor.apply(f);
   auto wrapper = SddNodeWrapper(result, context.manager);
   if (wrapper.is_false()) {
-    return {nullptr, false};
+    return false;
   }
   if (wrapper.is_true()) {
-    return {sdd_manager_true(context.manager), true};
+    return true;
   }
 
   if (wrapper.get_type() == SddNodeType::SYSTEM) {
-    return {wrapper.get_raw(), true};
+    return true;
   }
   if (wrapper.get_type() == SddNodeType::SYSTEM_ENV_STATE) {
-    return {wrapper.begin().get_prime(), true};
+    auto child_it = wrapper.begin();
+    for (; child_it != wrapper.end(); ++child_it) {
+      if (sdd_node_is_true(child_it.get_sub())) {
+        return true;
+      }
+    }
   }
   assert(wrapper.get_type() != SddNodeType::SYSTEM_STATE);
   assert(wrapper.get_type() != SddNodeType::STATE);
-  return {nullptr, false};
+  return false;
 }
 
 } // namespace core

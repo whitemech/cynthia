@@ -57,9 +57,9 @@ bool ForwardSynthesis::forward_synthesis_() {
     return true;
   }
   context_.logger.info("Check one-step unrealizability");
-  auto pair_unrel_result =
+  auto is_unrealizable =
       one_step_unrealizability(*context_.nnf_formula, context_);
-  if (!pair_unrel_result.second) {
+  if (!is_unrealizable) {
     context_.logger.info("One-step unrealizability check successful");
     return false;
   }
@@ -97,14 +97,6 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   auto sdd_formula_id = sdd.get_id();
   context_.statistics_.visit_node(sdd_formula_id);
 
-  auto one_step_realizability_result =
-      one_step_realizability(*formula, context_);
-  if (one_step_realizability_result.second) {
-    strategy_t strategy;
-    strategy[sdd_formula_id] = one_step_realizability_result.first;
-    return strategy;
-  }
-
   success_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
   failure_strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
   context_.print_search_debug("State {}", sdd_formula_id);
@@ -136,6 +128,22 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     context_.discovered[sdd_formula_id] = true;
     context_.indentation -= 1;
     return success_strategy;
+  }
+
+  auto one_step_realizability_result =
+      one_step_realizability(*formula, context_);
+  if (one_step_realizability_result.second) {
+    strategy_t strategy;
+    strategy[sdd_formula_id] = one_step_realizability_result.first;
+    context_.discovered[sdd_formula_id] = true;
+    context_.indentation -= 1;
+    return strategy;
+  }
+  auto is_unrealizable = one_step_unrealizability(*formula, context_);
+  if (!is_unrealizable) {
+    context_.discovered[sdd_formula_id] = false;
+    context_.indentation -= 1;
+    return failure_strategy;
   }
 
   path.insert(sdd_formula_id);
@@ -219,8 +227,18 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
           strategy_t strategy;
           strategy[sdd_formula_id] = system_move.get_raw();
           strategy[next_state_id] = one_step_realizability_result.first;
+          context_.discovered[next_state_id] = true;
+          context_.discovered[sdd_formula_id] = true;
           context_.indentation -= 1;
           return strategy;
+        }
+        auto is_unrealizable =
+            one_step_unrealizability(*formula_next_state, context_);
+        if (!is_unrealizable) {
+          context_.print_search_debug("system look-ahead: one-step "
+                                      "unrealizability check was successful");
+          context_.discovered[next_state_id] = false;
+          continue;
         }
         context_.print_search_debug(
             "system look-ahead: next state {} not discovered yet ",
@@ -306,31 +324,41 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       assert(state_node.get_type() == STATE);
       auto formula_next_state = next_state_formula_(state_node.get_raw());
       auto next_state = formula_to_sdd_(formula_next_state);
-      auto next_state_result_it = context_.discovered.find(next_state.get_id());
+      auto next_state_id = next_state.get_id();
+      auto next_state_result_it = context_.discovered.find(next_state_id);
       if (next_state_result_it != context_.discovered.end()) {
         auto next_state_is_success = next_state_result_it->second;
         if (next_state_is_success) {
           context_.print_search_debug("env look-ahead: next state {} already "
                                       "discovered, success, ignoring",
-                                      next_state.get_id());
+                                      next_state_id);
           ignore = true;
         }
         if (!next_state_is_success) {
           context_.print_search_debug(
               "env look-ahead: next state {} already discovered, failure",
-              next_state.get_id());
+              next_state_id);
           path.erase(sdd_formula_id);
           context_.indentation -= 1;
           return strategy_t{};
         }
       }
-      auto one_step_unrealizability_result =
+      auto is_unrealizable =
           one_step_unrealizability(*formula_next_state, context_);
-      if (!one_step_unrealizability_result.second) {
+      if (!is_unrealizable) {
         context_.print_search_debug("env look-ahead: one-step "
                                     "unrealizability check was successful");
+        context_.discovered[next_state_id] = false;
         context_.indentation -= 1;
         return strategy_t{};
+      }
+      auto one_step_realizability_result =
+          one_step_realizability(*formula_next_state, context_);
+      if (one_step_realizability_result.second) {
+        context_.print_search_debug("env look-ahead: one-step "
+                                    "realizability check was successful");
+        context_.discovered[next_state_id] = true;
+        continue;
       }
       if (!ignore) {
         // we don't know, need to take env action
@@ -438,10 +466,28 @@ void ForwardSynthesis::Context::call_gc_vtree() const {
 }
 
 void ForwardSynthesis::Context::initialie_maps_() {
+  const auto nb_variables = closure_.nb_formulas() + closure_.nb_atoms();
   controllable_map =
       std::vector<int>(closure_.nb_formulas() + closure_.nb_atoms());
   uncontrollable_map =
       std::vector<int>(closure_.nb_formulas() + closure_.nb_atoms());
+
+  auto controllable_offset = closure_.nb_formulas();
+  auto uncontrollable_offset =
+      closure_.nb_formulas() + partition.input_variables.size();
+  for (int i = 0; i < nb_variables; ++i) {
+    if (i < controllable_offset) {
+      controllable_map[i] = 0;
+      uncontrollable_map[i] = 0;
+    } else if (i >= controllable_offset and i < uncontrollable_offset) {
+      controllable_map[i] = 1;
+      uncontrollable_map[i] = 0;
+    } else {
+      // uncontrollable
+      controllable_map[i] = 0;
+      uncontrollable_map[i] = 1;
+    }
+  }
 }
 
 } // namespace core

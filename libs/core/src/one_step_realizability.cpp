@@ -58,14 +58,13 @@ void OneStepRealizabilityVisitor::visit(const logic::LTLfOr& formula) {
       *this, formula, sdd_manager_false, sdd_disjoin);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfImplies& formula) {
-  result = sdd_boolean_op<OneStepRealizabilityVisitor>(
-      *this, formula, sdd_manager_true, sdd_imply);
+  logic::throw_expected_nnf();
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfEquivalent& formula) {
-  result = apply(*simplify(formula));
+  logic::throw_expected_nnf();
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfXor& formula) {
-  result = apply(*simplify(formula));
+  logic::throw_expected_nnf();
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfNext& formula) {
   result = sdd_manager_false(context_.manager);
@@ -106,6 +105,15 @@ one_step_realizability(const logic::LTLfFormula& f,
 
   if (wrapper.get_type() == SddNodeType::SYSTEM) {
     return {wrapper.get_raw(), true};
+  }
+
+  if (wrapper.get_type() == SddNodeType::SYSTEM_ENV_STATE) {
+    auto child_it = wrapper.begin();
+    for (; child_it != wrapper.end(); ++child_it) {
+      if (sdd_node_is_true(child_it.get_sub())) {
+        return {child_it.get_prime(), true};
+      }
+    }
   }
   assert(wrapper.get_type() != SddNodeType::SYSTEM_STATE);
   assert(wrapper.get_type() != SddNodeType::STATE);
