@@ -19,6 +19,8 @@
 #include <cynthia/eval.hpp>
 #include <cynthia/logic/nnf.hpp>
 #include <cynthia/logic/print.hpp>
+#include <cynthia/one_step_realizability.hpp>
+#include <cynthia/one_step_unrealizability.hpp>
 #include <cynthia/sdd_to_formula.hpp>
 #include <cynthia/sddcpp.hpp>
 #include <cynthia/strip_next.hpp>
@@ -40,6 +42,28 @@ bool ForwardSynthesis::is_realizable() {
 
 bool ForwardSynthesis::forward_synthesis_() {
   auto path = std::set<SddSize>{};
+
+  context_.logger.info("Check zero-step realizability");
+  if (eval(*context_.nnf_formula)) {
+    context_.logger.info("Zero-step realizability check successful");
+    return true;
+  }
+
+  context_.logger.info("Check one-step realizability");
+  auto pair_rel_result =
+      one_step_realizability(*context_.nnf_formula, context_);
+  if (pair_rel_result.second) {
+    context_.logger.info("One-step realizability check successful");
+    return true;
+  }
+  context_.logger.info("Check one-step unrealizability");
+  auto pair_unrel_result =
+      one_step_unrealizability(*context_.nnf_formula, context_);
+  if (!pair_unrel_result.second) {
+    context_.logger.info("One-step unrealizability check successful");
+    return false;
+  }
+
   context_.logger.info("Building the root SDD node...");
   auto root_sdd_node = to_sdd(*context_.xnf_formula, context_);
   auto sdd_formula_id = sdd_id(root_sdd_node);
@@ -69,10 +93,18 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                           std::set<SddSize>& path) {
   strategy_t success_strategy, failure_strategy;
   context_.indentation += 1;
-  auto formula_str = logic::to_string(*formula);
-  auto sdd = SddNodeWrapper(to_sdd(*formula, context_));
+  auto sdd = SddNodeWrapper(to_sdd(*formula, context_), context_.manager);
   auto sdd_formula_id = sdd.get_id();
   context_.statistics_.visit_node(sdd_formula_id);
+
+  auto one_step_realizability_result =
+      one_step_realizability(*formula, context_);
+  if (one_step_realizability_result.second) {
+    strategy_t strategy;
+    strategy[sdd_formula_id] = one_step_realizability_result.first;
+    return strategy;
+  }
+
   success_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
   failure_strategy[sdd_formula_id] = sdd_manager_false(context_.manager);
   context_.print_search_debug("State {}", sdd_formula_id);
@@ -151,11 +183,13 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
     new_children.reserve(sdd.nb_children());
     for (; child_it != children_end; ++child_it) {
-      bool ignore = false;
-      auto system_move = SddNodeWrapper(child_it.get_prime());
-      auto env_state_node = SddNodeWrapper(child_it.get_sub());
+      auto system_move = SddNodeWrapper(child_it.get_prime(), context_.manager);
+      auto env_state_node =
+          SddNodeWrapper(child_it.get_sub(), context_.manager);
       if (env_state_node.get_type() == STATE) {
-        auto next_state = next_state_(env_state_node);
+        auto formula_next_state = next_state_formula_(env_state_node.get_raw());
+        auto next_state = formula_to_sdd_(formula_next_state);
+        auto next_state_id = next_state.get_id();
         auto next_state_result_it =
             context_.discovered.find(next_state.get_id());
         if (next_state_result_it != context_.discovered.end()) {
@@ -176,6 +210,17 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                 next_state.get_id());
             continue;
           }
+        }
+        auto one_step_realizability_result =
+            one_step_realizability(*formula_next_state, context_);
+        if (one_step_realizability_result.second) {
+          context_.print_search_debug("system look-ahead: one-step "
+                                      "realizability check was successful");
+          strategy_t strategy;
+          strategy[sdd_formula_id] = system_move.get_raw();
+          strategy[next_state_id] = one_step_realizability_result.first;
+          context_.indentation -= 1;
+          return strategy;
         }
         context_.print_search_debug(
             "system look-ahead: next state {} not discovered yet ",
@@ -256,10 +301,11 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     new_children.reserve(wrapper.nb_children());
     for (; child_it != children_end; ++child_it) {
       bool ignore = false;
-      auto env_node = SddNodeWrapper(child_it.get_prime());
-      auto state_node = SddNodeWrapper(child_it.get_sub());
+      auto env_node = SddNodeWrapper(child_it.get_prime(), context_.manager);
+      auto state_node = SddNodeWrapper(child_it.get_sub(), context_.manager);
       assert(state_node.get_type() == STATE);
-      auto next_state = next_state_(state_node);
+      auto formula_next_state = next_state_formula_(state_node.get_raw());
+      auto next_state = formula_to_sdd_(formula_next_state);
       auto next_state_result_it = context_.discovered.find(next_state.get_id());
       if (next_state_result_it != context_.discovered.end()) {
         auto next_state_is_success = next_state_result_it->second;
@@ -277,6 +323,14 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
           context_.indentation -= 1;
           return strategy_t{};
         }
+      }
+      auto one_step_unrealizability_result =
+          one_step_unrealizability(*formula_next_state, context_);
+      if (!one_step_unrealizability_result.second) {
+        context_.print_search_debug("env look-ahead: one-step "
+                                    "unrealizability check was successful");
+        context_.indentation -= 1;
+        return strategy_t{};
       }
       if (!ignore) {
         // we don't know, need to take env action
@@ -325,7 +379,7 @@ logic::ltlf_ptr ForwardSynthesis::next_state_formula_(SddNode* sdd_ptr) {
 }
 SddNodeWrapper
 ForwardSynthesis::formula_to_sdd_(const logic::ltlf_ptr& formula) {
-  auto wrapper = SddNodeWrapper(to_sdd(*formula, context_));
+  auto wrapper = SddNodeWrapper(to_sdd(*formula, context_), context_.manager);
   return wrapper;
 }
 SddNodeWrapper ForwardSynthesis::next_state_(const SddNodeWrapper& wrapper) {
@@ -340,7 +394,6 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
     : logger{"cynthia"}, formula{formula}, partition{partition}, use_gc{use_gc},
       gc_threshold{gc_threshold}, ast_manager{&formula->ctx()} {
   nnf_formula = logic::to_nnf(*formula);
-  auto formula_str = logic::to_string(*nnf_formula);
   xnf_formula = xnf(*nnf_formula);
   Closure closure_object = closure(*xnf_formula);
   closure_ = closure_object;
@@ -349,6 +402,7 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
   manager = sdd_manager_new(vtree_);
   prop_to_id = compute_prop_to_id_map(closure_, partition);
   statistics_ = Statistics();
+  initialie_maps_();
 }
 
 logic::ltlf_ptr ForwardSynthesis::Context::get_formula(size_t index) const {
@@ -382,5 +436,13 @@ void ForwardSynthesis::Context::call_gc_vtree() const {
     }
   }
 }
+
+void ForwardSynthesis::Context::initialie_maps_() {
+  controllable_map =
+      std::vector<int>(closure_.nb_formulas() + closure_.nb_atoms());
+  uncontrollable_map =
+      std::vector<int>(closure_.nb_formulas() + closure_.nb_atoms());
+}
+
 } // namespace core
 } // namespace cynthia

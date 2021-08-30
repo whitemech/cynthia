@@ -18,15 +18,16 @@
 
 #include <cynthia/core.hpp>
 #include <cynthia/logic/visitor.hpp>
+#include <optional>
 
 namespace cynthia {
 namespace core {
 
-class ToSddVisitor : public logic::Visitor {
+class OneStepUnrealizabilityVisitor : public logic::Visitor {
 public:
   ForwardSynthesis::Context& context_;
   SddNode* result{};
-  explicit ToSddVisitor(ForwardSynthesis::Context& context)
+  explicit OneStepUnrealizabilityVisitor(ForwardSynthesis::Context& context)
       : context_{context} {}
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
@@ -47,44 +48,16 @@ public:
   void visit(const logic::LTLfEventually&) override;
   void visit(const logic::LTLfAlways&) override;
 
-  SddNode* apply(const logic::LTLfFormula& formula);
-
+  SddNode* apply(const logic::LTLfFormula& f);
   inline SddNode* get_sdd_node(const logic::LTLfFormula& formula) const {
     auto formula_id = context_.closure_.get_id(formula.shared_from_this());
     return sdd_manager_literal(formula_id + 1, context_.manager);
   }
 };
 
-SddNode* to_sdd(const logic::LTLfFormula& formula,
-                ForwardSynthesis::Context& context);
-
-// returns an SDD node representing ( node1 => node2 )
-SddNode* sdd_imply(SddNode* node1, SddNode* node2, SddManager* manager);
-
-// returns an SDD node representing ( node1 <=> node2 )
-SddNode* sdd_equiv(SddNode* node1, SddNode* node2, SddManager* manager);
-
-// returns an SDD node representing ( node1 ^ node2 )
-SddNode* sdd_xor(SddNode* node1, SddNode* node2, SddManager* manager);
-
-template <typename T>
-inline SddNode* sdd_boolean_op(T& visitor, const logic::LTLfBinaryOp& formula,
-                               SddNode* (*const initializer)(const SddManager*),
-                               SddNode* (*const& reduce)(SddNode*, SddNode*,
-                                                         SddManager*)) {
-  SddNode *tmp1, *tmp2;
-  tmp1 = initializer(visitor.context_.manager);
-  for (const auto& arg : formula.args) {
-    auto sdd_arg = visitor.apply(*arg);
-    tmp2 = reduce(tmp1, sdd_arg, visitor.context_.manager);
-    sdd_ref(tmp2, visitor.context_.manager);
-    sdd_deref(sdd_arg, visitor.context_.manager);
-    sdd_deref(tmp1, visitor.context_.manager);
-    tmp1 = tmp2;
-    visitor.context_.call_gc_vtree();
-  }
-  return tmp1;
-}
+std::pair<SddNode*, bool>
+one_step_unrealizability(const logic::LTLfFormula& f,
+                         ForwardSynthesis::Context& context);
 
 } // namespace core
 } // namespace cynthia

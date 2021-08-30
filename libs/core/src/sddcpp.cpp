@@ -21,7 +21,8 @@
 namespace cynthia {
 namespace core {
 
-SddNodeWrapper::SddNodeWrapper(SddNode* raw) : raw_{raw} {
+SddNodeWrapper::SddNodeWrapper(SddNode* raw, SddManager* manager)
+    : raw_{raw}, manager_{manager} {
   if (raw_ == nullptr) {
     throw std::invalid_argument("null pointer provided");
   }
@@ -68,20 +69,31 @@ SddNodeChildrenIterator SddNodeWrapper::end() const {
 long SddNodeWrapper::nb_children() const { return nb_children_; }
 
 SddNodeType SddNodeWrapper::get_sdd_node_type_() const {
-  if (!is_decision()) {
-    return STATE;
-  } else if (!at_vtree_root()) {
-    if (!parent_at_vtree_root()) {
-      return STATE;
-    }
-    return ENV_STATE;
-  } else {
-    // check parent not at vtree root
-    if (begin().get_sub()->vtree->parent->parent != nullptr) {
-      return SYSTEM_STATE;
-    }
+  auto this_vtree = raw_->vtree;
+  if (this_vtree == nullptr) {
+    return UNDEFINED;
+  }
+
+  if (at_vtree_root()) {
     return SYSTEM_ENV_STATE;
   }
+  auto root = sdd_manager_vtree(manager_);
+
+  if (sdd_vtree_is_sub(this_vtree, root->left)) {
+    return SYSTEM;
+  }
+  if (root->right != nullptr and
+      (sdd_vtree_is_sub(this_vtree, root->right->left))) {
+    return ENV;
+  }
+  if (root->right != nullptr and
+      (sdd_vtree_is_sub(this_vtree, root->right->right))) {
+    return STATE;
+  }
+  if (sdd_vtree_is_sub(this_vtree, root->right)) {
+    return ENV_STATE;
+  }
+  return UNDEFINED;
 }
 
 } // namespace core

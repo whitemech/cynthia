@@ -31,10 +31,14 @@ class SddNodeChildrenIterator;
 class SddTransitionIterator;
 
 enum SddNodeType {
-  STATE = 0,
-  ENV_STATE = 1,
-  SYSTEM_STATE = 2,
-  SYSTEM_ENV_STATE = 3,
+  UNDEFINED = 0,
+  STATE = 1,
+  ENV = 2,
+  ENV_STATE = 3,
+  SYSTEM = 4,
+  SYSTEM_STATE = 5,
+  SYSTEM_ENV = 6,
+  SYSTEM_ENV_STATE = 7,
 };
 
 struct SddNodeChildrenIterator {
@@ -82,11 +86,13 @@ private:
   SddNodeSize nb_children_ = 0;
   SddNode** children_ = nullptr;
   SddNodeType type_;
+  SddManager* manager_;
+
   SddNodeType get_sdd_node_type_() const;
 
 public:
   SddNodeWrapper() = default;
-  explicit SddNodeWrapper(SddNode* raw);
+  SddNodeWrapper(SddNode* raw, SddManager* manager);
   inline SddNode* get_raw() const { return raw_; }
   inline SddNodeType get_type() const { return type_; }
   inline SddSize get_id() const { return id_; }
