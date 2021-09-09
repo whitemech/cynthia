@@ -55,9 +55,8 @@ public:
   }
 };
 
-std::pair<SddNode*, bool>
-one_step_unrealizability(const logic::LTLfFormula& f,
-                         ForwardSynthesis::Context& context);
+bool one_step_unrealizability(const logic::LTLfFormula& f,
+                              ForwardSynthesis::Context& context);
 
 } // namespace core
 } // namespace cynthia
