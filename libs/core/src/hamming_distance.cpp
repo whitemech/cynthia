@@ -15,19 +15,29 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <cynthia/hamming_distance.hpp>
 #include <cynthia/logic/ltlf.hpp>
-#include <algorithm>
 #include <numeric>
 
 namespace cynthia {
 namespace core {
 
-void HammingDistanceVisitor::visit(const logic::LTLfTrue& formula) { result = 0; }
-void HammingDistanceVisitor::visit(const logic::LTLfFalse& formula) { result = 1; }
-void HammingDistanceVisitor::visit(const logic::LTLfPropTrue& formula) { result = 1; }
-void HammingDistanceVisitor::visit(const logic::LTLfPropFalse& formula) { result = 1; }
-void HammingDistanceVisitor::visit(const logic::LTLfAtom& formula) { result = 1; }
+void HammingDistanceVisitor::visit(const logic::LTLfTrue& formula) {
+  result = 0;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfFalse& formula) {
+  result = 1;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfPropTrue& formula) {
+  result = 1;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfPropFalse& formula) {
+  result = 1;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfAtom& formula) {
+  result = 1;
+}
 void HammingDistanceVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();
 }
@@ -37,16 +47,16 @@ void HammingDistanceVisitor::visit(const logic::LTLfPropositionalNot& formula) {
 void HammingDistanceVisitor::visit(const logic::LTLfAnd& formula) {
   std::vector<size_t> values;
   values.resize(formula.args.size());
-  std::transform(formula.args.begin(), formula.args.end(), values.begin(), [this](const logic::ltlf_ptr& arg) { return apply(*arg); });
-  result =
-      std::accumulate(values.begin(), values.end(), 0);
+  std::transform(formula.args.begin(), formula.args.end(), values.begin(),
+                 [this](const logic::ltlf_ptr& arg) { return apply(*arg); });
+  result = std::accumulate(values.begin(), values.end(), 0);
 }
 void HammingDistanceVisitor::visit(const logic::LTLfOr& formula) {
   std::vector<size_t> values;
   values.resize(formula.args.size());
-  std::transform(formula.args.begin(), formula.args.end(), values.begin(), [this](const logic::ltlf_ptr& arg) { return apply(*arg); });
-  result =
-      *min_element(values.begin(), values.end());
+  std::transform(formula.args.begin(), formula.args.end(), values.begin(),
+                 [this](const logic::ltlf_ptr& arg) { return apply(*arg); });
+  result = *min_element(values.begin(), values.end());
 }
 void HammingDistanceVisitor::visit(const logic::LTLfImplies& formula) {
   result = apply(*simplify(formula));
@@ -57,14 +67,24 @@ void HammingDistanceVisitor::visit(const logic::LTLfEquivalent& formula) {
 void HammingDistanceVisitor::visit(const logic::LTLfXor& formula) {
   result = apply(*simplify(formula));
 }
-void HammingDistanceVisitor::visit(const logic::LTLfNext& formula) { result = 1; }
-void HammingDistanceVisitor::visit(const logic::LTLfWeakNext& formula) { result = 0; }
-void HammingDistanceVisitor::visit(const logic::LTLfUntil& formula) { result = 1; }
-void HammingDistanceVisitor::visit(const logic::LTLfRelease& formula) { result = 0; }
+void HammingDistanceVisitor::visit(const logic::LTLfNext& formula) {
+  result = 1;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfWeakNext& formula) {
+  result = 0;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfUntil& formula) {
+  result = 1;
+}
+void HammingDistanceVisitor::visit(const logic::LTLfRelease& formula) {
+  result = 0;
+}
 void HammingDistanceVisitor::visit(const logic::LTLfEventually& formula) {
   result = false;
 }
-void HammingDistanceVisitor::visit(const logic::LTLfAlways& formula) { result = 0; }
+void HammingDistanceVisitor::visit(const logic::LTLfAlways& formula) {
+  result = 0;
+}
 
 size_t HammingDistanceVisitor::apply(const logic::LTLfFormula& formula) {
   formula.accept(*this);
