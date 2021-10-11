@@ -17,38 +17,24 @@
  */
 
 #include <cynthia/logic/types.hpp>
+#include <cynthia/utils.hpp>
 #include <memory>
 #include <unordered_set>
 
 namespace cynthia {
 namespace logic {
-struct Deref {
-  struct Hash {
-    template <typename T>
-    std::size_t operator()(std::shared_ptr<const T> const& p) const {
-      return std::hash<T>()(*p);
-    }
-  };
-
-  struct Compare {
-    template <typename T>
-    size_t operator()(std::shared_ptr<const T> const& a,
-                      std::shared_ptr<const T> const& b) const {
-      return *a == *b;
-    }
-  };
-};
 
 /*
  * A hash table for AST nodes based on STL unordered_set.
  */
 class HashTable {
 private:
-  std::unordered_set<ast_ptr, Deref::Hash, Deref::Compare> m_table_;
+  std::unordered_set<ast_ptr, utils::Deref::Hash, utils::Deref::Equal> m_table_;
 
 public:
   explicit HashTable() {
-    m_table_ = std::unordered_set<ast_ptr, Deref::Hash, Deref::Compare>{};
+    m_table_ =
+        std::unordered_set<ast_ptr, utils::Deref::Hash, utils::Deref::Equal>{};
   }
 
   template <typename T>

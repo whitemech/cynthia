@@ -28,7 +28,7 @@ TEST_CASE("Create hash table", "[logic][hashtable]") {
   // table must be empty
   REQUIRE(table.size() == 0);
 
-  auto expected_element_1_ptr = std::make_shared<const Symbol>(context, "1");
+  auto expected_element_1_ptr = std::make_shared<const LTLfAtom>(context, "1");
   auto actual_element_1_ptr =
       table.insert_if_not_available(expected_element_1_ptr);
   // table must contain one element
@@ -38,7 +38,7 @@ TEST_CASE("Create hash table", "[logic][hashtable]") {
 
   // table must still contain one element, and return the same pointer
   auto actual_element_1_ptr_b = table.insert_if_not_available(
-      std::make_shared<const Symbol>(context, "1"));
+      std::make_shared<const LTLfAtom>(context, "1"));
   REQUIRE(table.size() == 1);
   REQUIRE(*actual_element_1_ptr_b == *expected_element_1_ptr);
   REQUIRE(actual_element_1_ptr_b == expected_element_1_ptr);

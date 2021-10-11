@@ -16,11 +16,94 @@
  */
 
 #include <CLI/CLI.hpp>
+
 #include <cynthia/core.hpp>
+#include <cynthia/logger.hpp>
+#include <cynthia/parser/driver.hpp>
 
 int main(int argc, char** argv) {
-  CLI::App app{"A tool for LTLf synthesis."};
+  cynthia::utils::Logger logger("main");
+  cynthia::utils::Logger::level(cynthia::utils::LogLevel::info);
+
+  CLI::App app{"A tool for SDD-based forward LTLf synthesis."};
+
+  bool no_empty = false;
+  app.add_flag("-n,--no-empty", no_empty, "Enforce non-empty semantics.");
+  bool version = false;
+  app.add_flag("-V,--version", version, "Print the version and exit.");
+  bool verbose = false;
+  app.add_flag("-v,--verbose", verbose, "Set verbose mode.");
+  bool enable_gc = false;
+  app.add_flag("-g,--garbage-collection", enable_gc,
+               "Enable garbage collection.");
+
+  // options & flags
+  std::string filename;
+  std::string formula;
+
+  auto format = app.add_option_group("Input format");
+  CLI::Option* formula_opt = app.add_option("-i,--inline", formula, "Formula.");
+  CLI::Option* file_opt =
+      app.add_option("-f,--file", filename, "File to formula.")
+          ->check(CLI::ExistingFile);
+  formula_opt->excludes(file_opt);
+  file_opt->excludes(formula_opt);
+  format->add_option(formula_opt);
+  format->add_option(file_opt);
+  format->require_option(1, 1);
+
+  std::string part_file;
+  CLI::Option* part_opt = app.add_option("--part", part_file, "Partition file.")
+                              ->check(CLI::ExistingFile);
+
   CLI11_PARSE(app, argc, argv)
-  std::cout << cynthia::core::meaning_of_life() << std::endl;
+
+  if (version) {
+    std::cout << CYNTHIA_VERSION << std::endl;
+    return 0;
+  }
+
+  if (verbose) {
+    cynthia::utils::Logger::level(cynthia::utils::LogLevel::debug);
+  }
+
+  auto driver = cynthia::parser::ltlf::LTLfDriver();
+  if (!file_opt->empty()) {
+    logger.info("Parsing {}", filename);
+    driver.parse(filename.c_str());
+  } else {
+    std::stringstream formula_stream(formula);
+    logger.info("Parsing {}", formula);
+    driver.parse(formula_stream);
+  }
+
+  auto parsed_formula = driver.get_result();
+  if (no_empty) {
+    logger.info("Apply no-empty semantics.");
+    auto context = driver.context;
+    auto end = context->make_end();
+    auto not_end = context->make_not(end);
+    parsed_formula = context->make_and({parsed_formula, not_end});
+  }
+
+  logger.info("Reading partition file {}", part_file);
+  auto partition =
+      cynthia::core::InputOutputPartition::read_from_file(part_file);
+
+  logger.info("Starting synthesis");
+
+  auto t_start = std::chrono::high_resolution_clock::now();
+
+  bool result = cynthia::core::is_realizable<cynthia::core::ForwardSynthesis>(
+      parsed_formula, partition, enable_gc);
+  if (result)
+    logger.info("realizable.");
+  else
+    logger.info("unrealizable.");
+
+  auto t_end = std::chrono::high_resolution_clock::now();
+  double elapsed_time =
+      std::chrono::duration<double, std::milli>(t_end - t_start).count();
+  logger.info("Overall time elapsed: {}ms", elapsed_time);
   return 0;
 }

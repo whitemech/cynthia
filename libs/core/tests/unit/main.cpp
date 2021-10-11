@@ -23,8 +23,6 @@
 
 namespace cynthia {
 namespace core {
-namespace Test {
-TEST_CASE("Example", "[example]") { REQUIRE(meaning_of_life() == 42); }
-} // namespace Test
+namespace Test {} // namespace Test
 } // namespace core
 } // namespace cynthia

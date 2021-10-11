@@ -31,7 +31,7 @@ private:
   mutable hash_t hash_; // This holds the hash value
 
   /*!
-  Calculates the hash of the given Lydia class.
+  Calculates the hash of the given Cynthia class.
   Use Basic.hash() which gives a cached version of the hash.
   \return 64-bit integer value for the hash
   */
@@ -84,7 +84,7 @@ inline void hash_combine_impl(
 }
 
 inline void hash_combine_impl(hash_t& seed, const std::string& s) {
-  for (const char& c : s) {
+  for (const auto& c : s) {
     hash_combine<hash_t>(seed, static_cast<hash_t>(c));
   }
 }

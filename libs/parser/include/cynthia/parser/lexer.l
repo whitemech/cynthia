@@ -44,6 +44,7 @@ using token = cynthia::parser::ltlf::LTLfParser::token;
 "F"                         { return token::EVENTUALLY; }
 "G"                         { return token::ALWAYS; }
 
+"^"                         { return token::XOR; }
 "<=>"|"<->"                 { return token::EQUIVALENCE; }
 "=>"|"->"                   { return token::IMPLICATION; }
 
