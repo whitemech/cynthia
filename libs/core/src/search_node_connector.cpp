@@ -32,20 +32,22 @@
 namespace cynthia {
 namespace core {
 
-ForwardSynthesis::SearchNode::SearchNode(Problem problem, const logic::ltlf_ptr formula, const SearchNode* parent)
-      : problem_(problem), formula(formula), parent_(parent){
+ForwardSynthesis::SearchNode::SearchNode(Problem problem,
+                                         const logic::ltlf_ptr formula,
+                                         const SearchNode* parent)
+    : problem_(problem), formula(formula), parent_(parent) {
   nnf_formula = logic::to_nnf(*formula);
   xnf_formula = xnf(*nnf_formula);
   sdd = SddNodeWrapper(to_sdd(*formula, problem_), problem_.manager);
   index = sdd.get_id();
 }
 
-ForwardSynthesis::SearchConnector::SearchConnector(Problem problem, const ForwardSynthesis::SearchNode* parent,
-                                                   const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children)
-      : problem_(problem), parent_(parent), children_(children){
+ForwardSynthesis::SearchConnector::SearchConnector(
+    Problem problem, const ForwardSynthesis::SearchNode* parent,
+    const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children)
+    : problem_(problem), parent_(parent), children_(children) {
   cost_ = 0;
 }
 
-
-}
-}
+} // namespace core
+} // namespace cynthia

@@ -73,8 +73,9 @@ public:
     const float gc_threshold;
     std::vector<int> controllable_map;
     std::vector<int> uncontrollable_map;
-    Problem(const logic::ltlf_ptr& formula, const InputOutputPartition& partition,
-            bool use_gc = false, float gc_threshold = 0.95);
+    Problem(const logic::ltlf_ptr& formula,
+            const InputOutputPartition& partition, bool use_gc = false,
+            float gc_threshold = 0.95);
     ~Problem() {
       if (vtree_) {
         sdd_vtree_free(vtree_);
@@ -89,7 +90,8 @@ public:
     template <typename Arg1, typename... Args>
     inline void print_search_debug(const char* fmt, const Arg1& arg1,
                                    const Args&... args) const {
-      logger.debug((std::string(indentation, '\t') + fmt).c_str(), arg1, args...);
+      logger.debug((std::string(indentation, '\t') + fmt).c_str(), arg1,
+                   args...);
     };
     inline void print_search_debug(const char* fmt) const {
       logger.debug((std::string(indentation, '\t') + fmt).c_str());
@@ -110,7 +112,8 @@ public:
     size_t branching_factor = 0;
     const ForwardSynthesis::SearchNode* parent_;
 
-    SearchNode(Problem problem, const logic::ltlf_ptr formula, const SearchNode* parent);
+    SearchNode(Problem problem, const logic::ltlf_ptr formula,
+               const SearchNode* parent);
   };
 
   class SearchConnector {
@@ -120,8 +123,9 @@ public:
     const ForwardSynthesis::SearchNode* parent_;
     const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children_;
 
-    SearchConnector(Problem problem, const ForwardSynthesis::SearchNode* parent,
-                    const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children);
+    SearchConnector(
+        Problem problem, const ForwardSynthesis::SearchNode* parent,
+        const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children);
   };
 
   Problem problem_;
@@ -153,6 +157,7 @@ public:
     strategy_t do_search_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);
     std::vector<SearchConnector> expand_(SearchNode* node);
+
   private:
     ForwardSynthesis& forwardSynthesis_;
     SearchConnector expand_single_branch_(SearchNode* node);
@@ -163,7 +168,6 @@ private:
                           std::set<SddSize>& path);
   strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
   SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
-
 };
 
 } // namespace core

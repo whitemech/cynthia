@@ -282,10 +282,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   return failure_strategy;
 }
 
-
-
 strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
-                      std::set<SddSize>& path) {
+                                       std::set<SddSize>& path) {
   problem_.indentation += 1;
   auto sdd_formula_id = wrapper.get_id();
   if (wrapper.get_type() == SddNodeType::STATE) {
@@ -402,7 +400,6 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
   }
 }
 
-
 logic::ltlf_ptr ForwardSynthesis::next_state_formula_(SddNode* sdd_ptr) {
   auto sdd_formula = sdd_to_formula(sdd_ptr, problem_);
   auto next_state_formula = xnf(*strip_next(*sdd_formula));
@@ -418,9 +415,6 @@ SddNodeWrapper ForwardSynthesis::next_state_(const SddNodeWrapper& wrapper) {
   auto sdd_next_state = formula_to_sdd_(next_state_formula);
   return sdd_next_state;
 }
-
-
-
 
 } // namespace core
 } // namespace cynthia

@@ -106,5 +106,5 @@ void ForwardSynthesis::Problem::initialie_maps_() {
   }
 }
 
-}
-}
+} // namespace core
+} // namespace cynthia
