@@ -16,5 +16,15 @@
  */
 
 namespace cynthia {
-namespace search {}
+namespace search {
+
+class State;
+
+class Problem {
+public:
+  virtual State get_initial_state() = 0;
+  virtual bool is_goal_state(const State&) = 0;
+};
+
+} // namespace search
 } // namespace cynthia

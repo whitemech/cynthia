@@ -18,4 +18,5 @@
 add_subdirectory(utils)
 add_subdirectory(logic)
 add_subdirectory(parser)
+add_subdirectory(search)
 add_subdirectory(core)
