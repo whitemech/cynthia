@@ -22,7 +22,7 @@ namespace cynthia {
 namespace core {
 
 logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
-                               ForwardSynthesis::Context& context_);
+                               ForwardSynthesis::Problem& problem_);
 
 } // namespace core
 } // namespace cynthia

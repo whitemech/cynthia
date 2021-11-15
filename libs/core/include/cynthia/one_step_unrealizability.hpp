@@ -25,10 +25,10 @@ namespace core {
 
 class OneStepUnrealizabilityVisitor : public logic::Visitor {
 public:
-  ForwardSynthesis::Context& context_;
+  ForwardSynthesis::Problem& problem_;
   SddNode* result{};
-  explicit OneStepUnrealizabilityVisitor(ForwardSynthesis::Context& context)
-      : context_{context} {}
+  explicit OneStepUnrealizabilityVisitor(ForwardSynthesis::Problem& problem)
+      : problem_{problem} {}
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
   void visit(const logic::LTLfPropTrue&) override;
@@ -50,13 +50,13 @@ public:
 
   SddNode* apply(const logic::LTLfFormula& f);
   inline SddNode* get_sdd_node(const logic::LTLfFormula& formula) const {
-    auto formula_id = context_.closure_.get_id(formula.shared_from_this());
-    return sdd_manager_literal(formula_id + 1, context_.manager);
+    auto formula_id = problem_.closure_.get_id(formula.shared_from_this());
+    return sdd_manager_literal(formula_id + 1, problem_.manager);
   }
 };
 
 bool one_step_unrealizability(const logic::LTLfFormula& f,
-                              ForwardSynthesis::Context& context);
+                              ForwardSynthesis::Problem& problem);
 
 } // namespace core
 } // namespace cynthia

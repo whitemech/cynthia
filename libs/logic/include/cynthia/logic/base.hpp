@@ -23,6 +23,7 @@
 #include <cynthia/logic/visitable.hpp>
 #include <cynthia/utils.hpp>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 namespace cynthia {

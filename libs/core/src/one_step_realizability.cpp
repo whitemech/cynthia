@@ -23,30 +23,30 @@ namespace cynthia {
 namespace core {
 
 void OneStepRealizabilityVisitor::visit(const logic::LTLfTrue& formula) {
-  result = sdd_manager_true(context_.manager);
+  result = sdd_manager_true(problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfFalse& formula) {
-  result = sdd_manager_false(context_.manager);
+  result = sdd_manager_false(problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfPropTrue& formula) {
-  result = sdd_manager_true(context_.manager);
+  result = sdd_manager_true(problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfPropFalse& formula) {
-  result = sdd_manager_false(context_.manager);
+  result = sdd_manager_false(problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfAtom& formula) {
-  auto formula_id = context_.prop_to_id[formula.name];
-  result = sdd_manager_literal(formula_id + 1, context_.manager);
+  auto formula_id = problem_.prop_to_id[formula.name];
+  result = sdd_manager_literal(formula_id + 1, problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();
 }
 void OneStepRealizabilityVisitor::visit(
     const logic::LTLfPropositionalNot& formula) {
-  auto formula_id = context_.prop_to_id[formula.get_atom()->name];
-  auto atom_sdd = sdd_manager_literal(formula_id + 1, context_.manager);
-  auto not_atom_sdd = sdd_negate(atom_sdd, context_.manager);
-  sdd_ref(not_atom_sdd, context_.manager);
+  auto formula_id = problem_.prop_to_id[formula.get_atom()->name];
+  auto atom_sdd = sdd_manager_literal(formula_id + 1, problem_.manager);
+  auto not_atom_sdd = sdd_negate(atom_sdd, problem_.manager);
+  sdd_ref(not_atom_sdd, problem_.manager);
   result = not_atom_sdd;
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfAnd& formula) {
@@ -67,10 +67,10 @@ void OneStepRealizabilityVisitor::visit(const logic::LTLfXor& formula) {
   logic::throw_expected_nnf();
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfNext& formula) {
-  result = sdd_manager_false(context_.manager);
+  result = sdd_manager_false(problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfWeakNext& formula) {
-  result = sdd_manager_true(context_.manager);
+  result = sdd_manager_true(problem_.manager);
 }
 void OneStepRealizabilityVisitor::visit(const logic::LTLfUntil& formula) {
   result = apply(**formula.args.rbegin());
@@ -92,15 +92,15 @@ SddNode* OneStepRealizabilityVisitor::apply(const logic::LTLfFormula& f) {
 
 std::pair<SddNode*, bool>
 one_step_realizability(const logic::LTLfFormula& f,
-                       ForwardSynthesis::Context& context) {
-  auto visitor = OneStepRealizabilityVisitor{context};
+                       ForwardSynthesis::Problem& problem) {
+  auto visitor = OneStepRealizabilityVisitor{problem};
   auto result = visitor.apply(f);
-  auto wrapper = SddNodeWrapper(result, context.manager);
+  auto wrapper = SddNodeWrapper(result, problem.manager);
   if (wrapper.is_false()) {
     return {nullptr, false};
   }
   if (wrapper.is_true()) {
-    return {sdd_manager_true(context.manager), true};
+    return {sdd_manager_true(problem.manager), true};
   }
 
   if (wrapper.get_type() == SddNodeType::SYSTEM) {
