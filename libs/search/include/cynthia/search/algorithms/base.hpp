@@ -15,20 +15,41 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/search/problem.hpp>
-#include <cynthia/search/state.hpp>
+#include <climits>
+#include <memory>
 
 namespace search {
 namespace cynthia {
+enum Result {
+  // problem has been neither solved nor proven unsolvable yet
+  UNDECIDED,
 
-class AbstractNode {
+  // existence of a winning strategy for the protagonist
+  PROVEN,
+
+  // non-existence of a winning strategy for the protagonist
+  DISPROVEN,
+
+  EXPANDED_ALL,
+
+  // indicating time-out
+  TIMEOUT,
+
+  // indicating out of memory
+  OUT_OF_MEMORY
+};
+
+class AbstractSearch {
+protected:
+  unsigned long starttime;
+  unsigned long endtime;
+  unsigned long timeout = AbstractSearch.NO_TIMEOUT;
+  std::shared_ptr<AbstractNode> initialNode;
+  std::shared_ptr<Problem> problem;
+
 public:
-  std::shared_ptr<State> state{};
-  explicit AbstractNode(std::shared_ptr<State> state) : state{state} {}
-
-private:
-  inline bool is_goal_node() { return state->is_goal_state(); }
-  inline size_it state_id() { return state->unique_id; }
+  static const long NO_TIMEOUT = ULLONG_MAX;
+  std::shared_ptr<Policy> get_policy() = 0;
 };
 
 } // namespace cynthia

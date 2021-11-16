@@ -15,21 +15,6 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/search/problem.hpp>
-#include <cynthia/search/state.hpp>
-
 namespace search {
-namespace cynthia {
-
-class AbstractNode {
-public:
-  std::shared_ptr<State> state{};
-  explicit AbstractNode(std::shared_ptr<State> state) : state{state} {}
-
-private:
-  inline bool is_goal_node() { return state->is_goal_state(); }
-  inline size_it state_id() { return state->unique_id; }
-};
-
-} // namespace cynthia
+namespace cynthia {}
 } // namespace search

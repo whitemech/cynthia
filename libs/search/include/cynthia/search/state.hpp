@@ -21,11 +21,11 @@ namespace search {
 namespace cynthia {
 
 class State {
-  Problem* problem{};
+  std::shared_ptr<Problem> problem{};
   size_t unique_id{};
 
 public:
-  explicit State(Problem* problem) : problem{problem} {}
+  explicit State(std::shared_ptr<Problem> problem) : problem{problem} {}
 
   bool is_goal_state() { return problem->is_goal_state(); }
 };
