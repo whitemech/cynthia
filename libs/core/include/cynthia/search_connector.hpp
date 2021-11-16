@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -15,12 +16,33 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <catch.hpp>
+#include <cynthia/core.hpp>
+#include <cynthia/search_node.hpp>
 
-#include <cynthia/search/context.hpp>
-
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
-namespace search {
-namespace Test {} // namespace Test
-} // namespace search
+namespace core {
+
+class SearchConnector {
+public:
+  ForwardSynthesis::Context* context_{};
+  size_t cost_ = 0;
+
+
+  SearchConnector(const SearchNode* parent,
+                  const std::set<SearchNode*> children, SddNodeWrapper op);
+
+  inline std::set<SearchNode*> get_children() { return children_; }
+  inline SddNodeWrapper get_operator() { return operator_; }
+
+private:
+  const SearchNode* parent_;
+  SddNodeWrapper operator_;
+  const std::set<SearchNode*> children_;
+};
+
+
+} // namespace core
 } // namespace cynthia

@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -15,12 +16,19 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <catch.hpp>
-
-#include <cynthia/search/context.hpp>
+#include <cynthia/core.hpp>
+#include <cynthia/search_connector.hpp>
 
 namespace cynthia {
-namespace search {
-namespace Test {} // namespace Test
-} // namespace search
+namespace core {
+
+SearchConnector::SearchConnector(const SearchNode* parent,
+                                                   const std::set<SearchNode*> children, SddNodeWrapper op)
+    : parent_(parent), children_(children), operator_(op) {
+  context_ = parent->context_;
+  cost_ = 0;
+}
+
+
+} // namespace core
 } // namespace cynthia

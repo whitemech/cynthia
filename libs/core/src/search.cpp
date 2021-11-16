@@ -24,6 +24,9 @@
 #include <cynthia/logic/types.hpp>
 #include <cynthia/sdd_to_formula.hpp>
 #include <cynthia/sddcpp.hpp>
+#include <cynthia/one_step_realizability.hpp>
+#include <cynthia/one_step_unrealizability.hpp>
+#include <cynthia/search.hpp>
 
 extern "C" {
 #include "sddapi.h"
@@ -32,91 +35,143 @@ extern "C" {
 namespace cynthia {
 namespace core {
 
-ForwardSynthesis::Search::Search(Problem& problem,
-                                 ForwardSynthesis& forwardSynthesis)
-    : problem_{problem}, init_node{problem.formula}, forwardSynthesis_{
-                                                         forwardSynthesis} {}
+Search::Search(Problem* problem)
+    : problem_{problem}{
+  init_node_ = new SearchNode(problem->init_state(), nullptr, 0);
+  context_ = problem_->get_context();
+}
 
-std::vector<ForwardSynthesis::SearchConnector>
-ForwardSynthesis::Search::expand_(SearchNode* node) {
-  auto sdd = node->sdd;
-  std::vector<ForwardSynthesis::SearchConnector> connectors;
-  // is a decision node
-  auto child_it = sdd.begin();
-  auto children_end = sdd.end();
+std::vector<SearchConnector*>
+Search::expand_(SearchNode* node) {
+  std::vector<SearchConnector*> connectors;
+  std::vector<SddNodeWrapper> ops = node->state_->compute_ops();
+  connectors.reserve(ops.size());
 
-  if (child_it == children_end) {
-    return connectors;
-  }
-
-  problem_.print_search_debug("Processing {} system node's children nodes",
-                              sdd.nb_children());
-  std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
-  new_children.reserve(sdd.nb_children());
-  for (; child_it != children_end; ++child_it) {
-    auto system_move = SddNodeWrapper(child_it.get_prime(), problem_.manager);
-    auto env_state_node = SddNodeWrapper(child_it.get_sub(), problem_.manager);
-
-    new_children.emplace_back(system_move, env_state_node);
-  }
-
-  for (const auto& pair : new_children) {
-
-    auto system_move = pair.first;
-    auto env_state_node = pair.second;
-    auto system_move_str =
-        logic::to_string(*sdd_to_formula(system_move.get_raw(), problem_));
-    problem_.print_search_debug("checking system move: {}", system_move_str);
-    ++child_it;
-    std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> env_children;
-
-    if (env_state_node.get_type() != SddNodeType::ENV_STATE) {
-      auto formula_next_state =
-          forwardSynthesis_.next_state_formula_(env_state_node.get_raw());
-      auto sdd_next_state =
-          forwardSynthesis_.formula_to_sdd_(formula_next_state);
-      auto sdd_next_state_id = sdd_next_state.get_id();
-      problem_.print_search_debug("env move forced to next state {}",
-                                  sdd_next_state_id);
-      std::pair<SddNodeWrapper, SddNodeWrapper> env_child;
-      env_child.first =
-          forwardSynthesis_.formula_to_sdd_(problem_.ast_manager->make_tt());
-      ;
-      env_child.second = sdd_next_state;
-      env_children.emplace_back(env_child);
-      ForwardSynthesis::SearchConnector connector =
-          ForwardSynthesis::SearchConnector(problem_, node, env_children);
-      connectors.emplace_back(connector);
-    } else {
-      auto env_child_it = env_state_node.begin();
-      auto env_children_end = env_state_node.end();
-      problem_.print_search_debug("Processing {} env node's children nodes",
-                                  env_state_node.nb_children());
-      env_children.reserve(env_state_node.nb_children());
-      for (; env_child_it != env_children_end; ++env_child_it) {
-        bool ignore = false;
-        auto env_node =
-            SddNodeWrapper(env_child_it.get_prime(), problem_.manager);
-        auto state_node =
-            SddNodeWrapper(env_child_it.get_sub(), problem_.manager);
-        std::pair<SddNodeWrapper, SddNodeWrapper> env_child;
-        env_child.first = env_node;
-        env_child.second = state_node;
-        env_children.emplace_back(env_child);
-      }
-      ForwardSynthesis::SearchConnector connector =
-          ForwardSynthesis::SearchConnector(problem_, node, env_children);
-      connectors.emplace_back(connector);
+  for (const auto& op : ops) {
+    std::vector<State*> states = node->state_->apply_op(op);
+    std::set<SearchNode*> children;
+    for (const auto& state : states){
+      SearchNode* new_node = new SearchNode(state, node, 0);
+      children.insert(new_node);
     }
+    SearchConnector* connector = new SearchConnector(node, children, op);
+    connectors.emplace_back(connector);
   }
 
   return connectors;
 }
 
-strategy_t ForwardSynthesis::Search::do_search_(const logic::ltlf_ptr& formula,
+bool Search::forward_search() {
+  auto path = std::set<SddSize>{};
+
+  context_->logger.info("Check zero-step realizability");
+  if (this->init_node_->state_->is_goal_state()) {
+    context_->logger.info("Zero-step realizability check successful");
+    return true;
+  }
+
+  context_->logger.info("Check one-step realizability");
+  auto pair_rel_result =
+      one_step_realizability(*(init_node_->state_->nnf_formula), *context_);
+  if (pair_rel_result.second) {
+    context_->logger.info("One-step realizability check successful");
+    return true;
+  }
+  context_->logger.info("Check one-step unrealizability");
+  auto is_unrealizable =
+      one_step_unrealizability(*(init_node_->state_->nnf_formula), *context_);
+  if (!is_unrealizable) {
+    context_->logger.info("One-step unrealizability check successful");
+    return false;
+  }
+
+  context_->logger.info("Building the root SDD node...");
+  init_node_->state_->instantiate();
+  context_->logger.info("Starting first system move...");
+  auto strategy = do_search_(init_node_, path);
+  bool result = strategy[init_node_->get_index()] != sdd_manager_false(context_->manager);
+  context_->logger.info("Explored states: {}",
+                       context_->statistics_.nb_visited_nodes());
+  return result;
+}
+
+strategy_t Search::do_search_(SearchNode* node,
                                                 std::set<SddSize>& path) {
-  strategy_t success_strategy;
-  return success_strategy;
+  strategy_t success_strategy, failure_strategy;
+  context_->indentation += 1;
+  auto sdd_formula_id = node->get_index();
+  context_->statistics_.visit_node(sdd_formula_id);
+
+  success_strategy[sdd_formula_id] = sdd_manager_true(context_->manager);
+  failure_strategy[sdd_formula_id] = sdd_manager_false(context_->manager);
+  context_->print_search_debug("State {}", sdd_formula_id);
+
+  if (context_->discovered.find(sdd_formula_id) != context_->discovered.end()) {
+    context_->indentation -= 1;
+    bool is_success = context_->discovered[sdd_formula_id];
+    if (is_success) {
+      context_->print_search_debug("{} already discovered, success",
+                                  sdd_formula_id);
+      return success_strategy;
+    } else {
+      context_->print_search_debug("{} already discovered, failure",
+                                  sdd_formula_id);
+      return failure_strategy;
+    }
+  }
+
+  if (path.find(sdd_formula_id) != path.end()) {
+    context_->print_search_debug("Already visited state {}, failure",
+                                sdd_formula_id);
+    context_->discovered[sdd_formula_id] = false;
+    context_->indentation -= 1;
+    return failure_strategy;
+  }
+
+  if (node->is_goal()) {
+    context_->print_search_debug("{} accepting!", sdd_formula_id);
+    context_->discovered[sdd_formula_id] = true;
+    context_->indentation -= 1;
+    return success_strategy;
+  }
+
+  auto one_step_realizability_result =
+      one_step_realizability(*(node->state_->nnf_formula), *context_);
+  if (one_step_realizability_result.second) {
+    strategy_t strategy;
+    strategy[sdd_formula_id] = one_step_realizability_result.first;
+    context_->discovered[sdd_formula_id] = true;
+    context_->indentation -= 1;
+    return strategy;
+  }
+  auto is_unrealizable = one_step_unrealizability(*(node->state_->nnf_formula), *context_);
+  if (!is_unrealizable) {
+    context_->discovered[sdd_formula_id] = false;
+    context_->indentation -= 1;
+    return failure_strategy;
+  }
+
+  path.insert(sdd_formula_id);
+  strategy_t final_strategy;
+  std::vector<SearchConnector*> connectors = expand_(node);
+  for (const auto connector : connectors) {
+    auto system_move = connector->get_operator();
+    auto system_move_str =
+        logic::to_string(*sdd_to_formula(system_move.get_raw(), *context_));
+    context_->print_search_debug("checking system move: {}", system_move_str);
+    auto children = connector->get_children();
+    for (const auto s : children) {
+      s->state_->instantiate();
+      auto strategy = do_search_(s, path);
+      if (strategy[s->get_index()] == sdd_manager_false(context_->manager)) {
+        context_->indentation -= 1;
+        return strategy_t{};
+      }
+      final_strategy.insert(strategy.begin(), strategy.end());
+    }
+  }
+  return final_strategy;
+
 }
 
 } // namespace core

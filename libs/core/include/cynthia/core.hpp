@@ -52,7 +52,7 @@ bool is_realizable(const logic::ltlf_ptr& formula,
 
 class ForwardSynthesis : public ISynthesis {
 public:
-  class Problem {
+  class Context {
   public:
     logic::ltlf_ptr formula;
     logic::Context* ast_manager;
@@ -73,10 +73,10 @@ public:
     const float gc_threshold;
     std::vector<int> controllable_map;
     std::vector<int> uncontrollable_map;
-    Problem(const logic::ltlf_ptr& formula,
+    Context(const logic::ltlf_ptr& formula,
             const InputOutputPartition& partition, bool use_gc = false,
             float gc_threshold = 0.95);
-    ~Problem() {
+    ~Context() {
       if (vtree_) {
         sdd_vtree_free(vtree_);
       }
@@ -98,42 +98,21 @@ public:
     };
 
     void initialie_maps_();
+    logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
+    SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
+    SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
+
+    bool is_goal(const logic::ltlf_ptr& formula);
+    bool is_initial(const logic::ltlf_ptr& formula);
+
   };
 
-  class SearchNode {
-  public:
-    Problem problem_;
-    const logic::ltlf_ptr formula;
-    logic::ltlf_ptr nnf_formula;
-    logic::ltlf_ptr xnf_formula;
-    SddNodeWrapper sdd;
-    SddSize index;
-    size_t depth = 0;
-    size_t branching_factor = 0;
-    const ForwardSynthesis::SearchNode* parent_;
-
-    SearchNode(Problem problem, const logic::ltlf_ptr formula,
-               const SearchNode* parent);
-  };
-
-  class SearchConnector {
-  public:
-    Problem problem_;
-    size_t cost_ = 0;
-    const ForwardSynthesis::SearchNode* parent_;
-    const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children_;
-
-    SearchConnector(
-        Problem problem, const ForwardSynthesis::SearchNode* parent,
-        const std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> children);
-  };
-
-  Problem problem_;
+  Context context_;
 
   ForwardSynthesis(const logic::ltlf_ptr& formula,
                    const InputOutputPartition& partition,
                    bool enable_gc = false)
-      : problem_{formula, partition, enable_gc},
+      : context_{formula, partition, enable_gc},
         ISynthesis(formula, partition){};
 
   static std::map<std::string, size_t>
@@ -143,31 +122,18 @@ public:
 
   bool forward_synthesis_();
 
-  logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
+  logic::ltlf_ptr next_state_formula_(SddNode* sdd_ptr);
+
   SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
 
-  class Search {
-  public:
-    logic::ltlf_ptr& init_node;
-    Problem problem_;
-    std::map<SddSize, bool> discovered;
+  SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
 
-    Search(Problem& problem, ForwardSynthesis& forwardSynthesis);
 
-    strategy_t do_search_(const logic::ltlf_ptr& formula,
-                          std::set<SddSize>& path);
-    std::vector<SearchConnector> expand_(SearchNode* node);
-
-  private:
-    ForwardSynthesis& forwardSynthesis_;
-    SearchConnector expand_single_branch_(SearchNode* node);
-  };
 
 private:
   strategy_t system_move_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);
   strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
-  SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
 };
 
 } // namespace core

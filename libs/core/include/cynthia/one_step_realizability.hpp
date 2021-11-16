@@ -25,10 +25,10 @@ namespace core {
 
 class OneStepRealizabilityVisitor : public logic::Visitor {
 public:
-  ForwardSynthesis::Problem& problem_;
+  ForwardSynthesis::Context& context_;
   SddNode* result{};
-  explicit OneStepRealizabilityVisitor(ForwardSynthesis::Problem& problem)
-      : problem_{problem} {}
+  explicit OneStepRealizabilityVisitor(ForwardSynthesis::Context& context)
+      : context_{context} {}
   void visit(const logic::LTLfTrue&) override;
   void visit(const logic::LTLfFalse&) override;
   void visit(const logic::LTLfPropTrue&) override;
@@ -50,14 +50,14 @@ public:
 
   SddNode* apply(const logic::LTLfFormula& f);
   inline SddNode* get_sdd_node(const logic::LTLfFormula& formula) const {
-    auto formula_id = problem_.closure_.get_id(formula.shared_from_this());
-    return sdd_manager_literal(formula_id + 1, problem_.manager);
+    auto formula_id = context_.closure_.get_id(formula.shared_from_this());
+    return sdd_manager_literal(formula_id + 1, context_.manager);
   }
 };
 
 std::pair<SddNode*, bool>
 one_step_realizability(const logic::LTLfFormula& f,
-                       ForwardSynthesis::Problem& problem);
+                       ForwardSynthesis::Context& context);
 
 } // namespace core
 } // namespace cynthia

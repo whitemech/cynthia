@@ -17,18 +17,38 @@
  */
 
 #include <cynthia/core.hpp>
-#include <cynthia/problem.hpp>
+#include <cynthia/state.hpp>
 
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
 namespace core {
 
-Problem::Problem(ForwardSynthesis::Context* context)
-: context_(context) {
-  init_state_ = new State(context_, context->formula);
-  init_state_->set_init_state();
+class SearchNode {
+public:
+  ForwardSynthesis::Context* context_{};
+  State* state_{};
 
-}
+  size_t depth_;
+  size_t branching_factor_ = 0;
+  const SearchNode* parent_;
 
+  SearchNode(State* state, const SearchNode* parent, size_t depth);
+
+
+
+  inline SddSize get_index() { return index_; }
+  inline bool is_init() { return is_init_node_; }
+  inline bool is_goal() { return is_goal_node_; }
+  inline bool is_deadend() { return is_deadend_; }
+
+private:
+  SddSize index_;
+  bool is_init_node_ = false;
+  bool is_goal_node_ = false;
+  bool is_deadend_ = false;
+};
 
 
 } // namespace core

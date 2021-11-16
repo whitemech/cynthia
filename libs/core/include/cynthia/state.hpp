@@ -18,11 +18,41 @@
 
 #include <cynthia/core.hpp>
 
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
 namespace core {
 
-logic::ltlf_ptr sdd_to_formula(SddNode* sdd_node,
-                               ForwardSynthesis::Context& context_);
+class State {
+public:
+  ForwardSynthesis::Context* context_{};
+  const logic::ltlf_ptr formula;
+  logic::ltlf_ptr nnf_formula;
+  logic::ltlf_ptr xnf_formula;
+  SddNodeWrapper sdd;
+  SddSize id;
+
+
+  State(ForwardSynthesis::Context* context, const logic::ltlf_ptr formula);
+
+  std::vector<State*> apply_op(SddNodeWrapper op);
+  std::vector<SddNodeWrapper> compute_ops();
+  bool is_deadend();
+  bool is_goal_state();
+  bool is_init_state();
+  inline void set_init_state() { is_init_state_ = true; }
+  void instantiate();
+
+private:
+  std::vector<SddNodeWrapper> ops_;
+  std::map<SddSize, SddNodeWrapper> op_to_effects_;
+  std::map<SddSize, SddNodeWrapper> op_to_action_;
+  bool instantiated_ = false;
+  bool is_goal_state_ = false;
+  bool is_init_state_ = false;
+};
+
 
 } // namespace core
 } // namespace cynthia

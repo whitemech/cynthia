@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -15,12 +16,27 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <catch.hpp>
+#include <cynthia/core.hpp>
+#include <cynthia/state.hpp>
 
-#include <cynthia/search/context.hpp>
-
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
-namespace search {
-namespace Test {} // namespace Test
-} // namespace search
+namespace core {
+
+class Problem {
+public:
+  Problem(ForwardSynthesis::Context* context);
+  bool is_goal_state();
+  inline State* init_state() { return this->init_state_; }
+  inline ForwardSynthesis::Context* get_context() { return context_; }
+
+private:
+  ForwardSynthesis::Context* context_{};
+  State* init_state_{};
+};
+
+
+} // namespace core
 } // namespace cynthia
