@@ -16,7 +16,6 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 #include <cynthia/core.hpp>
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/logic/print.hpp>
@@ -35,15 +34,14 @@ namespace cynthia {
 namespace core {
 
 SearchDFS::SearchDFS(Problem* problem, Heuristic* heuristic)
-    : problem_{problem}, heuristic_{heuristic}{
+    : problem_{problem}, heuristic_{heuristic} {
   init_node_ = new SearchNode(problem->init_state(), nullptr, 0);
   auto h_value = heuristic_->get_h(init_node_->state_);
   init_node_->set_heuristic(h_value);
   context_ = problem_->get_context();
 }
 
-std::vector<SearchConnector*>
-SearchDFS::expand_(SearchNode* node) {
+std::vector<SearchConnector*> SearchDFS::expand_(SearchNode* node) {
   std::vector<SearchConnector*> connectors;
   std::vector<SddNodeWrapper> ops = node->state_->compute_ops();
   connectors.reserve(ops.size());
@@ -51,7 +49,7 @@ SearchDFS::expand_(SearchNode* node) {
   for (const auto& op : ops) {
     std::vector<State*> states = node->state_->apply_op(op);
     std::set<SearchNode*> children;
-    for (const auto& state : states){
+    for (const auto& state : states) {
       SearchNode* new_node = new SearchNode(state, node, 0);
       auto h_value = heuristic_->get_h(new_node->state_);
       new_node->set_heuristic(h_value);
@@ -74,15 +72,15 @@ bool SearchDFS::forward_search() {
   }
 
   context_->logger.info("Check one-step realizability");
-  auto pair_rel_result =
-      one_step_realizability(*(init_node_->state_->get_nnf_formula()), *context_);
+  auto pair_rel_result = one_step_realizability(
+      *(init_node_->state_->get_nnf_formula()), *context_);
   if (pair_rel_result.second) {
     context_->logger.info("One-step realizability check successful");
     return true;
   }
   context_->logger.info("Check one-step unrealizability");
-  auto is_unrealizable =
-      one_step_unrealizability(*(init_node_->state_->get_nnf_formula()), *context_);
+  auto is_unrealizable = one_step_unrealizability(
+      *(init_node_->state_->get_nnf_formula()), *context_);
   if (!is_unrealizable) {
     context_->logger.info("One-step unrealizability check successful");
     return false;
@@ -92,14 +90,14 @@ bool SearchDFS::forward_search() {
   init_node_->state_->instantiate();
   context_->logger.info("Starting first system move...");
   auto strategy = do_search_(init_node_, path);
-  bool result = strategy[init_node_->get_index()] != sdd_manager_false(context_->manager);
+  bool result =
+      strategy[init_node_->get_index()] != sdd_manager_false(context_->manager);
   context_->logger.info("Explored states: {}",
-                       context_->statistics_.nb_visited_nodes());
+                        context_->statistics_.nb_visited_nodes());
   return result;
 }
 
-strategy_t SearchDFS::do_search_(SearchNode* node,
-                                                std::set<SddSize>& path) {
+strategy_t SearchDFS::do_search_(SearchNode* node, std::set<SddSize>& path) {
   strategy_t success_strategy, failure_strategy;
   context_->indentation += 1;
   auto sdd_formula_id = node->get_index();
@@ -114,18 +112,18 @@ strategy_t SearchDFS::do_search_(SearchNode* node,
     bool is_success = context_->discovered[sdd_formula_id];
     if (is_success) {
       context_->print_search_debug("{} already discovered, success",
-                                  sdd_formula_id);
+                                   sdd_formula_id);
       return success_strategy;
     } else {
       context_->print_search_debug("{} already discovered, failure",
-                                  sdd_formula_id);
+                                   sdd_formula_id);
       return failure_strategy;
     }
   }
 
   if (path.find(sdd_formula_id) != path.end()) {
     context_->print_search_debug("Already visited state {}, failure",
-                                sdd_formula_id);
+                                 sdd_formula_id);
     context_->discovered[sdd_formula_id] = false;
     context_->indentation -= 1;
     return failure_strategy;
@@ -147,7 +145,8 @@ strategy_t SearchDFS::do_search_(SearchNode* node,
     context_->indentation -= 1;
     return strategy;
   }
-  auto is_unrealizable = one_step_unrealizability(*(node->state_->get_nnf_formula()), *context_);
+  auto is_unrealizable =
+      one_step_unrealizability(*(node->state_->get_nnf_formula()), *context_);
   if (!is_unrealizable) {
     context_->discovered[sdd_formula_id] = false;
     context_->indentation -= 1;
@@ -174,7 +173,6 @@ strategy_t SearchDFS::do_search_(SearchNode* node,
     }
   }
   return final_strategy;
-
 }
 
 } // namespace core

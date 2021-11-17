@@ -33,9 +33,8 @@ namespace core {
 
 class Problem {
 public:
-  Problem(const logic::ltlf_ptr& formula,
-                   const InputOutputPartition& partition,
-                   bool enable_gc = false);
+  Problem(const logic::ltlf_ptr& formula, const InputOutputPartition& partition,
+          bool enable_gc = false);
 
   bool is_goal_state();
   inline State* init_state() { return this->init_state_; }
@@ -46,7 +45,6 @@ private:
   ForwardSynthesis::Context* context_{};
   State* init_state_{};
 };
-
 
 } // namespace core
 } // namespace cynthia

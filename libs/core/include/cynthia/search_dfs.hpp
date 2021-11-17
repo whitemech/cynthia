@@ -19,8 +19,8 @@
 #include <cynthia/core.hpp>
 #include <cynthia/heuristic.hpp>
 #include <cynthia/problem.hpp>
-#include <cynthia/search_node.hpp>
 #include <cynthia/search_connector.hpp>
+#include <cynthia/search_node.hpp>
 
 extern "C" {
 #include "sddapi.h"
@@ -33,8 +33,7 @@ public:
   SearchDFS(Problem* problem, Heuristic* heuristic);
   bool forward_search();
 
-  strategy_t do_search_(SearchNode* node,
-                        std::set<SddSize>& path);
+  strategy_t do_search_(SearchNode* node, std::set<SddSize>& path);
 
   inline SearchNode* init_node() { return init_node_; }
   std::vector<SearchConnector*> expand_(SearchNode* node);
@@ -45,7 +44,6 @@ private:
   ForwardSynthesis::Context* context_{};
   SearchNode* init_node_{};
   std::map<SddSize, bool> discovered_;
-
 };
 
 } // namespace core

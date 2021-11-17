@@ -16,19 +16,16 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/problem.hpp>
 #include <cynthia/heuristic.hpp>
+#include <cynthia/problem.hpp>
 
 namespace cynthia {
 namespace core {
-
 
 class HeuristicHammingDistance : public Heuristic {
 public:
   size_t get_h(State* state) override;
   HeuristicHammingDistance(Problem problem);
-
-
 };
 
 } // namespace core

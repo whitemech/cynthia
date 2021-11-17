@@ -16,18 +16,17 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/heuristic_hamming_distance.hpp>
 #include <cynthia/hamming_distance.hpp>
+#include <cynthia/heuristic_hamming_distance.hpp>
 
 namespace cynthia {
 namespace core {
 
 HeuristicHammingDistance::HeuristicHammingDistance(Problem problem)
-    : Heuristic(problem){}
-
+    : Heuristic(problem) {}
 
 size_t HeuristicHammingDistance::get_h(State* state) {
-  h_value_ =  hamming_distance(*state->get_formula());
+  h_value_ = hamming_distance(*state->get_formula());
   return h_value_;
 }
 

@@ -106,7 +106,8 @@ void ForwardSynthesis::Context::initialie_maps_() {
   }
 }
 
-logic::ltlf_ptr ForwardSynthesis::Context::next_state_formula_(SddNode* sdd_ptr) {
+logic::ltlf_ptr
+ForwardSynthesis::Context::next_state_formula_(SddNode* sdd_ptr) {
   auto sdd_formula = sdd_to_formula(sdd_ptr, *this);
   auto next_state_formula = xnf(*strip_next(*sdd_formula));
   return next_state_formula;
@@ -118,12 +119,12 @@ ForwardSynthesis::Context::formula_to_sdd_(const logic::ltlf_ptr& formula) {
   return wrapper;
 }
 
-SddNodeWrapper ForwardSynthesis::Context::next_state_(const SddNodeWrapper& wrapper) {
+SddNodeWrapper
+ForwardSynthesis::Context::next_state_(const SddNodeWrapper& wrapper) {
   auto next_state_formula = next_state_formula_(wrapper.get_raw());
   auto sdd_next_state = formula_to_sdd_(next_state_formula);
   return sdd_next_state;
 }
-
 
 } // namespace core
 } // namespace cynthia

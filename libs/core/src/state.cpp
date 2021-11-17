@@ -16,13 +16,13 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/problem.hpp>
-#include <cynthia/state.hpp>
-#include <cynthia/sdd_to_formula.hpp>
-#include <cynthia/xnf.hpp>
 #include <cynthia/eval.hpp>
 #include <cynthia/logic/nnf.hpp>
 #include <cynthia/logic/print.hpp>
+#include <cynthia/problem.hpp>
+#include <cynthia/sdd_to_formula.hpp>
+#include <cynthia/state.hpp>
+#include <cynthia/xnf.hpp>
 
 namespace cynthia {
 namespace core {
@@ -40,15 +40,12 @@ void State::instantiate() {
   instantiated_ = true;
 }
 
-bool State::is_deadend(){
-  return ops_.size()>0? false : true;
-}
+bool State::is_deadend() { return ops_.size() > 0 ? false : true; }
 
-std::vector<SddNodeWrapper> State::compute_ops(){
+std::vector<SddNodeWrapper> State::compute_ops() {
   if (sdd_.get_type() == SddNodeType::STATE) {
     auto system_move_f = sdd_to_formula(sdd_.get_raw(), *context_);
-    auto system_move_str =
-        logic::to_string(*system_move_f);
+    auto system_move_str = logic::to_string(*system_move_f);
     context_->print_search_debug("system move (unique): {}", system_move_str);
     auto op_id = sdd_.get_id();
     op_to_effects_[op_id] = sdd_;
@@ -73,7 +70,8 @@ std::vector<SddNodeWrapper> State::compute_ops(){
                                  sdd_.nb_children());
     ops_.reserve(sdd_.nb_children());
     for (; child_it != children_end; ++child_it) {
-      auto system_move = SddNodeWrapper(child_it.get_prime(), context_->manager);
+      auto system_move =
+          SddNodeWrapper(child_it.get_prime(), context_->manager);
       auto env_state_node =
           SddNodeWrapper(child_it.get_sub(), context_->manager);
       auto op_id = system_move.get_id();
@@ -115,15 +113,14 @@ std::vector<State*> State::apply_op(SddNodeWrapper op) {
       auto env_node = SddNodeWrapper(child_it.get_prime(), context_->manager);
       auto state_node = SddNodeWrapper(child_it.get_sub(), context_->manager);
       assert(state_node.get_type() == STATE);
-      auto formula_next_state = context_->next_state_formula_(state_node.get_raw());
+      auto formula_next_state =
+          context_->next_state_formula_(state_node.get_raw());
       auto state = new State(context_, formula_next_state);
       states.emplace_back(state);
     }
   }
   return states;
 }
-
-
 
 } // namespace core
 } // namespace cynthia

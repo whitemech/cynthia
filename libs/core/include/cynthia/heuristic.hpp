@@ -21,17 +21,14 @@
 namespace cynthia {
 namespace core {
 
-
 class Heuristic {
 public:
   virtual size_t get_h(State* state) = 0;
-  Heuristic(Problem problem)
-      : problem_{problem} {}
+  Heuristic(Problem problem) : problem_{problem} {}
 
 protected:
   Problem problem_;
   size_t h_value_ = 0;
-
 };
 
 } // namespace core

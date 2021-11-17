@@ -23,12 +23,12 @@ namespace cynthia {
 namespace core {
 
 SearchConnector::SearchConnector(const SearchNode* parent,
-                                                   const std::set<SearchNode*> children, SddNodeWrapper op)
+                                 const std::set<SearchNode*> children,
+                                 SddNodeWrapper op)
     : parent_(parent), children_(children), operator_(op) {
   context_ = parent->context_;
   cost_ = 0;
 }
-
 
 } // namespace core
 } // namespace cynthia

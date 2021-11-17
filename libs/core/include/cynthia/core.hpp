@@ -104,7 +104,6 @@ public:
 
     bool is_goal(const logic::ltlf_ptr& formula);
     bool is_initial(const logic::ltlf_ptr& formula);
-
   };
 
   Context context_;
@@ -127,8 +126,6 @@ public:
   SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
 
   SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
-
-
 
 private:
   strategy_t system_move_(const logic::ltlf_ptr& formula,

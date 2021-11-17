@@ -16,12 +16,11 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/search_node.hpp>
 #include <cynthia/sddcpp.hpp>
+#include <cynthia/search_node.hpp>
 
 namespace cynthia {
 namespace core {
-
 
 SearchNode::SearchNode(State* state, const SearchNode* parent, size_t depth)
     : state_(state), parent_(parent), depth_(depth) {
@@ -35,7 +34,6 @@ SearchNode::SearchNode(State* state, const SearchNode* parent, size_t depth)
 void SearchNode::set_heuristic(size_t heuristic) {
   heuristic_value_ = heuristic;
 }
-
 
 } // namespace core
 } // namespace cynthia

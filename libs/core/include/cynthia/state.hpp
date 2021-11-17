@@ -31,7 +31,6 @@ public:
   std::vector<State*> apply_op(SddNodeWrapper op);
   std::vector<SddNodeWrapper> compute_ops();
 
-
   bool is_deadend();
   inline bool is_goal_state() { return is_goal_state_; }
   inline bool is_init_state() { return is_init_state_; }
@@ -42,9 +41,6 @@ public:
   inline logic::ltlf_ptr get_nnf_formula() { return nnf_formula_; }
   inline logic::ltlf_ptr get_xnf_formula() { return formula_; }
   inline SddSize get_id() { return id_; }
-
-
-
 
 private:
   ForwardSynthesis::Context* context_{};
@@ -60,9 +56,7 @@ private:
   bool instantiated_ = false;
   bool is_goal_state_ = false;
   bool is_init_state_ = false;
-
 };
-
 
 } // namespace core
 } // namespace cynthia

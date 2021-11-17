@@ -30,7 +30,6 @@ public:
   ForwardSynthesis::Context* context_{};
   size_t cost_ = 0;
 
-
   SearchConnector(const SearchNode* parent,
                   const std::set<SearchNode*> children, SddNodeWrapper op);
 
@@ -42,7 +41,6 @@ private:
   SddNodeWrapper operator_;
   const std::set<SearchNode*> children_;
 };
-
 
 } // namespace core
 } // namespace cynthia

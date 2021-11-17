@@ -52,6 +52,5 @@ private:
   bool is_deadend_ = false;
 };
 
-
 } // namespace core
 } // namespace cynthia
