@@ -15,6 +15,24 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "heuristic.hpp"
+#include <cynthia/search/algorithms/heuristic.hpp>
+
 namespace search {
-namespace cynthia {}
+namespace cynthia {
+
+class DfsSearch : public HeuristicSearch {
+public:
+  DfsSearch(std::shared_ptr<Problem> problem,
+            std::shared_ptr<Heuristics> heuristic)
+      : HeuristicSearch(problem, heuristic) {}
+
+  Result run() {}
+
+private:
+  std::shared_ptr<SearchNode> lookupAndInsertNode(std::shared_ptr<State> state,
+                                                  int depth) {}
+};
+
+} // namespace cynthia
 } // namespace search
