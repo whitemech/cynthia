@@ -16,22 +16,20 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/state.hpp>
-#include <cynthia/problem.hpp>
+#include <cynthia/heuristic_hamming_distance.hpp>
+#include <cynthia/hamming_distance.hpp>
 
 namespace cynthia {
 namespace core {
 
-Problem::Problem(const logic::ltlf_ptr& formula,
-                 const InputOutputPartition& partition,
-                 bool enable_gc) {
-  synthesis_ = new ForwardSynthesis(formula, partition, enable_gc);
-  context_ = &(synthesis_->context_);
-  init_state_ = new State(this->get_context(), formula);
-  init_state_->set_init_state();
+HeuristicHammingDistance::HeuristicHammingDistance(Problem problem)
+    : Heuristic(problem){}
+
+
+size_t HeuristicHammingDistance::get_h(State* state) {
+  h_value_ =  hamming_distance(*state->get_formula());
+  return h_value_;
 }
-
-
 
 } // namespace core
 } // namespace cynthia

@@ -16,8 +16,14 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cynthia/closure.hpp>
 #include <cynthia/core.hpp>
+#include <cynthia/input_output_partition.hpp>
+#include <cynthia/logger.hpp>
+#include <cynthia/logic/types.hpp>
+#include <cynthia/sddcpp.hpp>
 #include <cynthia/state.hpp>
+#include <cynthia/statistics.hpp>
 
 extern "C" {
 #include "sddapi.h"
@@ -27,12 +33,16 @@ namespace core {
 
 class Problem {
 public:
-  Problem(ForwardSynthesis::Context* context);
+  Problem(const logic::ltlf_ptr& formula,
+                   const InputOutputPartition& partition,
+                   bool enable_gc = false);
+
   bool is_goal_state();
   inline State* init_state() { return this->init_state_; }
   inline ForwardSynthesis::Context* get_context() { return context_; }
 
 private:
+  ForwardSynthesis* synthesis_{};
   ForwardSynthesis::Context* context_{};
   State* init_state_{};
 };

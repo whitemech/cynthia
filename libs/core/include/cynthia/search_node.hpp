@@ -36,15 +36,17 @@ public:
 
   SearchNode(State* state, const SearchNode* parent, size_t depth);
 
-
+  void set_heuristic(size_t heuristic);
 
   inline SddSize get_index() { return index_; }
   inline bool is_init() { return is_init_node_; }
   inline bool is_goal() { return is_goal_node_; }
   inline bool is_deadend() { return is_deadend_; }
+  inline size_t get_heuristic() { return heuristic_value_; }
 
 private:
   SddSize index_;
+  size_t heuristic_value_ = 0;
   bool is_init_node_ = false;
   bool is_goal_node_ = false;
   bool is_deadend_ = false;

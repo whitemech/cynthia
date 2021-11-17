@@ -16,7 +16,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/core.hpp>
+#include <cynthia/problem.hpp>
 #include <cynthia/state.hpp>
 #include <cynthia/sdd_to_formula.hpp>
 #include <cynthia/xnf.hpp>
@@ -28,15 +28,15 @@ namespace cynthia {
 namespace core {
 
 State::State(ForwardSynthesis::Context* context, const logic::ltlf_ptr formula)
-    : context_(context), formula(formula) {
-  nnf_formula = logic::to_nnf(*formula);
-  xnf_formula = xnf(*nnf_formula);
+    : context_(context), formula_(formula) {
+  nnf_formula_ = logic::to_nnf(*formula);
+  xnf_formula_ = xnf(*nnf_formula_);
   is_goal_state_ = eval(*formula);
 }
 
 void State::instantiate() {
-  sdd = context_->formula_to_sdd_(nnf_formula);
-  id = sdd.get_id();
+  sdd_ = context_->formula_to_sdd_(xnf_formula_);
+  id_ = sdd_.get_id();
   instantiated_ = true;
 }
 
@@ -45,33 +45,33 @@ bool State::is_deadend(){
 }
 
 std::vector<SddNodeWrapper> State::compute_ops(){
-  if (sdd.get_type() == SddNodeType::STATE) {
-    auto system_move_f = sdd_to_formula(sdd.get_raw(), *context_);
+  if (sdd_.get_type() == SddNodeType::STATE) {
+    auto system_move_f = sdd_to_formula(sdd_.get_raw(), *context_);
     auto system_move_str =
         logic::to_string(*system_move_f);
     context_->print_search_debug("system move (unique): {}", system_move_str);
-    auto op_id = sdd.get_id();
-    op_to_effects_[op_id] = sdd;
-    op_to_action_[op_id] = sdd;
-    ops_.emplace_back(sdd);
-  } else if (sdd.get_type() == SddNodeType::ENV_STATE) {
+    auto op_id = sdd_.get_id();
+    op_to_effects_[op_id] = sdd_;
+    op_to_action_[op_id] = sdd_;
+    ops_.emplace_back(sdd_);
+  } else if (sdd_.get_type() == SddNodeType::ENV_STATE) {
     // not at the vtree root; it means that system choice is irrelevant
     context_->print_search_debug("system choice is irrelevant");
-    auto op_id = sdd.get_id();
-    op_to_effects_[op_id] = sdd;
-    op_to_action_[op_id] = sdd;
-    ops_.emplace_back(sdd);
+    auto op_id = sdd_.get_id();
+    op_to_effects_[op_id] = sdd_;
+    op_to_action_[op_id] = sdd_;
+    ops_.emplace_back(sdd_);
   } else {
     // is a decision node
-    auto child_it = sdd.begin();
-    auto children_end = sdd.end();
+    auto child_it = sdd_.begin();
+    auto children_end = sdd_.end();
     if (child_it == children_end) {
-      context_->print_search_debug("No children, {} is failure", id);
+      context_->print_search_debug("No children, {} is failure", id_);
     }
 
     context_->print_search_debug("Processing {} system node's children nodes",
-                                 sdd.nb_children());
-    ops_.reserve(sdd.nb_children());
+                                 sdd_.nb_children());
+    ops_.reserve(sdd_.nb_children());
     for (; child_it != children_end; ++child_it) {
       auto system_move = SddNodeWrapper(child_it.get_prime(), context_->manager);
       auto env_state_node =
@@ -79,7 +79,7 @@ std::vector<SddNodeWrapper> State::compute_ops(){
       auto op_id = system_move.get_id();
       op_to_action_[op_id] = system_move;
       op_to_effects_[op_id] = env_state_node;
-      ops_.emplace_back(sdd);
+      ops_.emplace_back(system_move);
     }
   }
   return ops_;

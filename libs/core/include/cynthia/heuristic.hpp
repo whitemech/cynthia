@@ -16,31 +16,22 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/core.hpp>
 #include <cynthia/problem.hpp>
-#include <cynthia/search_node.hpp>
-#include <cynthia/search_connector.hpp>
 
-extern "C" {
-#include "sddapi.h"
-}
 namespace cynthia {
 namespace core {
 
-class Search {
+
+class Heuristic {
 public:
-  Search(Problem* problem);
-  bool forward_search();
+  virtual size_t get_h(State* state) = 0;
+  Heuristic(Problem problem)
+      : problem_{problem} {}
 
-  strategy_t do_search_(SearchNode* node,
-                        std::set<SddSize>& path);
+protected:
+  Problem problem_;
+  size_t h_value_ = 0;
 
-private:
-  Problem* problem_{};
-  ForwardSynthesis::Context* context_{};
-  SearchNode* init_node_{};
-  std::map<SddSize, bool> discovered_;
-  std::vector<SearchConnector*> expand_(SearchNode* node);
 };
 
 } // namespace core

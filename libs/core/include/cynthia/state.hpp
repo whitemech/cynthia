@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 #include <cynthia/core.hpp>
 
 extern "C" {
@@ -26,31 +25,42 @@ namespace core {
 
 class State {
 public:
-  ForwardSynthesis::Context* context_{};
-  const logic::ltlf_ptr formula;
-  logic::ltlf_ptr nnf_formula;
-  logic::ltlf_ptr xnf_formula;
-  SddNodeWrapper sdd;
-  SddSize id;
-
-
   State(ForwardSynthesis::Context* context, const logic::ltlf_ptr formula);
 
+  void instantiate();
   std::vector<State*> apply_op(SddNodeWrapper op);
   std::vector<SddNodeWrapper> compute_ops();
+
+
   bool is_deadend();
-  bool is_goal_state();
-  bool is_init_state();
+  inline bool is_goal_state() { return is_goal_state_; }
+  inline bool is_init_state() { return is_init_state_; }
+  inline bool is_instantiated() { return instantiated_; }
   inline void set_init_state() { is_init_state_ = true; }
-  void instantiate();
+  inline ForwardSynthesis::Context* get_context() { return context_; }
+  inline logic::ltlf_ptr get_formula() { return formula_; }
+  inline logic::ltlf_ptr get_nnf_formula() { return nnf_formula_; }
+  inline logic::ltlf_ptr get_xnf_formula() { return formula_; }
+  inline SddSize get_id() { return id_; }
+
+
+
 
 private:
+  ForwardSynthesis::Context* context_{};
+  const logic::ltlf_ptr formula_;
+  logic::ltlf_ptr nnf_formula_;
+  logic::ltlf_ptr xnf_formula_;
+  SddNodeWrapper sdd_;
+  SddSize id_;
+
   std::vector<SddNodeWrapper> ops_;
   std::map<SddSize, SddNodeWrapper> op_to_effects_;
   std::map<SddSize, SddNodeWrapper> op_to_action_;
   bool instantiated_ = false;
   bool is_goal_state_ = false;
   bool is_init_state_ = false;
+
 };
 
 

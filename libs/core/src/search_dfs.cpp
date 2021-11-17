@@ -16,17 +16,16 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/closure.hpp>
+
 #include <cynthia/core.hpp>
 #include <cynthia/input_output_partition.hpp>
-#include <cynthia/logger.hpp>
 #include <cynthia/logic/print.hpp>
 #include <cynthia/logic/types.hpp>
-#include <cynthia/sdd_to_formula.hpp>
-#include <cynthia/sddcpp.hpp>
 #include <cynthia/one_step_realizability.hpp>
 #include <cynthia/one_step_unrealizability.hpp>
-#include <cynthia/search.hpp>
+#include <cynthia/sdd_to_formula.hpp>
+#include <cynthia/sddcpp.hpp>
+#include <cynthia/search_dfs.hpp>
 
 extern "C" {
 #include "sddapi.h"
@@ -35,14 +34,16 @@ extern "C" {
 namespace cynthia {
 namespace core {
 
-Search::Search(Problem* problem)
-    : problem_{problem}{
+SearchDFS::SearchDFS(Problem* problem, Heuristic* heuristic)
+    : problem_{problem}, heuristic_{heuristic}{
   init_node_ = new SearchNode(problem->init_state(), nullptr, 0);
+  auto h_value = heuristic_->get_h(init_node_->state_);
+  init_node_->set_heuristic(h_value);
   context_ = problem_->get_context();
 }
 
 std::vector<SearchConnector*>
-Search::expand_(SearchNode* node) {
+SearchDFS::expand_(SearchNode* node) {
   std::vector<SearchConnector*> connectors;
   std::vector<SddNodeWrapper> ops = node->state_->compute_ops();
   connectors.reserve(ops.size());
@@ -52,6 +53,8 @@ Search::expand_(SearchNode* node) {
     std::set<SearchNode*> children;
     for (const auto& state : states){
       SearchNode* new_node = new SearchNode(state, node, 0);
+      auto h_value = heuristic_->get_h(new_node->state_);
+      new_node->set_heuristic(h_value);
       children.insert(new_node);
     }
     SearchConnector* connector = new SearchConnector(node, children, op);
@@ -61,7 +64,7 @@ Search::expand_(SearchNode* node) {
   return connectors;
 }
 
-bool Search::forward_search() {
+bool SearchDFS::forward_search() {
   auto path = std::set<SddSize>{};
 
   context_->logger.info("Check zero-step realizability");
@@ -72,14 +75,14 @@ bool Search::forward_search() {
 
   context_->logger.info("Check one-step realizability");
   auto pair_rel_result =
-      one_step_realizability(*(init_node_->state_->nnf_formula), *context_);
+      one_step_realizability(*(init_node_->state_->get_nnf_formula()), *context_);
   if (pair_rel_result.second) {
     context_->logger.info("One-step realizability check successful");
     return true;
   }
   context_->logger.info("Check one-step unrealizability");
   auto is_unrealizable =
-      one_step_unrealizability(*(init_node_->state_->nnf_formula), *context_);
+      one_step_unrealizability(*(init_node_->state_->get_nnf_formula()), *context_);
   if (!is_unrealizable) {
     context_->logger.info("One-step unrealizability check successful");
     return false;
@@ -95,7 +98,7 @@ bool Search::forward_search() {
   return result;
 }
 
-strategy_t Search::do_search_(SearchNode* node,
+strategy_t SearchDFS::do_search_(SearchNode* node,
                                                 std::set<SddSize>& path) {
   strategy_t success_strategy, failure_strategy;
   context_->indentation += 1;
@@ -136,7 +139,7 @@ strategy_t Search::do_search_(SearchNode* node,
   }
 
   auto one_step_realizability_result =
-      one_step_realizability(*(node->state_->nnf_formula), *context_);
+      one_step_realizability(*(node->state_->get_nnf_formula()), *context_);
   if (one_step_realizability_result.second) {
     strategy_t strategy;
     strategy[sdd_formula_id] = one_step_realizability_result.first;
@@ -144,7 +147,7 @@ strategy_t Search::do_search_(SearchNode* node,
     context_->indentation -= 1;
     return strategy;
   }
-  auto is_unrealizable = one_step_unrealizability(*(node->state_->nnf_formula), *context_);
+  auto is_unrealizable = one_step_unrealizability(*(node->state_->get_nnf_formula()), *context_);
   if (!is_unrealizable) {
     context_->discovered[sdd_formula_id] = false;
     context_->indentation -= 1;

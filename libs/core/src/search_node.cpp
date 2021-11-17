@@ -25,11 +25,15 @@ namespace core {
 
 SearchNode::SearchNode(State* state, const SearchNode* parent, size_t depth)
     : state_(state), parent_(parent), depth_(depth) {
-  context_ = state_->context_;
-  index_ = state_->id;
+  context_ = state_->get_context();
+  index_ = state_->get_id();
   is_init_node_ = state->is_init_state();
   is_goal_node_ = state->is_goal_state();
   is_deadend_ = state->is_deadend();
+}
+
+void SearchNode::set_heuristic(size_t heuristic) {
+  heuristic_value_ = heuristic;
 }
 
 

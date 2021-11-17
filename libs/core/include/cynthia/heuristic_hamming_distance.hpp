@@ -16,22 +16,20 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/state.hpp>
 #include <cynthia/problem.hpp>
+#include <cynthia/heuristic.hpp>
 
 namespace cynthia {
 namespace core {
 
-Problem::Problem(const logic::ltlf_ptr& formula,
-                 const InputOutputPartition& partition,
-                 bool enable_gc) {
-  synthesis_ = new ForwardSynthesis(formula, partition, enable_gc);
-  context_ = &(synthesis_->context_);
-  init_state_ = new State(this->get_context(), formula);
-  init_state_->set_init_state();
-}
+
+class HeuristicHammingDistance : public Heuristic {
+public:
+  size_t get_h(State* state) override;
+  HeuristicHammingDistance(Problem problem);
 
 
+};
 
 } // namespace core
 } // namespace cynthia

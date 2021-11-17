@@ -16,22 +16,37 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/state.hpp>
+#include <cynthia/core.hpp>
+#include <cynthia/heuristic.hpp>
 #include <cynthia/problem.hpp>
+#include <cynthia/search_node.hpp>
+#include <cynthia/search_connector.hpp>
 
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
 namespace core {
 
-Problem::Problem(const logic::ltlf_ptr& formula,
-                 const InputOutputPartition& partition,
-                 bool enable_gc) {
-  synthesis_ = new ForwardSynthesis(formula, partition, enable_gc);
-  context_ = &(synthesis_->context_);
-  init_state_ = new State(this->get_context(), formula);
-  init_state_->set_init_state();
-}
+class SearchDFS {
+public:
+  SearchDFS(Problem* problem, Heuristic* heuristic);
+  bool forward_search();
 
+  strategy_t do_search_(SearchNode* node,
+                        std::set<SddSize>& path);
 
+  inline SearchNode* init_node() { return init_node_; }
+  std::vector<SearchConnector*> expand_(SearchNode* node);
+
+private:
+  Problem* problem_{};
+  Heuristic* heuristic_{};
+  ForwardSynthesis::Context* context_{};
+  SearchNode* init_node_{};
+  std::map<SddSize, bool> discovered_;
+
+};
 
 } // namespace core
 } // namespace cynthia

@@ -29,7 +29,7 @@ TEST_CASE("Test SDD of tt", "[core][SDD]") {
   auto logic_context = logic::Context();
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto tt = logic_context.make_tt();
-  auto context = ForwardSynthesis::Problem(tt, partition);
+  auto context = ForwardSynthesis::Context(tt, partition);
   auto sdd = to_sdd(*tt, context);
   REQUIRE(sdd_size(sdd) == 0);
 }
@@ -38,7 +38,7 @@ TEST_CASE("Test SDD of ff", "[core][SDD]") {
   auto logic_context = logic::Context();
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto ff = logic_context.make_ff();
-  auto context = ForwardSynthesis::Problem(ff, partition);
+  auto context = ForwardSynthesis::Context(ff, partition);
   auto sdd = to_sdd(*ff, context);
   REQUIRE(sdd_size(sdd) == 0);
 }
@@ -47,7 +47,7 @@ TEST_CASE("Test SDD of true", "[core][SDD]") {
   auto logic_context = logic::Context();
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto true_ = logic_context.make_prop_true();
-  auto context = ForwardSynthesis::Problem(true_, partition);
+  auto context = ForwardSynthesis::Context(true_, partition);
   auto sdd = to_sdd(*true_, context);
   REQUIRE(sdd_size(sdd) == 0);
 }
@@ -56,7 +56,7 @@ TEST_CASE("Test SDD of false", "[core][SDD]") {
   auto logic_context = logic::Context();
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto false_ = logic_context.make_prop_true();
-  auto context = ForwardSynthesis::Problem(false_, partition);
+  auto context = ForwardSynthesis::Context(false_, partition);
   auto sdd = to_sdd(*false_, context);
   REQUIRE(sdd_size(sdd) == 0);
 }
@@ -64,7 +64,7 @@ TEST_CASE("Test SDD of a", "[core][SDD]") {
   auto logic_context = logic::Context();
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto a = logic_context.make_atom("a");
-  auto context = ForwardSynthesis::Problem(a, partition);
+  auto context = ForwardSynthesis::Context(a, partition);
   auto sdd = to_sdd(*a, context);
   REQUIRE(sdd_size(sdd) == 2);
 }
