@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -22,7 +23,7 @@ class State;
 
 class Problem {
 public:
-  virtual State get_initial_state() = 0;
+  virtual std::shared_ptr<State> get_initial_state() = 0;
   virtual bool is_goal_state(const State&) = 0;
 };
 

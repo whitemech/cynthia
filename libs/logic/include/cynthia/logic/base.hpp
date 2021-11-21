@@ -17,9 +17,10 @@
  */
 
 #include <cassert>
-#include <cynthia/logic/comparable.hpp>
-#include <cynthia/logic/hashable.hpp>
+#include <cynthia/comparable.hpp>
+#include <cynthia/hashable.hpp>
 #include <cynthia/logic/hashtable.hpp>
+#include <cynthia/logic/types.hpp>
 #include <cynthia/logic/visitable.hpp>
 #include <cynthia/utils.hpp>
 #include <memory>
@@ -29,11 +30,44 @@
 namespace cynthia {
 namespace logic {
 
+// Type ID for all the concrete classes that inherit from Comparable.
+// Alternative: use 'typeid'. However, the order is not guaranteed to be
+// deterministic across runs, and that might have an impact with different
+// compilers.
+enum TypeID {
+  t_Symbol,
+  t_LTLfTrue,
+  t_LTLfFalse,
+  t_LTLfPropTrue,
+  t_LTLfPropFalse,
+  t_LTLfAtom,
+  t_LTLfPropNot,
+  t_LTLfNot,
+  t_LTLfAnd,
+  t_LTLfOr,
+  t_LTLfImplies,
+  t_LTLfEquivalent,
+  t_LTLfXor,
+  t_LTLfNext,
+  t_LTLfWeakNext,
+  t_LTLfUntil,
+  t_LTLfRelease,
+  t_LTLfEventually,
+  t_LTLfAlways,
+};
+
+//! Templatised version to check is_a type
+template <class T> inline bool is_a(const utils::Comparable<TypeID>& c) {
+  static_assert(std::is_base_of<utils::Comparable<TypeID>, T>::value,
+                "Not an instance of Comparable.");
+  return T::type_code_id == c.get_type_code();
+}
+
 class Context;
 
 class AstNode : public Visitable,
-                public Hashable,
-                public Comparable,
+                public utils::Hashable,
+                public utils::Comparable<TypeID>,
                 public std::enable_shared_from_this<const LTLfFormula> {
 private:
   Context* m_ctx_;

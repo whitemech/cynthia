@@ -337,7 +337,7 @@ inline bool is_propositional(const ltlf_ptr& arg) {
 
 inline hash_t Symbol::compute_hash_() const {
   hash_t result = get_type_code();
-  hash_combine(result, name_);
+  utils::hash_combine(result, name_);
   return result;
 }
 inline hash_t LTLfTrue::compute_hash_() const { return type_code_id; }
@@ -346,12 +346,12 @@ inline hash_t LTLfPropTrue::compute_hash_() const { return type_code_id; }
 inline hash_t LTLfPropFalse::compute_hash_() const { return type_code_id; }
 inline hash_t LTLfAtom::compute_hash_() const {
   hash_t result = type_code_id;
-  hash_combine(result, name);
+  utils::hash_combine(result, name);
   return result;
 }
 inline hash_t LTLfUnaryOp::compute_hash_() const {
   hash_t result = get_type_code();
-  hash_combine(result, arg->hash());
+  utils::hash_combine(result, arg->hash());
   return result;
 }
 
@@ -360,7 +360,7 @@ inline hash_t LTLfBinaryOp::compute_hash_() const {
   auto first = args.begin();
   auto last = args.end();
   for (; first < last; ++first) {
-    hash_combine(result, **first);
+    utils::hash_combine(result, **first);
   }
   return result;
 }

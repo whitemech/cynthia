@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -18,17 +19,17 @@
 #include <cynthia/search/context.hpp>
 #include <memory>
 
-namespace search {
 namespace cynthia {
+namespace search {
 
-class Heuristics {
+class Heuristic {
 protected:
   std::shared_ptr<Problem> problem;
 
 public:
-  virtual double getHeuristic(State state) = 0;
+  virtual double get_heuristic(const State& state) = 0;
   explicit Heuristic(std::shared_ptr<Problem> problem) : problem{problem} {}
 };
 
-} // namespace cynthia
 } // namespace search
+} // namespace cynthia

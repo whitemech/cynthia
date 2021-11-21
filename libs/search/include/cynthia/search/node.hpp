@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -15,21 +16,21 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/search/problem.hpp>
+#include <cynthia/comparable.hpp>
+#include <cynthia/hashable.hpp>
+#include <cynthia/search/context.hpp>
 #include <cynthia/search/state.hpp>
 
-namespace search {
 namespace cynthia {
+namespace search {
 
-class AbstractNode {
+class AbstractNode : public utils::Hashable, public utils::SimpleComparable {
 public:
   std::shared_ptr<State> state{};
   explicit AbstractNode(std::shared_ptr<State> state) : state{state} {}
-
-private:
-  inline bool is_goal_node() { return state->is_goal_state(); }
-  inline size_it state_id() { return state->unique_id; }
+  bool is_goal_node() const { return state->is_goal_state(); }
+  inline size_t state_id() const { return state->get_unique_id(); }
 };
 
-} // namespace cynthia
 } // namespace search
+} // namespace cynthia

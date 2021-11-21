@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -16,10 +17,13 @@
  */
 
 #include <climits>
+#include <cynthia/search/context.hpp>
+#include <cynthia/search/node.hpp>
 #include <memory>
 
-namespace search {
 namespace cynthia {
+namespace search {
+
 enum Result {
   // problem has been neither solved nor proven unsolvable yet
   UNDECIDED,
@@ -39,28 +43,49 @@ enum Result {
   OUT_OF_MEMORY
 };
 
-public
 enum SearchFlag {
   GOAL,
   DEAD_END,
   NO_POLICY,
   VISITED,
-  TIMEOUT
-}
+};
 
 class AbstractSearch {
+  static const unsigned long NO_TIMEOUT = ULLONG_MAX;
+
 protected:
   unsigned long starttime;
   unsigned long endtime;
-  unsigned long timeout = AbstractSearch.NO_TIMEOUT;
-  std::shared_ptr<AbstractNode> initialNode;
+  unsigned long timeout = NO_TIMEOUT;
+  std::shared_ptr<AbstractNode> initial_node;
   std::shared_ptr<Problem> problem;
 
 public:
-  static const long NO_TIMEOUT = ULLONG_MAX;
-  std::shared_ptr<Policy> get_policy() = 0;
-  Result run() = 0;
+  explicit AbstractSearch(std::shared_ptr<Problem> problem) : problem{problem} {
+    RECURSION_COUNTER = 0;
+    NODE_EXPANSIONS = 0;
+    NODES = 0;
+  }
+  //  std::shared_ptr<Policy> get_policy() = 0;
+
+  virtual Result run() = 0;
+  virtual void do_iteration() = 0;
+
+  /**
+   * Counter for recursion.
+   */
+  static int RECURSION_COUNTER;
+
+  /**
+   * Counter for node expansions.
+   */
+  static int NODE_EXPANSIONS;
+
+  /**
+   * Counter for nodes.
+   */
+  static int NODES;
 };
 
-} // namespace cynthia
 } // namespace search
+} // namespace cynthia

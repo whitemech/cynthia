@@ -16,27 +16,16 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cynthia/search/context.hpp>
-#include <cynthia/search/operator.hpp>
-#include <cynthia/utils.hpp>
+#include <string>
 
 namespace cynthia {
 namespace search {
 
-class State {
-protected:
-  std::shared_ptr<Problem> problem{};
-  size_t unique_id{};
-
+class Operator : public utils::Hashable, public utils::SimpleComparable {
 public:
-  explicit State(std::shared_ptr<Problem> problem) : problem{problem} {}
-
-  inline size_t get_unique_id() const { return unique_id; }
-  bool is_goal_state() const { return problem->is_goal_state(*this); }
-  virtual utils::deref_set<std::shared_ptr<State>>
-  apply(const Operator& operator_) = 0;
-  virtual utils::deref_set<std::shared_ptr<Operator>> get_applicable_ops() = 0;
+  const std::string name;
+  unsigned long cost;
+  Operator(std::string name, unsigned long cost) : name{name}, cost{cost} {}
 };
-
 } // namespace search
 } // namespace cynthia

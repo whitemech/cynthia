@@ -17,10 +17,15 @@
 
 #include <catch.hpp>
 
-#include <cynthia/search/context.hpp>
+#include <cynthia/search/algorithms/dfs.hpp>
+#include <cynthia/search/algorithms/heuristic.hpp>
 
 namespace cynthia {
 namespace search {
-namespace Test {} // namespace Test
+namespace Test {
+
+TEST_CASE("temp") { REQUIRE(true); }
+
+} // namespace Test
 } // namespace search
 } // namespace cynthia

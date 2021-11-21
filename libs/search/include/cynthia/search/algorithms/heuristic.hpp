@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -18,20 +19,26 @@
 #include <cynthia/search/algorithms/base.hpp>
 #include <cynthia/search/heuristics/base.hpp>
 #include <cynthia/search/node.hpp>
+#include <map>
 
-namespace search {
 namespace cynthia {
+namespace search {
 
-class HeuristicSearch : public AbstractSearch {
+class SearchNode;
+
+class HeuristicSearch : public AbstractSearch,
+                        public std::enable_shared_from_this<HeuristicSearch> {
 protected:
-  std::shared_ptr<Heuristics> heuristics;
-  std::map<size_t, SearchNode> stateNodeMap;
+  std::shared_ptr<Heuristic> heuristic;
+  std::map<size_t, std::shared_ptr<SearchNode>> state_to_node;
 
 public:
   HeuristicSearch(std::shared_ptr<Problem> problem,
-                  std::shared_ptr<Heuristics> heuristic)
-      : heuristics{heuristics}, AbstractSearch(problem) {}
+                  std::shared_ptr<Heuristic> heuristic)
+      : heuristic{heuristic}, AbstractSearch(problem) {}
+
+  std::shared_ptr<Heuristic> get_heuristic() { return heuristic; }
 };
 
-} // namespace cynthia
 } // namespace search
+} // namespace cynthia
