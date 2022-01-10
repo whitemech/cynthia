@@ -118,7 +118,6 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   if (path.find(sdd_formula_id) != path.end()) {
     context_.print_search_debug("Already visited state {}, failure",
                                 sdd_formula_id);
-    context_.discovered[sdd_formula_id] = false;
     context_.indentation -= 1;
     return failure_strategy;
   }
