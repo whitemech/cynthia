@@ -16,6 +16,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdexcept>
 #include <algorithm>
 #include <cynthia/logic/base.hpp>
 #include <cynthia/logic/visitable.hpp>
