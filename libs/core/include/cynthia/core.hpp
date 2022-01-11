@@ -63,6 +63,7 @@ public:
     Statistics statistics_;
     std::map<std::string, size_t> prop_to_id;
     std::map<SddSize, bool> discovered;
+    std::map<SddSize, SddNode*> winning_moves;
     Vtree* vtree_ = nullptr;
     SddManager* manager = nullptr;
     std::map<SddSize, logic::ltlf_ptr> sdd_node_id_to_formula;

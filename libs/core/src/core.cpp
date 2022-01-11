@@ -107,6 +107,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     if (is_success) {
       context_.print_search_debug("{} already discovered, success",
                                   sdd_formula_id);
+      return strategy_t{
+          {sdd_formula_id, context_.winning_moves[sdd_formula_id]}};
       return success_strategy;
     } else {
       context_.print_search_debug("{} already discovered, failure",
@@ -118,7 +120,6 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   if (path.find(sdd_formula_id) != path.end()) {
     context_.print_search_debug("Already visited state {}, failure",
                                 sdd_formula_id);
-    context_.discovered[sdd_formula_id] = false;
     context_.indentation -= 1;
     return failure_strategy;
   }
@@ -126,6 +127,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   if (eval(*formula)) {
     context_.print_search_debug("{} accepting!", sdd_formula_id);
     context_.discovered[sdd_formula_id] = true;
+    context_.winning_moves[sdd_formula_id] = sdd_manager_true(context_.manager);
     context_.indentation -= 1;
     return success_strategy;
   }
@@ -136,6 +138,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     strategy_t strategy;
     strategy[sdd_formula_id] = one_step_realizability_result.first;
     context_.discovered[sdd_formula_id] = true;
+    context_.winning_moves[sdd_formula_id] =
+        one_step_realizability_result.first;
     context_.indentation -= 1;
     return strategy;
   }
@@ -155,6 +159,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     if (!new_strategy.empty()) {
       path.erase(sdd_formula_id);
       context_.discovered[sdd_formula_id] = true;
+      context_.winning_moves[sdd_formula_id] = sdd.get_raw();
       context_.indentation -= 1;
       return success_strategy;
     }
@@ -169,6 +174,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       path.erase(sdd_formula_id);
       // all system moves are OK, since it does not have control
       context_.discovered[sdd_formula_id] = true;
+      context_.winning_moves[sdd_formula_id] =
+          sdd_manager_true(context_.manager);
       context_.indentation -= 1;
       new_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
       return new_strategy;
@@ -229,6 +236,9 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
           strategy[next_state_id] = one_step_realizability_result.first;
           context_.discovered[next_state_id] = true;
           context_.discovered[sdd_formula_id] = true;
+          context_.winning_moves[sdd_formula_id] = system_move.get_raw();
+          context_.winning_moves[next_state_id] =
+              one_step_realizability_result.first;
           context_.indentation -= 1;
           return strategy;
         }
@@ -269,6 +279,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
         path.erase(sdd_formula_id);
         new_strategy[sdd_formula_id] = system_move.get_raw();
         context_.discovered[sdd_formula_id] = true;
+        context_.winning_moves[sdd_formula_id] = system_move.get_raw();
         context_.indentation -= 1;
         return new_strategy;
       }
@@ -358,6 +369,8 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
         context_.print_search_debug("env look-ahead: one-step "
                                     "realizability check was successful");
         context_.discovered[next_state_id] = true;
+        context_.winning_moves[next_state_id] =
+            one_step_realizability_result.first;
         continue;
       }
       if (!ignore) {
