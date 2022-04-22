@@ -17,6 +17,7 @@
  */
 
 #include <cynthia/logic/ltlf.hpp>
+#include <stdexcept>
 
 namespace cynthia {
 namespace logic {
