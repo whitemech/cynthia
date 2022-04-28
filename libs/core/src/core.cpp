@@ -109,7 +109,6 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                   sdd_formula_id);
       return strategy_t{
           {sdd_formula_id, context_.winning_moves[sdd_formula_id]}};
-      return success_strategy;
     } else {
       context_.print_search_debug("{} already discovered, failure",
                                   sdd_formula_id);
@@ -118,7 +117,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   }
 
   if (path.find(sdd_formula_id) != path.end()) {
-    context_.print_search_debug("Already visited state {}, failure",
+    context_.print_search_debug("Loop detected for node {}, tagging the node",
                                 sdd_formula_id);
     context_.indentation -= 1;
     return failure_strategy;
@@ -152,6 +151,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 
   path.insert(sdd_formula_id);
   if (sdd.get_type() == SddNodeType::STATE) {
+    // both system and env moves are irrelevant
     auto system_move_str =
         logic::to_string(*sdd_to_formula(sdd.get_raw(), context_));
     context_.print_search_debug("system move (unique): {}", system_move_str);
@@ -165,6 +165,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     }
   } else if (sdd.get_type() == SddNodeType::ENV_STATE) {
     // not at the vtree root; it means that system choice is irrelevant
+    // (but env has several choices)
     context_.print_search_debug("system choice is irrelevant");
     auto env_state_node = sdd;
     auto new_strategy = env_move_(env_state_node, path);
@@ -180,8 +181,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       new_strategy[sdd_formula_id] = sdd_manager_true(context_.manager);
       return new_strategy;
     }
-  } else {
-    // is a decision node
+  } else { // is a decision node
     auto child_it = sdd.begin();
     auto children_end = sdd.end();
 
@@ -197,6 +197,15 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                 sdd.nb_children());
     std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
     new_children.reserve(sdd.nb_children());
+    // process all children, looking for OR-nodes
+    // do the one-step-lookahead:
+    // - if it is not an OR node, add to the new_children list so to be
+    // processed later;
+    // - if it is an OR node:
+    //    - if already discovered: if success, return, otherwise ignore and
+    //    continue
+    //    - if one-step-realizability succeeds, return
+    //    - if one-step-unrealizability succeeds, ignore and continue
     for (; child_it != children_end; ++child_it) {
       auto system_move = SddNodeWrapper(child_it.get_prime(), context_.manager);
       auto env_state_node =
@@ -262,6 +271,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       }
     }
 
+    // process the new_children list of AND nodes, populated in the previous
+    // loop.
     for (const auto& pair : new_children) {
       auto system_move = pair.first;
       auto env_state_node = pair.second;
@@ -298,6 +309,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
   context_.indentation += 1;
   auto sdd_formula_id = wrapper.get_id();
   if (wrapper.get_type() == SddNodeType::STATE) {
+    // env move is irrelevant
     auto formula_next_state = next_state_formula_(wrapper.get_raw());
     auto sdd_next_state = formula_to_sdd_(formula_next_state);
     auto sdd_next_state_id = sdd_next_state.get_id();
@@ -321,6 +333,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
       return strategy_t{};
     return strategy;
   } else {
+    // env move is relevant, checking all moves and successors
     assert(wrapper.get_type() == ENV_STATE);
     auto child_it = wrapper.begin();
     auto children_end = wrapper.end();
@@ -328,6 +341,12 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
                                 wrapper.nb_children());
     std::vector<std::pair<SddNodeWrapper, SddNodeWrapper>> new_children;
     new_children.reserve(wrapper.nb_children());
+    // process all children, looking for OR-successors
+    // do the one-step-lookahead:
+    //  - if already discovered: if success, return, otherwise must be visited
+    //  later
+    //  - if one-step-realizability succeeds, ignore and continue
+    //  - if one-step-unrealizability succeeds, return failure
     for (; child_it != children_end; ++child_it) {
       bool ignore = false;
       auto env_node = SddNodeWrapper(child_it.get_prime(), context_.manager);
@@ -392,6 +411,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
     }
     strategy_t final_strategy;
 
+    // process the new_children list, populated in the previous loop.
     for (const auto& pair : new_children) {
       auto env_move = pair.first;
       auto state_node = pair.second;
