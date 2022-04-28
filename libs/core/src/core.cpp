@@ -159,7 +159,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     if (!new_strategy.empty()) {
       path.erase(sdd_formula_id);
       context_.discovered[sdd_formula_id] = true;
-      context_.winning_moves[sdd_formula_id] = sdd.get_raw();
+      context_.winning_moves[sdd_formula_id] = sdd_manager_true(context_.manager);
       context_.indentation -= 1;
       return success_strategy;
     }
