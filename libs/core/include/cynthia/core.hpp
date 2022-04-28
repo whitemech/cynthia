@@ -20,6 +20,7 @@
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/logger.hpp>
 #include <cynthia/logic/types.hpp>
+#include <cynthia/path.hpp>
 #include <cynthia/sddcpp.hpp>
 #include <cynthia/statistics.hpp>
 
@@ -115,9 +116,8 @@ public:
 
 private:
   Context context_;
-  strategy_t system_move_(const logic::ltlf_ptr& formula,
-                          std::set<SddSize>& path);
-  strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
+  strategy_t system_move_(const logic::ltlf_ptr& formula, Path& path);
+  strategy_t env_move_(SddNodeWrapper& wrapper, Path& path);
   SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
   logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
   SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);

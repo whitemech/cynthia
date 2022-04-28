@@ -41,7 +41,7 @@ bool ForwardSynthesis::is_realizable() {
 }
 
 bool ForwardSynthesis::forward_synthesis_() {
-  auto path = std::set<SddSize>{};
+  auto path = Path{};
 
   context_.logger.info("Check zero-step realizability");
   if (eval(*context_.nnf_formula)) {
@@ -90,7 +90,7 @@ std::map<std::string, size_t> ForwardSynthesis::compute_prop_to_id_map(
 }
 
 strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
-                                          std::set<SddSize>& path) {
+                                          Path& path) {
   strategy_t success_strategy, failure_strategy;
   context_.indentation += 1;
   auto sdd = SddNodeWrapper(to_sdd(*formula, context_), context_.manager);
@@ -116,7 +116,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     }
   }
 
-  if (path.find(sdd_formula_id) != path.end()) {
+  if (path.contains(sdd_formula_id)) {
     context_.print_search_debug("Loop detected for node {}, tagging the node",
                                 sdd_formula_id);
     context_.indentation -= 1;
@@ -149,7 +149,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     return failure_strategy;
   }
 
-  path.insert(sdd_formula_id);
+  path.push(sdd_formula_id);
   if (sdd.get_type() == SddNodeType::STATE) {
     // both system and env moves are irrelevant
     auto system_move_str =
@@ -157,9 +157,10 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     context_.print_search_debug("system move (unique): {}", system_move_str);
     auto new_strategy = env_move_(sdd, path);
     if (!new_strategy.empty()) {
-      path.erase(sdd_formula_id);
+      path.pop();
       context_.discovered[sdd_formula_id] = true;
-      context_.winning_moves[sdd_formula_id] = sdd_manager_true(context_.manager);
+      context_.winning_moves[sdd_formula_id] =
+          sdd_manager_true(context_.manager);
       context_.indentation -= 1;
       return success_strategy;
     }
@@ -172,7 +173,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     if (!new_strategy.empty()) {
       context_.print_search_debug("Any system move is a success from state {}!",
                                   sdd_formula_id);
-      path.erase(sdd_formula_id);
+      path.pop();
       // all system moves are OK, since it does not have control
       context_.discovered[sdd_formula_id] = true;
       context_.winning_moves[sdd_formula_id] =
@@ -187,7 +188,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 
     if (child_it == children_end) {
       context_.print_search_debug("No children, {} is failure", sdd_formula_id);
-      path.erase(sdd_formula_id);
+      path.pop();
       context_.discovered[sdd_formula_id] = false;
       context_.indentation -= 1;
       return failure_strategy;
@@ -222,7 +223,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
             context_.print_search_debug(
                 "system look-ahead: next state {} already discovered, success",
                 next_state.get_id());
-            path.erase(sdd_formula_id);
+            path.pop();
             context_.indentation -= 1;
             strategy_t strategy;
             strategy[sdd_formula_id] = system_move.get_raw();
@@ -287,7 +288,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
         context_.print_search_debug(
             "System move {} from state {} is successful", sdd_formula_id,
             system_move_str);
-        path.erase(sdd_formula_id);
+        path.pop();
         new_strategy[sdd_formula_id] = system_move.get_raw();
         context_.discovered[sdd_formula_id] = true;
         context_.winning_moves[sdd_formula_id] = system_move.get_raw();
@@ -298,14 +299,13 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   }
 
   context_.print_search_debug("State {} is failure", sdd_formula_id);
-  path.erase(sdd_formula_id);
+  path.pop();
   context_.discovered[sdd_formula_id] = false;
   context_.indentation -= 1;
   return failure_strategy;
 }
 
-strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
-                                       std::set<SddSize>& path) {
+strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
   context_.indentation += 1;
   auto sdd_formula_id = wrapper.get_id();
   if (wrapper.get_type() == SddNodeType::STATE) {
@@ -368,7 +368,6 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper,
           context_.print_search_debug(
               "env look-ahead: next state {} already discovered, failure",
               next_state_id);
-          path.erase(sdd_formula_id);
           context_.indentation -= 1;
           return strategy_t{};
         }
