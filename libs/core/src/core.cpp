@@ -353,8 +353,8 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
       auto state_node = SddNodeWrapper(child_it.get_sub(), context_.manager);
       assert(state_node.get_type() == STATE);
       auto formula_next_state = next_state_formula_(state_node.get_raw());
-      auto next_state = formula_to_sdd_(formula_next_state);
-      auto next_state_id = next_state.get_id();
+      auto sdd_next_state = formula_to_sdd_(formula_next_state);
+      auto next_state_id = sdd_next_state.get_id();
       auto next_state_result_it = context_.discovered.find(next_state_id);
       if (next_state_result_it != context_.discovered.end()) {
         auto next_state_is_success = next_state_result_it->second;
@@ -520,6 +520,38 @@ void ForwardSynthesis::Context::initialie_maps_() {
       uncontrollable_map[i] = 1;
     }
   }
+}
+
+NodeType
+ForwardSynthesis::node_type_from_sdd_type_(const SddNodeWrapper& wrapper) {
+  auto sdd_type = wrapper.get_type();
+  //  UNDEFINED = 0,
+  //  STATE = 1,
+  //  ENV = 2,
+  //  ENV_STATE = 3,
+  //  SYSTEM = 4,
+  //  SYSTEM_STATE = 5,
+  //  SYSTEM_ENV = 6,
+  //  SYSTEM_ENV_STATE = 7,
+  assert(sdd_type != UNDEFINED);
+  assert(sdd_type != ENV);
+  assert(sdd_type != SYSTEM);
+  assert(sdd_type != SYSTEM_ENV);
+  if (sdd_type == ENV_STATE) {
+    return AND;
+  }
+  // sdd_type == SYSTEM_STATE || sdd_type == SYSTEM_ENV_STATE || sdd_type ==
+  // STATE
+  return OR;
+}
+
+void ForwardSynthesis::add_transition_(const SddNodeWrapper& start,
+                                       size_t move_id,
+                                       const SddNodeWrapper& end) {
+  auto start_state_type = node_type_from_sdd_type_(start);
+  auto end_state_type = node_type_from_sdd_type_(end);
+  context_.graph.add_transition(Node{start.get_id(), start_state_type}, move_id,
+                                Node{start.get_id(), end_state_type});
 }
 
 } // namespace core

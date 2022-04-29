@@ -17,6 +17,7 @@
  */
 
 #include <cynthia/closure.hpp>
+#include <cynthia/graph.hpp>
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/logger.hpp>
 #include <cynthia/logic/types.hpp>
@@ -62,6 +63,7 @@ public:
     logic::ltlf_ptr xnf_formula;
     Closure closure_;
     Statistics statistics_;
+    Graph graph;
     std::map<std::string, size_t> prop_to_id;
     std::map<SddSize, bool> discovered;
     std::map<SddSize, SddNode*> winning_moves;
@@ -121,6 +123,9 @@ private:
   SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
   logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
   SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
+  static NodeType node_type_from_sdd_type_(const SddNodeWrapper& wrapper);
+  void add_transition_(const SddNodeWrapper& start, size_t move_id,
+                       const SddNodeWrapper& end);
 };
 
 } // namespace core

@@ -21,20 +21,29 @@
 namespace cynthia {
 namespace core {
 
+enum NodeType { AND = 0, OR = 1 };
+
+struct Node {
+  size_t id;
+  NodeType type;
+
+  bool operator<(const Node& node) const { return id < node.id; }
+};
+
 class Graph {
+
 private:
-  std::map<size_t, std::map<size_t, size_t>> transitions;
-  std::map<size_t, std::map<size_t, size_t>> backward_transitions;
-  void insert_with_default_(std::map<size_t, std::map<size_t, size_t>>& m,
-                            size_t start, size_t action, size_t end);
-  std::map<size_t, size_t>
-  get_or_empty_(const std::map<size_t, std::map<size_t, size_t>>& m,
-                size_t key) const;
+  std::map<Node, std::map<size_t, Node>> transitions;
+  std::map<Node, std::map<size_t, Node>> backward_transitions;
+  static void insert_with_default_(std::map<Node, std::map<size_t, Node>>& m,
+                                   Node start, size_t action, Node end);
+  static std::map<size_t, Node>
+  get_or_empty_(const std::map<Node, std::map<size_t, Node>>& m, Node key);
 
 public:
-  void add_transition(size_t start, size_t action, size_t end);
-  std::map<size_t, size_t> get_successors(size_t start) const;
-  std::map<size_t, size_t> get_predecessors(size_t end) const;
+  void add_transition(Node start, size_t action, Node end);
+  std::map<size_t, Node> get_successors(Node start) const;
+  std::map<size_t, Node> get_predecessors(Node end) const;
 };
 
 } // namespace core
