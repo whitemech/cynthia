@@ -71,7 +71,7 @@ void ClosureVisitor::visit(const logic::LTLfNot& formula) {
   logic::throw_expected_nnf();
 }
 void ClosureVisitor::visit(const logic::LTLfPropositionalNot& formula) {
-  insert_if_not_already_present_(formula);
+//  insert_if_not_already_present_(formula);
   // '!atom' in the closure implies:
   //   (1) 'tt' in the closure (in case of success transition)
   //   (2) 'ff' in the closure (in case of failing transition)

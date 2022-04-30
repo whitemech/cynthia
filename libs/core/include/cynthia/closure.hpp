@@ -103,9 +103,9 @@ inline bool ClosureVisitor::insert_if_not_already_present_(
 
 inline void
 ClosureVisitor::apply_to_binary_op_(const logic::LTLfBinaryOp& formula) {
-  auto result = insert_if_not_already_present_(formula);
-  if (!result)
-    return;
+//  auto result = insert_if_not_already_present_(formula);
+//  if (!result)
+//    return;
 
   for (const auto& arg : formula.args) {
     apply(*arg);
@@ -114,7 +114,7 @@ ClosureVisitor::apply_to_binary_op_(const logic::LTLfBinaryOp& formula) {
 template <typename FactoryFunction>
 inline void ClosureVisitor::apply_to_right_associative_binary_op_(
     const logic::LTLfBinaryOp& formula, FactoryFunction function) {
-  apply_to_binary_op_(formula);
+//  apply_to_binary_op_(formula);
   for (auto it = formula.args.begin() + 1; it != formula.args.end() - 1; ++it) {
     auto subformula = function(logic::vec_ptr(it, formula.args.end()));
     apply(*subformula);

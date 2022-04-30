@@ -434,12 +434,21 @@ ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
                                    bool use_gc, float gc_threshold)
     : logger{"cynthia"}, formula{formula}, partition{partition}, use_gc{use_gc},
       gc_threshold{gc_threshold}, ast_manager{&formula->ctx()} {
+  print_search_debug("original formula: {}", logic::to_string(*formula));
   nnf_formula = logic::to_nnf(*formula);
+  print_search_debug("NNF formula: {}", logic::to_string(*nnf_formula));
   xnf_formula = xnf(*nnf_formula);
+  print_search_debug("XNF formula: {}", logic::to_string(*nnf_formula));
   Closure closure_object = closure(*xnf_formula);
   closure_ = closure_object;
   auto builder = VTreeBuilder(closure_, partition);
   vtree_ = builder.get_vtree();
+  //TODO temporary!
+  for (int i = 0; i < closure_.nb_formulas(); ++i) {
+    print_search_debug("closure: id={}, formula={}", i, logic::to_string(*closure_.get_formula(i)));
+  }
+  sdd_vtree_save_as_dot("vtree.dot", vtree_);
+  //TODO temporary!
   manager = sdd_manager_new(vtree_);
   prop_to_id = compute_prop_to_id_map(closure_, partition);
   statistics_ = Statistics();
