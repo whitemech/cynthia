@@ -21,19 +21,19 @@
 
 namespace cynthia::core::Test {
 
-TEST_CASE("Test GFand patterns", "[integration][pattern][gfand]") {
+TEST_CASE("Test GFand patterns", "[integration][gfand]") {
   auto problem = GENERATE(GeneratorWrapper<problem_t>(
       std::make_unique<GFAndDatasetProblemGenerator>()));
   check_realizability(problem);
 }
 
-TEST_CASE("Test Uright patterns", "[integration][pattern][uright]") {
+TEST_CASE("Test Uright patterns", "[integration][uright]") {
   auto problem = GENERATE(GeneratorWrapper<problem_t>(
       std::make_unique<URightDatasetProblemGenerator>()));
   check_realizability(problem);
 }
 
-TEST_CASE("Test Single-counter", "[integration][pattern][single_counter]") {
+TEST_CASE("Test Single-counter", "[integration][single_counter]") {
   // we take only the first three instances, the next ones are too complex for
   // Cynthia
   auto problem = GENERATE(
@@ -41,7 +41,7 @@ TEST_CASE("Test Single-counter", "[integration][pattern][single_counter]") {
                   std::make_unique<SingleCounterDatasetProblemGenerator>())));
   check_realizability(problem);
 }
-TEST_CASE("Test Double-counter", "[integration][pattern][double_counter]") {
+TEST_CASE("Test Double-counter", "[integration][double_counter]") {
   // we take only the first two instances, the next ones are too complex for
   // Cynthia
   auto problem = GENERATE(
@@ -49,18 +49,18 @@ TEST_CASE("Test Double-counter", "[integration][pattern][double_counter]") {
                   std::make_unique<DoubleCounterDatasetProblemGenerator>())));
   check_realizability(problem);
 }
-TEST_CASE("Test Nim-1", "[integration][pattern][nim_1]") {
+TEST_CASE("Test Nim-1", "[integration][nim_1]") {
   auto problem = GENERATE(GeneratorWrapper<problem_t>(
       std::make_unique<Nim1DatasetProblemGenerator>()));
   check_realizability(problem);
 }
-TEST_CASE("Test Nim-2", "[integration][pattern][nim_2]") {
+TEST_CASE("Test Nim-2", "[integration][nim_2]") {
   auto problem =
       GENERATE(take(4, GeneratorWrapper<problem_t>(
                            std::make_unique<Nim2DatasetProblemGenerator>())));
   check_realizability(problem);
 }
-TEST_CASE("Test Nim-3", "[integration][pattern][nim_3]") {
+TEST_CASE("Test Nim-3", "[integration][nim_3]") {
   // we take only the first instance, the next ones are too complex for Cynthia
   auto problem =
       GENERATE(take(1, GeneratorWrapper<problem_t>(
@@ -68,8 +68,7 @@ TEST_CASE("Test Nim-3", "[integration][pattern][nim_3]") {
   check_realizability(problem);
 }
 
-TEST_CASE("Test Lydia Random case 03 50",
-          "[integration][pattern][lydia_random_03_50]") {
+TEST_CASE("Test Lydia Random case 03 50", "[integration][lydia_random_03_50]") {
   auto problem = GENERATE(filter(
       tractable_lydia_random_03_50,
       GeneratorWrapper<problem_t>(
