@@ -1,0 +1,2 @@
+.inputs: init_counter_0 inc_env
+.outputs: counter_env_0 counter_sys_0 carry_env_0 carry_sys_0 inc_sys

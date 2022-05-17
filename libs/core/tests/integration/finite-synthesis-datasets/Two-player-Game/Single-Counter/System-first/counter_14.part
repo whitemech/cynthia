@@ -1,0 +1,2 @@
+.inputs: init_counter_0 init_counter_1 init_counter_2 init_counter_3 init_counter_4 init_counter_5 init_counter_6 init_counter_7 init_counter_8 init_counter_9 init_counter_10 init_counter_11 init_counter_12 init_counter_13 inc
+.outputs: counter_0 counter_1 counter_2 counter_3 counter_4 counter_5 counter_6 counter_7 counter_8 counter_9 counter_10 counter_11 counter_12 counter_13 carry_0 carry_1 carry_2 carry_3 carry_4 carry_5 carry_6 carry_7 carry_8 carry_9 carry_10 carry_11 carry_12 carry_13

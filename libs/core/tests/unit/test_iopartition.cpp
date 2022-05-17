@@ -22,8 +22,8 @@ namespace core {
 namespace Test {
 
 TEST_CASE("IOPartition", "[iopartition]") {
-  auto partition = InputOutputPartition::read_from_file(
-      "../../../../libs/core/examples/partfile");
+  auto partition =
+      InputOutputPartition::read_from_file("libs/core/examples/partfile");
 
   std::vector<std::string> inputs, outputs;
   inputs.push_back("a");
