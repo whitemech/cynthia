@@ -119,6 +119,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
   if (path.contains(sdd_formula_id)) {
     context_.print_search_debug("Loop detected for node {}, tagging the node",
                                 sdd_formula_id);
+    context_.loop_tags.insert(sdd_formula_id);
     context_.indentation -= 1;
     return failure_strategy;
   }
@@ -216,7 +217,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
         auto formula_next_state = next_state_formula_(env_state_node.get_raw());
         auto next_state = formula_to_sdd_(formula_next_state);
         auto next_state_id = next_state.get_id();
-        add_transition_(sdd, system_move.get_id(), next_state);
+        add_transition_(sdd, system_move.get_raw(), next_state);
         auto next_state_result_it =
             context_.discovered.find(next_state.get_id());
         if (next_state_result_it != context_.discovered.end()) {
@@ -296,6 +297,13 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
         new_strategy[sdd_formula_id] = system_move.get_raw();
         context_.discovered[sdd_formula_id] = true;
         context_.winning_moves[sdd_formula_id] = system_move.get_raw();
+        if (context_.loop_tags.find(sdd_formula_id) !=
+            context_.loop_tags.end()) {
+          context_.print_search_debug("trigger backward search to update "
+                                      "success tag of predecessors of {}",
+                                      sdd_formula_id);
+          backprop_success(sdd, new_strategy);
+        }
         context_.indentation -= 1;
         return new_strategy;
       }
@@ -317,7 +325,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
     auto sdd_next_state = formula_to_sdd_(formula_next_state);
     auto sdd_next_state_id = sdd_next_state.get_id();
     // add OR->? transition
-    add_transition_(wrapper, sdd_manager_true(context_.manager)->id,
+    add_transition_(wrapper, sdd_manager_true(context_.manager),
                     sdd_next_state);
     context_.print_search_debug("env move forced to next state {}",
                                 sdd_next_state_id);
@@ -326,9 +334,6 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
     if (strategy[sdd_next_state_id] == sdd_manager_false(context_.manager))
       return strategy_t{};
     return strategy;
-  } else if (wrapper.get_type() == SddNodeType::SYSTEM_STATE) {
-    // TODO check this branch is useless
-    assert(false);
   } else {
     // env move is relevant, checking all moves and successors
     assert(wrapper.get_type() == ENV_STATE);
@@ -352,7 +357,7 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
       auto formula_next_state = next_state_formula_(state_node.get_raw());
       auto sdd_next_state = formula_to_sdd_(formula_next_state);
       // add AND->? transition
-      add_transition_(wrapper, env_node.get_id(), sdd_next_state);
+      add_transition_(wrapper, env_node.get_raw(), sdd_next_state);
       auto next_state_id = sdd_next_state.get_id();
       auto next_state_result_it = context_.discovered.find(next_state_id);
       if (next_state_result_it != context_.discovered.end()) {
@@ -445,6 +450,45 @@ SddNodeWrapper ForwardSynthesis::next_state_(const SddNodeWrapper& wrapper) {
   auto next_state_formula = next_state_formula_(wrapper.get_raw());
   auto sdd_next_state = formula_to_sdd_(next_state_formula);
   return sdd_next_state;
+}
+
+void ForwardSynthesis::backprop_success(SddNodeWrapper& node,
+                                        strategy_t& strategy) {
+  auto start_node = Node{node.get_id(), node_type_from_sdd_type_(node)};
+  std::queue<Node> queue;
+  queue.push(start_node);
+  Node current_node{};
+  while (!queue.empty()) {
+    current_node = queue.front();
+    auto all_predecessors = context_.graph.get_predecessors(current_node);
+    for (const auto& predecessors_by_action : all_predecessors) {
+      auto action = predecessors_by_action.first;
+      auto predecessors = predecessors_by_action.second;
+      for (const auto& predecessor : predecessors) {
+        if (predecessor.type == NodeType::OR) {
+          context_.discovered[predecessor.id] = true;
+          strategy[predecessor.id] = context_.graph.get_action_by_id(action);
+          queue.push(predecessor);
+        } else { // if (predecessor.type == NodeType::AND) {
+          // TODO check: not all children of the AND node might have been added
+          // to the subgraph.
+          auto children_by_action = context_.graph.get_successors(predecessor);
+          if (std::all_of(
+                  children_by_action.begin(), children_by_action.end(),
+                  [this](const std::pair<size_t, Node>& action_and_child) {
+                    auto is_discovered =
+                        context_.discovered.find(action_and_child.second.id);
+                    return is_discovered == context_.discovered.end() and
+                           is_discovered->second;
+                  })) {
+            context_.discovered[predecessor.id] = true;
+            queue.push(predecessor);
+          }
+        }
+      }
+    }
+    queue.pop();
+  }
 }
 
 ForwardSynthesis::Context::Context(const logic::ltlf_ptr& formula,
@@ -545,7 +589,7 @@ ForwardSynthesis::node_type_from_sdd_type_(const SddNodeWrapper& wrapper) {
 }
 
 void ForwardSynthesis::add_transition_(const SddNodeWrapper& start,
-                                       size_t move_id,
+                                       SddNode* move_node,
                                        const SddNodeWrapper& end) {
   auto start_state_type = node_type_from_sdd_type_(start);
   auto end_state_type = node_type_from_sdd_type_(end);
@@ -553,10 +597,10 @@ void ForwardSynthesis::add_transition_(const SddNodeWrapper& start,
   auto start_node = Node{start.get_id(), start_state_type};
   auto end_node = Node{end.get_id(), end_state_type};
 
-  context_.print_search_debug("Adding transition ({}, {}, {})",
-                              start_node.to_string(), std::to_string(move_id),
-                              end_node.to_string());
-  context_.graph.add_transition(start_node, move_id, end_node);
+  context_.print_search_debug(
+      "Adding transition ({}, {}, {})", start_node.to_string(),
+      std::to_string(sdd_id(move_node)), end_node.to_string());
+  context_.graph.add_transition(start_node, move_node, end_node);
 }
 
 } // namespace core

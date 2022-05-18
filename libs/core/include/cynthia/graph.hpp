@@ -19,6 +19,9 @@
 #include <map>
 #include <set>
 #include <string>
+extern "C" {
+#include "sddapi.h"
+}
 
 namespace cynthia {
 namespace core {
@@ -42,6 +45,8 @@ private:
   std::map<Node, std::map<size_t, Node>> transitions;
   // backward transitions might be non-deterministic
   std::map<Node, std::map<size_t, std::set<Node>>> backward_transitions;
+
+  std::map<SddSize, SddNode*> action_by_id;
   static void insert_with_default_(std::map<Node, std::map<size_t, Node>>& m,
                                    Node start, size_t action, Node end);
   static void insert_backward_with_default_(
@@ -58,7 +63,8 @@ private:
   }
 
 public:
-  void add_transition(Node start, size_t action, Node end);
+  void add_transition(Node start, SddNode* action, Node end);
+  SddNode* get_action_by_id(SddSize action_id) const;
   std::map<size_t, Node> get_successors(Node start) const;
   std::map<size_t, std::set<Node>> get_predecessors(Node end) const;
 };

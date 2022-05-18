@@ -51,9 +51,11 @@ void Graph::insert_backward_with_default_(
   start_item->second[action].insert(start);
 }
 
-void Graph::add_transition(Node start, size_t action, Node end) {
-  insert_with_default_(transitions, start, action, end);
-  insert_backward_with_default_(backward_transitions, start, action, end);
+void Graph::add_transition(Node start, SddNode* action, Node end) {
+  SddSize action_id = sdd_id(action);
+  action_by_id[sdd_id(action)] = action;
+  insert_with_default_(transitions, start, action_id, end);
+  insert_backward_with_default_(backward_transitions, start, action_id, end);
 }
 
 std::map<size_t, Node> Graph::get_successors(Node start) const {
@@ -62,6 +64,10 @@ std::map<size_t, Node> Graph::get_successors(Node start) const {
 
 std::map<size_t, std::set<Node>> Graph::get_predecessors(Node end) const {
   return get_or_empty_(backward_transitions, end);
+}
+
+SddNode* Graph::get_action_by_id(SddSize action_id) const {
+  return action_by_id.at(action_id);
 }
 
 } // namespace core
