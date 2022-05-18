@@ -17,12 +17,15 @@
 
 #include <cassert>
 #include <cynthia/path.hpp>
+#include <stdexcept>
 
 namespace cynthia {
 namespace core {
 
 void Path::push(size_t node_id) {
-  assert(!contains(node_id));
+  if (contains(node_id)) {
+    throw std::logic_error("should not already contain node");
+  }
   path.push(node_id);
   node_set.insert(node_id);
 }

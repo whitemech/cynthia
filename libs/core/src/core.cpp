@@ -212,9 +212,11 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
       auto env_state_node =
           SddNodeWrapper(child_it.get_sub(), context_.manager);
       if (env_state_node.get_type() == STATE) {
+        // OR->OR transition
         auto formula_next_state = next_state_formula_(env_state_node.get_raw());
         auto next_state = formula_to_sdd_(formula_next_state);
         auto next_state_id = next_state.get_id();
+        add_transition_(sdd, system_move.get_id(), next_state);
         auto next_state_result_it =
             context_.discovered.find(next_state.get_id());
         if (next_state_result_it != context_.discovered.end()) {
@@ -265,7 +267,9 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
             next_state.get_id());
         new_children.emplace_back(system_move, env_state_node);
       } else {
-        // we don't know, need to take env action
+        // one-step lookahead check inconclusive, need to take env action.
+        // OR-AND transition.
+        assert(env_state_node.get_type() == ENV_STATE);
         context_.print_search_debug("system look-ahead: {} is not a state node",
                                     env_state_node.get_id());
         new_children.emplace_back(system_move, env_state_node);
@@ -307,12 +311,14 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
 
 strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
   context_.indentation += 1;
-  auto sdd_formula_id = wrapper.get_id();
   if (wrapper.get_type() == SddNodeType::STATE) {
     // env move is irrelevant
     auto formula_next_state = next_state_formula_(wrapper.get_raw());
     auto sdd_next_state = formula_to_sdd_(formula_next_state);
     auto sdd_next_state_id = sdd_next_state.get_id();
+    // add OR->? transition
+    add_transition_(wrapper, sdd_manager_true(context_.manager)->id,
+                    sdd_next_state);
     context_.print_search_debug("env move forced to next state {}",
                                 sdd_next_state_id);
     auto strategy = system_move_(formula_next_state, path);
@@ -321,17 +327,8 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
       return strategy_t{};
     return strategy;
   } else if (wrapper.get_type() == SddNodeType::SYSTEM_STATE) {
-    // parent is not the vtree root; it means that environment choice is
-    // irrelevant
-    context_.print_search_debug("env choice is irrelevant");
-    auto formula_next_state = next_state_formula_(wrapper.get_raw());
-    auto sdd_next_state = formula_to_sdd_(formula_next_state);
-    auto sdd_next_state_id = sdd_next_state.get_id();
-    auto strategy = system_move_(formula_next_state, path);
-    context_.indentation -= 1;
-    if (strategy[sdd_next_state_id] == sdd_manager_false(context_.manager))
-      return strategy_t{};
-    return strategy;
+    // TODO check this branch is useless
+    assert(false);
   } else {
     // env move is relevant, checking all moves and successors
     assert(wrapper.get_type() == ENV_STATE);
@@ -354,6 +351,8 @@ strategy_t ForwardSynthesis::env_move_(SddNodeWrapper& wrapper, Path& path) {
       assert(state_node.get_type() == STATE);
       auto formula_next_state = next_state_formula_(state_node.get_raw());
       auto sdd_next_state = formula_to_sdd_(formula_next_state);
+      // add AND->? transition
+      add_transition_(wrapper, env_node.get_id(), sdd_next_state);
       auto next_state_id = sdd_next_state.get_id();
       auto next_state_result_it = context_.discovered.find(next_state_id);
       if (next_state_result_it != context_.discovered.end()) {
@@ -550,8 +549,14 @@ void ForwardSynthesis::add_transition_(const SddNodeWrapper& start,
                                        const SddNodeWrapper& end) {
   auto start_state_type = node_type_from_sdd_type_(start);
   auto end_state_type = node_type_from_sdd_type_(end);
-  context_.graph.add_transition(Node{start.get_id(), start_state_type}, move_id,
-                                Node{start.get_id(), end_state_type});
+
+  auto start_node = Node{start.get_id(), start_state_type};
+  auto end_node = Node{end.get_id(), end_state_type};
+
+  context_.print_search_debug("Adding transition ({}, {}, {})",
+                              start_node.to_string(), std::to_string(move_id),
+                              end_node.to_string());
+  context_.graph.add_transition(start_node, move_id, end_node);
 }
 
 } // namespace core
