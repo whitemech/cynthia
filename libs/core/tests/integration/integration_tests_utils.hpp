@@ -205,35 +205,35 @@ class Nim1DatasetProblemGenerator
 public:
   Nim1DatasetProblemGenerator()
       : AbstractDatasetProblemGenerator(
-            DATASETS_FOLDER / "Two-player-Game/Nim/nim_1/System-first") {}
+            DATASETS_FOLDER / "Two-player-Game/Nim/nim_01/System-first") {}
 };
 class Nim2DatasetProblemGenerator
     : public AbstractDatasetProblemGenerator<is_nim2_problem_realizable> {
 public:
   Nim2DatasetProblemGenerator()
       : AbstractDatasetProblemGenerator(
-            DATASETS_FOLDER / "Two-player-Game/Nim/nim_2/System-first") {}
+            DATASETS_FOLDER / "Two-player-Game/Nim/nim_02/System-first") {}
 };
 class Nim3DatasetProblemGenerator
     : public AbstractDatasetProblemGenerator<always_unrealizable> {
 public:
   Nim3DatasetProblemGenerator()
       : AbstractDatasetProblemGenerator(
-            DATASETS_FOLDER / "Two-player-Game/Nim/nim_3/System-first") {}
+            DATASETS_FOLDER / "Two-player-Game/Nim/nim_03/System-first") {}
 };
 class Nim4DatasetProblemGenerator
     : public AbstractDatasetProblemGenerator<always_unrealizable> {
 public:
   Nim4DatasetProblemGenerator()
       : AbstractDatasetProblemGenerator(
-            DATASETS_FOLDER / "Two-player-Game/Nim/nim_4/System-first") {}
+            DATASETS_FOLDER / "Two-player-Game/Nim/nim_04/System-first") {}
 };
 class Nim5DatasetProblemGenerator
     : public AbstractDatasetProblemGenerator<always_unrealizable> {
 public:
   Nim5DatasetProblemGenerator()
       : AbstractDatasetProblemGenerator(
-            DATASETS_FOLDER / "Two-player-Game/Nim/nim_5/System-first") {}
+            DATASETS_FOLDER / "Two-player-Game/Nim/nim_05/System-first") {}
 };
 
 //********************************

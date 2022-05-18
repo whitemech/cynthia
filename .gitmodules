@@ -7,3 +7,6 @@
 [submodule "vendor/cli11"]
 	path = vendor/cli11
 	url = https://github.com/CLIUtils/CLI11/
+[submodule "libs/core/tests/integration/finite-synthesis-datasets"]
+	path = libs/core/tests/integration/finite-synthesis-datasets
+	url = https://github.com/whitemech/finite-synthesis-datasets.git
