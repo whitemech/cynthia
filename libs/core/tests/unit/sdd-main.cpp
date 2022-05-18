@@ -53,6 +53,9 @@ TEST_CASE("Test SDD Installation", "[core][SDD]") {
   printf("done\n");
   sdd_vtree_free(vtree);
   sdd_manager_free(manager);
+  // remove dot files
+  std::remove("sdd.dot");
+  std::remove("vtree.dot");
 }
 } // namespace Test
 } // namespace core
