@@ -49,18 +49,18 @@ TEST_CASE("Test Double-counter", "[integration][double_counter]") {
                   std::make_unique<DoubleCounterDatasetProblemGenerator>())));
   check_realizability(problem);
 }
-TEST_CASE("Test Nim-1", "[integration][nim_1]") {
+TEST_CASE("Test Nim-1", "[integration][nim][nim_1]") {
   auto problem = GENERATE(GeneratorWrapper<problem_t>(
       std::make_unique<Nim1DatasetProblemGenerator>()));
   check_realizability(problem);
 }
-TEST_CASE("Test Nim-2", "[integration][nim_2]") {
+TEST_CASE("Test Nim-2", "[integration][nim][nim_2]") {
   auto problem =
       GENERATE(take(4, GeneratorWrapper<problem_t>(
                            std::make_unique<Nim2DatasetProblemGenerator>())));
   check_realizability(problem);
 }
-TEST_CASE("Test Nim-3", "[integration][nim_3]") {
+TEST_CASE("Test Nim-3", "[integration][nim][nim_3]") {
   // we take only the first instance, the next ones are too complex for Cynthia
   auto problem =
       GENERATE(take(1, GeneratorWrapper<problem_t>(
@@ -68,11 +68,108 @@ TEST_CASE("Test Nim-3", "[integration][nim_3]") {
   check_realizability(problem);
 }
 
-TEST_CASE("Test Lydia Random case 03 50", "[integration][lydia_random_03_50]") {
+TEST_CASE("Test Lydia Random case 03 50",
+          "[integration][lydia_random][lydia_random_03_50]") {
   auto problem = GENERATE(filter(
       tractable_lydia_random_03_50,
       GeneratorWrapper<problem_t>(
           std::make_unique<LydiaRandom_03_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 04 50",
+          "[integration][lydia_random][lydia_random_04_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_04_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_04_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 05 50",
+          "[integration][lydia_random][lydia_random_05_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_05_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_05_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 06 50",
+          "[integration][lydia_random][lydia_random_06_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_06_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_06_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 07 50",
+          "[integration][lydia_random][lydia_random_07_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_07_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_07_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 08 50",
+          "[integration][lydia_random][lydia_random_08_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_08_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_08_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 09 50",
+          "[integration][lydia_random][lydia_random_09_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_09_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_09_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Lydia Random case 10 50",
+          "[integration][lydia_random][lydia_random_10_50]") {
+  auto problem = GENERATE(filter(
+      tractable_lydia_random_10_50,
+      GeneratorWrapper<problem_t>(
+          std::make_unique<LydiaRandom_10_50_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Syft Random case 1",
+          "[integration][syft_random][syft_random_1]") {
+  auto problem = GENERATE(
+      filter(tractable_syft_random_1,
+             GeneratorWrapper<problem_t>(
+                 std::make_unique<SyftRandom_1_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Syft Random case 2",
+          "[integration][syft_random][syft_random_2]") {
+  auto problem = GENERATE(
+      filter(tractable_syft_random_2,
+             GeneratorWrapper<problem_t>(
+                 std::make_unique<SyftRandom_2_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Syft Random case 3",
+          "[integration][syft_random][syft_random_3]") {
+  auto problem = GENERATE(
+      filter(tractable_syft_random_3,
+             GeneratorWrapper<problem_t>(
+                 std::make_unique<SyftRandom_3_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Syft Random case 4",
+          "[integration][syft_random][syft_random_4]") {
+  auto problem = GENERATE(
+      filter(tractable_syft_random_4,
+             GeneratorWrapper<problem_t>(
+                 std::make_unique<SyftRandom_4_DatasetProblemGenerator>())));
+  check_realizability(problem);
+}
+TEST_CASE("Test Syft Random case 5",
+          "[integration][syft_random][syft_random_5]") {
+  auto problem = GENERATE(
+      filter(tractable_syft_random_5,
+             GeneratorWrapper<problem_t>(
+                 std::make_unique<SyftRandom_5_DatasetProblemGenerator>())));
   check_realizability(problem);
 }
 } // namespace cynthia::core::Test
