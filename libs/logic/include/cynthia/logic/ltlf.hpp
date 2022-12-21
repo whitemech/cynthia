@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cynthia/logic/base.hpp>
 #include <cynthia/logic/visitable.hpp>
+#include <stdexcept>
 #include <utility>
 
 namespace cynthia {

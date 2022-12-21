@@ -5,6 +5,7 @@ Cynthia is a tool for SDD-based Forward LTLf Synthesis.
 ## Preliminaries
 
 - CMake, at least version 3.2;
+- Flex & Bison
 - SDD 2.0
 ```
 git clone https://github.com/wannesm/PySDD.git
@@ -26,7 +27,12 @@ make -j4
 ## Development
 
 
-The project uses clang-format for code formatting.
+The project uses `clang-format` for code formatting.
+Install the tool `clang-format`, e.g. on Ubuntu using APT:
+```
+sudo apt install clang-format
+```
+
 To check the project satisfies the format:
 ```
 ./scripts/check-clang-format.sh

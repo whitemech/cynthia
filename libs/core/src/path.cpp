@@ -14,28 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <catch.hpp>
-#include <cynthia/input_output_partition.hpp>
+
+#include <cassert>
+#include <cynthia/path.hpp>
+#include <stdexcept>
 
 namespace cynthia {
 namespace core {
-namespace Test {
 
-TEST_CASE("IOPartition", "[iopartition]") {
-  auto partition =
-      InputOutputPartition::read_from_file("libs/core/examples/partfile");
-
-  std::vector<std::string> inputs, outputs;
-  inputs.push_back("a");
-  inputs.push_back("b");
-
-  outputs.push_back("c");
-  outputs.push_back("d");
-
-  // same inputs and same outputs
-  REQUIRE(inputs == partition.input_variables);
-  REQUIRE(outputs == partition.output_variables);
+void Path::push(size_t node_id) {
+  if (contains(node_id)) {
+    throw std::logic_error("should not already contain node");
+  }
+  path.push(node_id);
+  node_set.insert(node_id);
 }
-} // namespace Test
+size_t Path::pop() {
+  assert(!path.empty());
+  auto node_id = path.top();
+  path.pop();
+  node_set.erase(node_id);
+  return node_id;
+}
+size_t Path::back() { return path.top(); }
+bool Path::contains(size_t node_id) {
+  return node_set.find(node_id) != node_set.end();
+}
+
 } // namespace core
 } // namespace cynthia

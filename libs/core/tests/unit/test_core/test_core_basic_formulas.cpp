@@ -22,7 +22,7 @@ namespace cynthia {
 namespace core {
 namespace Test {
 
-TEST_CASE("forward synthesis of 'tt'") {
+TEST_CASE("forward synthesis of 'tt'", "[core][basic_formulas]") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto tt = context.make_tt();
@@ -30,7 +30,7 @@ TEST_CASE("forward synthesis of 'tt'") {
   REQUIRE(result);
 }
 
-TEST_CASE("forward synthesis of 'ff'") {
+TEST_CASE("forward synthesis of 'ff'", "[core][basic_formulas]") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto ff = context.make_ff();
@@ -38,7 +38,7 @@ TEST_CASE("forward synthesis of 'ff'") {
   REQUIRE(!result);
 }
 
-TEST_CASE("forward synthesis of 'true'") {
+TEST_CASE("forward synthesis of 'true'", "[core][basic_formulas]") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto true_ = context.make_prop_true();
@@ -46,14 +46,14 @@ TEST_CASE("forward synthesis of 'true'") {
   REQUIRE(result);
 }
 
-TEST_CASE("forward synthesis of 'false'") {
+TEST_CASE("forward synthesis of 'false'", "[core][basic_formulas]") {
   logic::Context context;
   auto partition = InputOutputPartition({"a"}, {"b"});
   auto false_ = context.make_prop_false();
   bool result = is_realizable<ForwardSynthesis>(false_, partition);
   REQUIRE(!result);
 }
-TEST_CASE("forward synthesis of atom") {
+TEST_CASE("forward synthesis of atom", "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
 
@@ -68,7 +68,7 @@ TEST_CASE("forward synthesis of atom") {
     REQUIRE(!result);
   }
 }
-TEST_CASE("forward synthesis of not atom") {
+TEST_CASE("forward synthesis of not atom", "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto not_a = context.make_prop_not(a);
@@ -85,7 +85,7 @@ TEST_CASE("forward synthesis of not atom") {
   }
 }
 
-TEST_CASE("forward synthesis of 'a and b'") {
+TEST_CASE("forward synthesis of 'a and b'", "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto b = context.make_atom("b");
@@ -113,7 +113,7 @@ TEST_CASE("forward synthesis of 'a and b'") {
   }
 }
 
-TEST_CASE("forward synthesis of 'a or b'") {
+TEST_CASE("forward synthesis of 'a or b'", "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto b = context.make_atom("b");
@@ -140,7 +140,8 @@ TEST_CASE("forward synthesis of 'a or b'") {
   }
 }
 
-TEST_CASE("forward synthesis of 'X[!]a' (controllable)") {
+TEST_CASE("forward synthesis of 'X[!]a' (controllable)",
+          "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto next_a = context.make_next(a);
@@ -157,7 +158,7 @@ TEST_CASE("forward synthesis of 'X[!]a' (controllable)") {
   }
 }
 
-TEST_CASE("forward synthesis of 'X a'") {
+TEST_CASE("forward synthesis of 'X a'", "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto weak_next_a = context.make_weak_next(a);
@@ -173,7 +174,8 @@ TEST_CASE("forward synthesis of 'X a'") {
     REQUIRE(result);
   }
 }
-TEST_CASE("forward synthesis of 'X a', non-empty trace") {
+TEST_CASE("forward synthesis of 'X a', non-empty trace",
+          "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto weak_next_a = context.make_weak_next(a);
@@ -191,7 +193,7 @@ TEST_CASE("forward synthesis of 'X a', non-empty trace") {
     REQUIRE(result);
   }
 }
-TEST_CASE("forward synthesis of 'a U b'") {
+TEST_CASE("forward synthesis of 'a U b'", "[core][basic_formulas]") {
   logic::Context context;
   auto b = context.make_atom("b");
   auto a = context.make_atom("a");
@@ -219,7 +221,7 @@ TEST_CASE("forward synthesis of 'a U b'") {
   }
 }
 
-TEST_CASE("forward synthesis of 'a R b'") {
+TEST_CASE("forward synthesis of 'a R b'", "[core][basic_formulas]") {
   // NOTE: safety formula, always realizable with empty traces
   logic::Context context;
   auto b = context.make_atom("b");
@@ -248,7 +250,7 @@ TEST_CASE("forward synthesis of 'a R b'") {
   }
 }
 
-TEST_CASE("forward synthesis of 'F a'") {
+TEST_CASE("forward synthesis of 'F a'", "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto eventually_a = context.make_eventually(a);
@@ -265,7 +267,7 @@ TEST_CASE("forward synthesis of 'F a'") {
   }
 }
 
-TEST_CASE("forward synthesis of 'G a'") {
+TEST_CASE("forward synthesis of 'G a'", "[core][basic_formulas]") {
   // NOTE: safety formula, always realizable with empty traces
   logic::Context context;
   auto a = context.make_atom("a");
@@ -282,7 +284,8 @@ TEST_CASE("forward synthesis of 'G a'") {
     REQUIRE(result);
   }
 }
-TEST_CASE("forward synthesis of 'G a', non-empty trace") {
+TEST_CASE("forward synthesis of 'G a', non-empty trace",
+          "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto always_a = context.make_always(a);
@@ -300,7 +303,8 @@ TEST_CASE("forward synthesis of 'G a', non-empty trace") {
     REQUIRE(result);
   }
 }
-TEST_CASE("forward synthesis of 'G(a | !b)', non-empty trace") {
+TEST_CASE("forward synthesis of 'G(a | !b)', non-empty trace",
+          "[core][basic_formulas]") {
   logic::Context context;
   auto a = context.make_atom("a");
   auto b = context.make_atom("b");
@@ -322,7 +326,7 @@ TEST_CASE("forward synthesis of 'G(a | !b)', non-empty trace") {
   }
 }
 
-TEST_CASE("forward synthesis of 'X(F(p0))'") {
+TEST_CASE("forward synthesis of 'X(F(p0))'", "[core][basic_formulas]") {
   logic::Context context{};
   auto p0 = context.make_atom("p0");
   auto not_end = context.make_not(context.make_end());
@@ -340,7 +344,8 @@ TEST_CASE("forward synthesis of 'X(F(p0))'") {
     REQUIRE(result);
   }
 }
-TEST_CASE("forward synthesis of '((a) & (X(~(a)))) | ((~(a)) & (X(a)))'") {
+TEST_CASE("forward synthesis of '((a) & (X(~(a)))) | ((~(a)) & (X(a)))'",
+          "[core][basic_formulas]") {
   logic::Context context{};
   auto a = context.make_atom("a");
   auto not_a = context.make_prop_not(a);
@@ -365,7 +370,7 @@ TEST_CASE("forward synthesis of '((a) & (X(~(a)))) | ((~(a)) & (X(a)))'") {
   }
 }
 
-TEST_CASE("forward synthesis of 'p0 R (F(p1))'") {
+TEST_CASE("forward synthesis of 'p0 R (F(p1))'", "[core][basic_formulas]") {
   logic::Context context{};
   auto p0 = context.make_atom("p0");
   auto p1 = context.make_atom("p1");
@@ -395,13 +400,14 @@ TEST_CASE("forward synthesis of 'p0 R (F(p1))'") {
     REQUIRE(!result);
   }
 }
-TEST_CASE("forward synthesis of '(X(F(~b))) U (G(a))'") {
+TEST_CASE("forward synthesis of '(X(F(~b))) U (G(a))'",
+          "[core][basic_formulas]") {
   auto context = std::make_shared<logic::Context>();
   auto a = context->make_atom("a");
   auto b = context->make_atom("b");
   auto not_b = context->make_prop_not(b);
   auto not_end = context->make_not(context->make_end());
-  auto always_a = context->make_eventually(a);
+  auto always_a = context->make_always(a);
   auto eventually_not_b = context->make_eventually(not_b);
   auto next_eventually = context->make_weak_next(eventually_not_b);
   auto until = context->make_until({next_eventually, always_a});

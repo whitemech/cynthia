@@ -17,9 +17,11 @@
  */
 
 #include <cynthia/closure.hpp>
+#include <cynthia/graph.hpp>
 #include <cynthia/input_output_partition.hpp>
 #include <cynthia/logger.hpp>
 #include <cynthia/logic/types.hpp>
+#include <cynthia/path.hpp>
 #include <cynthia/sddcpp.hpp>
 #include <cynthia/statistics.hpp>
 
@@ -61,8 +63,11 @@ public:
     logic::ltlf_ptr xnf_formula;
     Closure closure_;
     Statistics statistics_;
+    Graph graph;
     std::map<std::string, size_t> prop_to_id;
     std::map<SddSize, bool> discovered;
+    std::set<SddSize> loop_tags;
+    std::map<SddSize, SddNode*> winning_moves;
     Vtree* vtree_ = nullptr;
     SddManager* manager = nullptr;
     std::map<SddSize, logic::ltlf_ptr> sdd_node_id_to_formula;
@@ -114,12 +119,15 @@ public:
 
 private:
   Context context_;
-  strategy_t system_move_(const logic::ltlf_ptr& formula,
-                          std::set<SddSize>& path);
-  strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
+  strategy_t system_move_(const logic::ltlf_ptr& formula, Path& path);
+  strategy_t env_move_(SddNodeWrapper& wrapper, Path& path);
+  void backprop_success(SddNodeWrapper& wrapper, strategy_t& strategy);
   SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
   logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
   SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
+  static NodeType node_type_from_sdd_type_(const SddNodeWrapper& wrapper);
+  void add_transition_(const SddNodeWrapper& start, SddNode* move_node,
+                       const SddNodeWrapper& end);
 };
 
 } // namespace core
