@@ -79,7 +79,10 @@ INCLUDE = {
     Path("vendor/CMakeLists.txt"),
     Path("CMakeLists.txt"),
 }
-IGNORE = {Path("scripts", "run-clang-tidy.py")}
+IGNORE = {
+    Path("scripts", "run-clang-tidy.py"),
+    *Path("libs/core/tests/integration/finite-synthesis-datasets").glob("**/*")
+}
 
 
 def file_matches(path: Path) -> bool:

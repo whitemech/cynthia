@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -14,28 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <catch.hpp>
-#include <cynthia/input_output_partition.hpp>
+
+#include <cstddef>
+#include <set>
+#include <stack>
 
 namespace cynthia {
 namespace core {
-namespace Test {
 
-TEST_CASE("IOPartition", "[iopartition]") {
-  auto partition =
-      InputOutputPartition::read_from_file("libs/core/examples/partfile");
+class Path {
+private:
+  std::stack<size_t> path;
+  std::set<size_t> node_set;
 
-  std::vector<std::string> inputs, outputs;
-  inputs.push_back("a");
-  inputs.push_back("b");
+public:
+  void push(size_t node);
+  size_t pop();
+  size_t back();
+  bool contains(size_t);
+};
 
-  outputs.push_back("c");
-  outputs.push_back("d");
-
-  // same inputs and same outputs
-  REQUIRE(inputs == partition.input_variables);
-  REQUIRE(outputs == partition.output_variables);
-}
-} // namespace Test
 } // namespace core
 } // namespace cynthia

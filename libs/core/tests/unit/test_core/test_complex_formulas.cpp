@@ -24,7 +24,7 @@ namespace cynthia {
 namespace core {
 namespace Test {
 
-TEST_CASE("forward synthesis of random formula 1") {
+TEST_CASE("forward synthesis of random formula 1", "[core][complex_formulas]") {
   auto driver = parser::ltlf::LTLfDriver();
   std::istringstream fstring(
       "(((p0) | (G(F(p5)))) & (F(p4))) U  (((p3) & ((~(p1)) | (F(~(p4))))) | "
@@ -38,7 +38,7 @@ TEST_CASE("forward synthesis of random formula 1") {
   REQUIRE(result);
 }
 
-TEST_CASE("forward synthesis of random formula 2") {
+TEST_CASE("forward synthesis of random formula 2", "[core][complex_formulas]") {
   utils::Logger::level(utils::LogLevel::debug);
   auto driver = parser::ltlf::LTLfDriver();
   std::istringstream fstring(
@@ -51,7 +51,7 @@ TEST_CASE("forward synthesis of random formula 2") {
   bool result = is_realizable<ForwardSynthesis>(formula, partition);
   REQUIRE(result);
 }
-TEST_CASE("forward synthesis of random formula 3") {
+TEST_CASE("forward synthesis of random formula 3", "[core][complex_formulas]") {
   auto driver = parser::ltlf::LTLfDriver();
   std::istringstream fstring(
       "(((p0) | (G(F(p5)))) & (F(p4))) U (((p3) & ((~(p1)) | (F(~(p4))))) | "
@@ -64,7 +64,7 @@ TEST_CASE("forward synthesis of random formula 3") {
   bool result = is_realizable<ForwardSynthesis>(formula, partition);
   REQUIRE(result);
 }
-TEST_CASE("forward synthesis of random formula 4") {
+TEST_CASE("forward synthesis of random formula 4", "[core][complex_formulas]") {
   auto driver = parser::ltlf::LTLfDriver();
   std::istringstream fstring("(((~(p2)) | (p4)) & (F((~(p0)) & (~(p1))))) | "
                              "((p2) & (~(p4)) & (G((p0) | (p1))))");
@@ -76,7 +76,7 @@ TEST_CASE("forward synthesis of random formula 4") {
   bool result = is_realizable<ForwardSynthesis>(formula, partition);
   REQUIRE(result);
 }
-TEST_CASE("forward synthesis of random formula 5") {
+TEST_CASE("forward synthesis of random formula 5", "[core][complex_formulas]") {
   utils::Logger::level(utils::LogLevel::debug);
   auto driver = parser::ltlf::LTLfDriver();
   std::istringstream fstring("(~(X[!](ff))) -> (F(p0))");
