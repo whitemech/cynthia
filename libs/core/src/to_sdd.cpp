@@ -53,7 +53,7 @@ void ToSddVisitor::visit(const logic::LTLfAtom& formula) {
   sdd_ref(left, context_.manager);
   auto right = sdd_conjoin(not_atom_sdd, ff_sdd, context_.manager);
   sdd_ref(right, context_.manager);
-  //  sdd_deref(not_atom_sdd, context_.manager);
+  //  sdd_deref(not_atom_sdd, context.manager);
   result = sdd_disjoin(left, right, context_.manager);
   sdd_ref(result, context_.manager);
   sdd_deref(left, context_.manager);
@@ -77,7 +77,7 @@ void ToSddVisitor::visit(const logic::LTLfPropositionalNot& formula) {
 
   auto left = sdd_conjoin(not_atom_sdd, tt_sdd, context_.manager);
   sdd_ref(left, context_.manager);
-  //  sdd_deref(not_atom_sdd, context_.manager);
+  //  sdd_deref(not_atom_sdd, context.manager);
   auto right = sdd_conjoin(atom_sdd, ff_sdd, context_.manager);
   sdd_ref(right, context_.manager);
   result = sdd_disjoin(left, right, context_.manager);

@@ -1,4 +1,3 @@
-#pragma once
 /*
  * This file is part of Cynthia.
  *
@@ -16,27 +15,26 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
+#include <catch.hpp>
+#include <cynthia/heuristic_hamming_distance.hpp>
 
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace core {
+namespace Test {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+TEST_CASE("heuristic of 'a U X b'") {
+  logic::Context context;
+  auto partition = InputOutputPartition({"dummy"}, {"a", "b"});
+  auto a = context.make_atom("a");
+  auto b = context.make_atom("b");
+  auto X_b = context.make_next(b);
+  auto a_U_X_b = context.make_until({a, X_b});
+  auto problem = Problem(a_U_X_b, partition);
+  auto heuristic = HeuristicHammingDistance(problem);
+  auto h_value = heuristic.get_h(problem.init_state());
+  REQUIRE(h_value == 1);
+}
 
-} // namespace logic
+} // namespace Test
+} // namespace core
 } // namespace cynthia

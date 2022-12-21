@@ -16,27 +16,31 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
+#include <cynthia/core.hpp>
+#include <cynthia/search_node.hpp>
 
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace core {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+class SearchConnector {
+public:
+  ForwardSynthesis::Context* context_{};
+  size_t cost_ = 0;
 
-} // namespace logic
+  SearchConnector(const SearchNode* parent,
+                  const std::set<SearchNode*> children, SddNodeWrapper op);
+
+  inline std::set<SearchNode*> get_children() { return children_; }
+  inline SddNodeWrapper get_operator() { return operator_; }
+
+private:
+  const SearchNode* parent_;
+  SddNodeWrapper operator_;
+  const std::set<SearchNode*> children_;
+};
+
+} // namespace core
 } // namespace cynthia

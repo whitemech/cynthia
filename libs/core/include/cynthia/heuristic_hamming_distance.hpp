@@ -16,27 +16,17 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
+#include <cynthia/heuristic.hpp>
+#include <cynthia/problem.hpp>
 
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace core {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+class HeuristicHammingDistance : public Heuristic {
+public:
+  size_t get_h(State* state) override;
+  HeuristicHammingDistance(Problem problem);
+};
 
-} // namespace logic
+} // namespace core
 } // namespace cynthia

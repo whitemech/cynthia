@@ -16,27 +16,35 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
+#include <cynthia/core.hpp>
+#include <cynthia/heuristic.hpp>
+#include <cynthia/problem.hpp>
+#include <cynthia/search_connector.hpp>
+#include <cynthia/search_node.hpp>
 
+extern "C" {
+#include "sddapi.h"
+}
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace core {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+class SearchDFS {
+public:
+  SearchDFS(Problem* problem, Heuristic* heuristic);
+  bool forward_search();
 
-} // namespace logic
+  strategy_t do_search_(SearchNode* node, std::set<SddSize>& path);
+
+  inline SearchNode* init_node() { return init_node_; }
+  std::vector<SearchConnector*> expand_(SearchNode* node);
+
+private:
+  Problem* problem_{};
+  Heuristic* heuristic_{};
+  ForwardSynthesis::Context* context_{};
+  SearchNode* init_node_{};
+  std::map<SddSize, bool> discovered_;
+};
+
+} // namespace core
 } // namespace cynthia

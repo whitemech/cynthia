@@ -16,27 +16,29 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
+#include <cynthia/search/algorithms/base.hpp>
+#include <cynthia/search/heuristics/base.hpp>
+#include <cynthia/search/node.hpp>
 #include <map>
-#include <memory>
-#include <set>
-#include <vector>
 
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace search {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+class SearchNode;
 
-} // namespace logic
+class HeuristicSearch : public AbstractSearch,
+                        public std::enable_shared_from_this<HeuristicSearch> {
+protected:
+  std::shared_ptr<Heuristic> heuristic;
+  std::map<size_t, std::shared_ptr<SearchNode>> state_to_node;
+
+public:
+  HeuristicSearch(std::shared_ptr<Problem> problem,
+                  std::shared_ptr<Heuristic> heuristic)
+      : heuristic{heuristic}, AbstractSearch(problem) {}
+
+  std::shared_ptr<Heuristic> get_heuristic() { return heuristic; }
+};
+
+} // namespace search
 } // namespace cynthia

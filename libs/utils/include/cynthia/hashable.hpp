@@ -16,8 +16,13 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
+#include <string>
+
+typedef std::size_t hash_t;
+
 namespace cynthia {
-namespace logic {
+namespace utils {
 
 /*
  * Abstract base class for generic hashable immutable objects.
@@ -103,5 +108,5 @@ template <class T> inline void hash_combine(hash_t& seed, const T& v) {
   hash_combine_impl(seed, v);
 }
 
-} // namespace logic
+} // namespace utils
 } // namespace cynthia

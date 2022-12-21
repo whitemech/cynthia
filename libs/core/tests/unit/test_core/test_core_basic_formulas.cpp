@@ -428,6 +428,17 @@ TEST_CASE("forward synthesis of '(X(F(~b))) U (G(a))'") {
     REQUIRE(!result);
   }
 }
+TEST_CASE("forward construction of a U (Xb)") {
+  utils::Logger::level(utils::LogLevel::debug);
+  logic::Context context;
+  auto a = context.make_atom("a");
+  auto b = context.make_atom("b");
+  auto X_b = context.make_next(b);
+  auto a_U_X_b = context.make_until(logic::vec_ptr{a, X_b});
+  auto partition = InputOutputPartition({"dummy"}, {"a", "b"});
+  bool result = is_realizable<ForwardSynthesis>(a_U_X_b, partition);
+  REQUIRE(result);
+}
 
 } // namespace Test
 } // namespace core

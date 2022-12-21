@@ -16,27 +16,19 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
+#include <cynthia/core.hpp>
+#include <cynthia/search_connector.hpp>
 
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace core {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+SearchConnector::SearchConnector(const SearchNode* parent,
+                                 const std::set<SearchNode*> children,
+                                 SddNodeWrapper op)
+    : parent_(parent), children_(children), operator_(op) {
+  context_ = parent->context_;
+  cost_ = 0;
+}
 
-} // namespace logic
+} // namespace core
 } // namespace cynthia

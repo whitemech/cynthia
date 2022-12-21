@@ -16,27 +16,27 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cynthia/comparable.hpp>
-#include <cynthia/hashable.hpp>
+#include <cynthia/search/context.hpp>
+#include <cynthia/search/operator.hpp>
 #include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
 
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace search {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+class State {
+protected:
+  std::shared_ptr<Problem> problem{};
+  size_t unique_id{};
 
-} // namespace logic
+public:
+  explicit State(std::shared_ptr<Problem> problem) : problem{problem} {}
+
+  inline size_t get_unique_id() const { return unique_id; }
+  bool is_goal_state() const { return problem->is_goal_state(*this); }
+  virtual utils::deref_set<std::shared_ptr<State>>
+  apply(const Operator& operator_) = 0;
+  virtual utils::deref_set<std::shared_ptr<Operator>> get_applicable_ops() = 0;
+};
+
+} // namespace search
 } // namespace cynthia

@@ -16,27 +16,21 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
 #include <cynthia/comparable.hpp>
 #include <cynthia/hashable.hpp>
-#include <cynthia/utils.hpp>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
+#include <cynthia/search/context.hpp>
+#include <cynthia/search/state.hpp>
 
 namespace cynthia {
-namespace logic {
-class AstNode;
-class LTLfFormula;
-class LTLfAtom;
+namespace search {
 
-typedef std::shared_ptr<const AstNode> ast_ptr;
-typedef std::shared_ptr<const LTLfFormula> ltlf_ptr;
-typedef std::shared_ptr<const LTLfAtom> atom_ptr;
-typedef std::vector<ltlf_ptr> vec_ptr;
-typedef std::set<ltlf_ptr, utils::Deref::Less> set_ptr;
-typedef std::map<ltlf_ptr, size_t, utils::Deref::Less> map_ptr;
+class AbstractNode : public utils::Hashable, public utils::SimpleComparable {
+public:
+  std::shared_ptr<State> state{};
+  explicit AbstractNode(std::shared_ptr<State> state) : state{state} {}
+  bool is_goal_node() const { return state->is_goal_state(); }
+  inline size_t state_id() const { return state->get_unique_id(); }
+};
 
-} // namespace logic
+} // namespace search
 } // namespace cynthia

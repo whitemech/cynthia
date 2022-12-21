@@ -60,6 +60,7 @@ struct Deref {
     }
   };
 };
+template <typename T> using deref_set = std::set<T, Deref::Less>;
 
 /*
  * make_unique function, like the one in the standards >C++14.

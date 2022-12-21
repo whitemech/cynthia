@@ -99,7 +99,16 @@ public:
     };
 
     void initialie_maps_();
+    logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
+    SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
+    SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
+
+    bool is_goal(const logic::ltlf_ptr& formula);
+    bool is_initial(const logic::ltlf_ptr& formula);
   };
+
+  Context context_;
+
   ForwardSynthesis(const logic::ltlf_ptr& formula,
                    const InputOutputPartition& partition,
                    bool enable_gc = false)
@@ -113,14 +122,16 @@ public:
 
   bool forward_synthesis_();
 
+  logic::ltlf_ptr next_state_formula_(SddNode* sdd_ptr);
+
+  SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
+
+  SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
+
 private:
-  Context context_;
   strategy_t system_move_(const logic::ltlf_ptr& formula,
                           std::set<SddSize>& path);
   strategy_t env_move_(SddNodeWrapper& wrapper, std::set<SddSize>& path);
-  SddNodeWrapper next_state_(const SddNodeWrapper& wrapper);
-  logic::ltlf_ptr next_state_formula_(SddNode* wrapper);
-  SddNodeWrapper formula_to_sdd_(const logic::ltlf_ptr& formula);
 };
 
 } // namespace core
