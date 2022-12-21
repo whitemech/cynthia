@@ -16,6 +16,7 @@
  * along with Cynthia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cstddef>
 #include <set>
 #include <stack>
 
