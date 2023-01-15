@@ -93,7 +93,7 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
                                           Path& path) {
   strategy_t success_strategy, failure_strategy;
   context_.indentation += 1;
-  auto sdd = SddNodeWrapper(to_sdd(*formula, context_), context_.manager);
+  auto sdd = formula_to_sdd_(formula);
   auto sdd_formula_id = sdd.get_id();
   context_.statistics_.visit_node(sdd_formula_id);
 
@@ -211,6 +211,8 @@ strategy_t ForwardSynthesis::system_move_(const logic::ltlf_ptr& formula,
     //    - if one-step-unrealizability succeeds, ignore and continue
     for (; child_it != children_end; ++child_it) {
       auto system_move = SddNodeWrapper(child_it.get_prime(), context_.manager);
+      auto system_move_str = logic::to_string(*sdd_to_formula(system_move.get_raw(), context_));
+      context_.print_search_debug("checking system move (for one-step-lookahead): {}", system_move_str);
       auto env_state_node =
           SddNodeWrapper(child_it.get_sub(), context_.manager);
       if (env_state_node.get_type() == STATE) {
@@ -444,7 +446,9 @@ logic::ltlf_ptr ForwardSynthesis::next_state_formula_(SddNode* sdd_ptr) {
 }
 SddNodeWrapper
 ForwardSynthesis::formula_to_sdd_(const logic::ltlf_ptr& formula) {
+  context_.print_search_debug("Compiling to SDD...");
   auto wrapper = SddNodeWrapper(to_sdd(*formula, context_), context_.manager);
+  context_.print_search_debug("SDD Compilation done");
   return wrapper;
 }
 SddNodeWrapper ForwardSynthesis::next_state_(const SddNodeWrapper& wrapper) {
